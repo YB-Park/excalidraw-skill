@@ -69,11 +69,42 @@ function nodeText(node, rect) {
   return text;
 }
 
+function overlapsAny(rect, nodeMap) {
+  for (const other of nodeMap.values()) {
+    const separated =
+      rect.x + rect.width < other.x ||
+      other.x + other.width < rect.x ||
+      rect.y + rect.height < other.y ||
+      other.y + other.height < rect.y;
+    if (!separated) return true;
+  }
+  return false;
+}
+
+function choosePosition(near, nodeMap, fallbackIndex) {
+  if (!near) return { x: 100 + fallbackIndex * 260, y: 120 };
+
+  const candidates = [
+    { x: near.x + near.width + 100, y: near.y },
+    { x: near.x, y: near.y + near.height + 120 },
+    { x: near.x + near.width + 100, y: near.y + near.height + 120 },
+    { x: near.x, y: near.y - near.height - 120 }
+  ];
+
+  for (const candidate of candidates) {
+    const probe = { ...candidate, width: 180, height: 80 };
+    if (!overlapsAny(probe, nodeMap)) return candidate;
+  }
+
+  return { x: near.x, y: near.y + near.height + 120 };
+}
+
 function addNode(elements, nodeMap, op) {
   const rect = base('rectangle', op.semanticId);
   const near = nodeMap.get(op.near);
-  rect.x = near ? near.x + near.width + 100 : 100 + nodeMap.size * 260;
-  rect.y = near ? near.y : 120;
+  const position = choosePosition(near, nodeMap, nodeMap.size);
+  rect.x = position.x;
+  rect.y = position.y;
   rect.width = 180;
   rect.height = 80;
   rect.customData.excalidrawSkill.role = 'node';
