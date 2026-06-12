@@ -16,6 +16,7 @@ const runners = {
   patch: 'src/patch.mjs',
   build: 'src/build.mjs',
   init: 'src/init.mjs',
+  'check-refs': 'src/check-refs.mjs',
   'label-edges': 'src/label-edges.mjs'
 };
 
@@ -36,5 +37,5 @@ if (command === 'doctor') {
 } else if (runners[command]) {
   run(runners[command]);
 } else {
-  console.log('Usage: excalidraw-skill <doctor|init|list-shapes|render|inspect|patch|build|label-edges|validate>');
+  console.log('Usage: excalidraw-skill <doctor|init|list-shapes|render|inspect|check-refs|patch|build|label-edges|validate>');
 }
