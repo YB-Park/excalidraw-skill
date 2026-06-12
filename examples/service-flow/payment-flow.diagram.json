@@ -1,0 +1,56 @@
+{
+  "version": "1.0",
+  "diagramType": "service-flow",
+  "title": "Payment Flow",
+  "stylePreset": "team-architecture",
+  "nodes": [
+    {
+      "semanticId": "web-app",
+      "label": "Web App",
+      "kind": "client",
+      "shapeRef": "client.web"
+    },
+    {
+      "semanticId": "api-gateway",
+      "label": "API Gateway",
+      "kind": "gateway",
+      "shapeRef": "gateway.api"
+    },
+    {
+      "semanticId": "payment-service",
+      "label": "Payment Service",
+      "kind": "service",
+      "shapeRef": "service.backend"
+    },
+    {
+      "semanticId": "payment-db",
+      "label": "Payment DB",
+      "kind": "database",
+      "shapeRef": "database.relational"
+    }
+  ],
+  "edges": [
+    {
+      "semanticId": "web-to-gateway",
+      "from": "web-app",
+      "to": "api-gateway",
+      "label": "HTTPS",
+      "kind": "sync"
+    },
+    {
+      "semanticId": "gateway-to-payment",
+      "from": "api-gateway",
+      "to": "payment-service",
+      "label": "authorize payment",
+      "kind": "sync"
+    },
+    {
+      "semanticId": "payment-to-db",
+      "from": "payment-service",
+      "to": "payment-db",
+      "label": "persist result",
+      "kind": "sync"
+    }
+  ],
+  "outputPath": "examples/service-flow/payment-flow.excalidraw"
+}
