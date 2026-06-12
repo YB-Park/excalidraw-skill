@@ -2,25 +2,28 @@
 
 LLM-assisted Excalidraw diagramming kit for internal developer workflows.
 
-This repository is intentionally designed so that a user can clone it and ask an LLM agent:
+## Start here
 
-```txt
-가이드 읽고 설치 진행해줘
-```
+- Agent setup: [`docs/AGENT_SETUP.md`](docs/AGENT_SETUP.md)
+- Architecture: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- Structure: [`docs/STRUCTURE.md`](docs/STRUCTURE.md)
+- Decisions: [`docs/DECISIONS.md`](docs/DECISIONS.md)
 
-The primary installation guide is **agent-facing**, not human-facing:
+## Router skill
 
-- Start here: [`docs/INSTALL_FOR_LLM.md`](docs/INSTALL_FOR_LLM.md)
-- Repository structure: [`docs/REPOSITORY_STRUCTURE.md`](docs/REPOSITORY_STRUCTURE.md)
+The canonical skill is:
+
+- [`skills/excalidraw-skill/SKILL.md`](skills/excalidraw-skill/SKILL.md)
+
+Platform entrypoints should call the router skill instead of duplicating all rules.
 
 ## Current scope
 
-This repo is the early scaffold for:
-
-- global opencode `/excalidraw` command
-- global opencode skill
-- global VS Code / agent-compatible skill
-- shared Excalidraw diagramming rules
-- future local CLI for `DiagramSpec -> .excalidraw` and `.excalidraw -> inspect -> patch`
-
-Implementation details will be refined incrementally.
+- opencode command entrypoint
+- VS Code / Copilot prompt entrypoint
+- task guides for create, edit, and style
+- diagram type guides
+- compact contracts
+- shape catalog index
+- style token preset
+- future local CLI
