@@ -1,0 +1,32 @@
+{
+  "version": "2.0",
+  "purpose": "Extended shape refs for specialized diagram types. Read only when needed.",
+  "groups": {
+    "component": [
+      {"key": "component.controller", "label": "Controller", "use": "entrypoint inside a service"},
+      {"key": "component.application", "label": "Application Service", "use": "use-case orchestration"},
+      {"key": "component.domain", "label": "Domain Component", "use": "domain logic or aggregate behavior"},
+      {"key": "component.repository", "label": "Repository", "use": "persistence abstraction"},
+      {"key": "component.adapter", "label": "Adapter", "use": "external interface adapter"}
+    ],
+    "sequence": [
+      {"key": "sequence.participant", "label": "Participant", "use": "sequence participant"},
+      {"key": "sequence.lifeline", "label": "Lifeline", "use": "vertical sequence timeline"},
+      {"key": "sequence.activation", "label": "Activation", "use": "active processing segment"}
+    ],
+    "deployment": [
+      {"key": "cloud.region", "label": "Cloud Region", "use": "cloud or datacenter region"},
+      {"key": "network.vpc", "label": "Network", "use": "VPC, virtual network, subnet group"},
+      {"key": "k8s.cluster", "label": "Kubernetes Cluster", "use": "cluster boundary"},
+      {"key": "runtime.workload", "label": "Workload", "use": "pod, task, instance, container"}
+    ],
+    "model": [
+      {"key": "state.node", "label": "State", "use": "state in a lifecycle"},
+      {"key": "state.terminal", "label": "Terminal State", "use": "final lifecycle state"},
+      {"key": "domain.entity", "label": "Entity", "use": "domain entity or table"},
+      {"key": "domain.value-object", "label": "Value Object", "use": "domain value object"},
+      {"key": "process.task", "label": "Task", "use": "workflow step"},
+      {"key": "process.decision", "label": "Decision", "use": "branch or gateway"}
+    ]
+  }
+}
