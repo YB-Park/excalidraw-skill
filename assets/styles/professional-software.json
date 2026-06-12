@@ -1,5 +1,5 @@
 {
-  "version": "2.0",
+  "version": "2.1",
   "name": "professional-software",
   "intent": "Readable, consistent, professional software architecture diagrams.",
   "tokens": {
@@ -10,7 +10,12 @@
     "nodeHeight": 80,
     "rankGap": 280,
     "nodeGap": 140,
-    "framePadding": 48
+    "framePadding": 48,
+    "fonts": {
+      "default": 2,
+      "mono": 3,
+      "sketch": 5
+    }
   },
   "roles": {
     "actor": {"strokeColor": "#475569", "backgroundColor": "#f8fafc"},
