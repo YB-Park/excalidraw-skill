@@ -10,6 +10,8 @@ const runners = {
   inspect: 'src/inspect-scene.mjs',
   validate: 'src/validate.mjs',
   patch: 'src/patch.mjs',
+  build: 'src/build.mjs',
+  init: 'src/init.mjs',
   'label-edges': 'src/label-edges.mjs'
 };
 
@@ -21,12 +23,10 @@ function run(file) {
 if (command === 'doctor') {
   console.log('excalidraw-skill doctor: ok');
   console.log(`node: ${process.version}`);
-} else if (command === 'init') {
-  console.log('excalidraw-skill init: scaffold');
 } else if (command === 'list-shapes') {
   console.log(fs.readFileSync('skills/excalidraw-skill/catalog/shapes.index.json', 'utf8'));
 } else if (runners[command]) {
   run(runners[command]);
 } else {
-  console.log('Usage: excalidraw-skill <doctor|init|list-shapes|render|inspect|patch|label-edges|validate>');
+  console.log('Usage: excalidraw-skill <doctor|init|list-shapes|render|inspect|patch|build|label-edges|validate>');
 }
