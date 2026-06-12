@@ -30,6 +30,7 @@ function main() {
 
   runStep('src/render.mjs', [specPath]);
   runStep('src/style-by-kind.mjs', [outputPath]);
+  runStep('src/apply-components.mjs', [outputPath]);
   runStep('src/style-edges.mjs', [outputPath]);
   runStep('src/frame-groups.mjs', [outputPath, specPath]);
   runStep('src/label-edges.mjs', [outputPath]);
