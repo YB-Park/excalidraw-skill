@@ -4,31 +4,51 @@
 excalidraw-skill/
   README.md
   docs/
+    AGENT_SETUP.md
+    ARCHITECTURE.md
+    DECISIONS.md
     STRUCTURE.md
-    INSTALL_FOR_LLM.md
-  bin/
-    excalidraw-skill.mjs
+
   skills/
-    opencode/
-      excalidraw-diagramming/
-        SKILL.md
-    vscode/
-      excalidraw-diagramming/
-        SKILL.md
-  commands/
-    opencode/
+    excalidraw-skill/
+      SKILL.md
+      guides/
+        create.md
+        edit.md
+        style.md
+      diagram-types/
+        service-flow.md
+        event-flow.md
+        c4-container-lite.md
+      contracts/
+        diagram-spec.md
+        scene-summary.md
+        diagram-patch.md
+      catalog/
+        shapes.index.json
+
+  .opencode/
+    commands/
       excalidraw.md
+
+  .github/
+    prompts/
+      excalidraw.prompt.md
+
   assets/
-    catalog/
-      shapes.catalog.json
     styles/
-      professional-clean.json
+      team-architecture.md
     libraries/
       .gitkeep
-  examples/
-    .gitkeep
+
+  bin/
+    excalidraw-skill.mjs
 ```
 
-The initial goal is to keep the repository small and easy to install.
+## Design
 
-Detailed diagram rendering behavior will be added later.
+The repository has one canonical router skill: `skills/excalidraw-skill/SKILL.md`.
+
+Platform-specific entrypoints should call that router instead of duplicating the full rules.
+
+Detailed rendering behavior belongs in the CLI and style presets, not in a giant prompt.
