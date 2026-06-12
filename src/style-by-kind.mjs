@@ -14,14 +14,38 @@ function writeJson(filePath, data) {
   fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`);
 }
 
+const roles = {
+  actor: { strokeColor: '#475569', backgroundColor: '#f8fafc' },
+  client: { strokeColor: '#475569', backgroundColor: '#f8fafc' },
+  gateway: { strokeColor: '#2563eb', backgroundColor: '#eff6ff' },
+  service: { strokeColor: '#4f46e5', backgroundColor: '#eef2ff' },
+  worker: { strokeColor: '#7c3aed', backgroundColor: '#f5f3ff' },
+  data: { strokeColor: '#0f766e', backgroundColor: '#f0fdfa' },
+  cache: { strokeColor: '#16a34a', backgroundColor: '#f0fdf4' },
+  queue: { strokeColor: '#9333ea', backgroundColor: '#faf5ff' },
+  external: { strokeColor: '#64748b', backgroundColor: '#f8fafc' },
+  risk: { strokeColor: '#d97706', backgroundColor: '#fffbeb' },
+  model: { strokeColor: '#334155', backgroundColor: '#f8fafc' },
+  boundary: { strokeColor: '#cbd5e1', backgroundColor: '#f8fafc' }
+};
+
+function roleFor(shapeRef = '') {
+  if (shapeRef.includes('actor')) return 'actor';
+  if (shapeRef.includes('client')) return 'client';
+  if (shapeRef.includes('gateway')) return 'gateway';
+  if (shapeRef.includes('worker')) return 'worker';
+  if (shapeRef.includes('database') || shapeRef.includes('storage')) return 'data';
+  if (shapeRef.includes('cache')) return 'cache';
+  if (shapeRef.includes('queue')) return 'queue';
+  if (shapeRef.includes('external')) return 'external';
+  if (shapeRef.includes('risk') || shapeRef.includes('security')) return 'risk';
+  if (shapeRef.includes('state') || shapeRef.includes('domain') || shapeRef.includes('process')) return 'model';
+  if (shapeRef.includes('boundary') || shapeRef.includes('cloud') || shapeRef.includes('network') || shapeRef.includes('k8s')) return 'boundary';
+  return 'service';
+}
+
 function styleFor(shapeRef = '') {
-  if (shapeRef.includes('database')) return { strokeColor: '#0f766e', backgroundColor: '#ecfdf5' };
-  if (shapeRef.includes('cache')) return { strokeColor: '#047857', backgroundColor: '#f0fdf4' };
-  if (shapeRef.includes('queue')) return { strokeColor: '#7c3aed', backgroundColor: '#f5f3ff' };
-  if (shapeRef.includes('gateway')) return { strokeColor: '#2563eb', backgroundColor: '#eff6ff' };
-  if (shapeRef.includes('external')) return { strokeColor: '#64748b', backgroundColor: '#f8fafc' };
-  if (shapeRef.includes('client') || shapeRef.includes('actor')) return { strokeColor: '#334155', backgroundColor: '#f8fafc' };
-  return { strokeColor: '#1f2937', backgroundColor: '#ffffff' };
+  return roles[roleFor(shapeRef)] ?? roles.service;
 }
 
 function run() {
