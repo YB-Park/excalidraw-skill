@@ -1,45 +1,175 @@
 #!/usr/bin/env node
 
+import fs from 'node:fs';
+import path from 'node:path';
+
 const command = process.argv[2] ?? 'help';
+const args = process.argv.slice(3);
 
-const commands = [
-  'doctor',
-  'init',
-  'list-shapes',
-  'render',
-  'inspect',
-  'patch',
-  'validate'
-];
+function readJson(filePath) {
+  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
 
-function printUsage() {
-  console.log('Usage: excalidraw-skill <command>');
-  console.log('');
-  console.log('Commands:');
-  for (const item of commands) console.log(`  - ${item}`);
+function writeJson(filePath, data) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`);
+}
+
+function option(name) {
+  const index = args.indexOf(name);
+  return index >= 0 ? args[index + 1] : undefined;
+}
+
+function id(prefix, value) {
+  return `${prefix}_${String(value).replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+}
+
+function base(type, semanticId) {
+  return {
+    id: id(type, semanticId),
+    type,
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    angle: 0,
+    strokeColor: '#1f2937',
+    backgroundColor: '#ffffff',
+    fillStyle: 'solid',
+    strokeWidth: 2,
+    strokeStyle: 'solid',
+    roughness: 0.7,
+    opacity: 100,
+    groupIds: [],
+    frameId: null,
+    roundness: type === 'rectangle' ? { type: 3 } : null,
+    seed: 1,
+    version: 1,
+    versionNonce: 1,
+    isDeleted: false,
+    boundElements: null,
+    updated: 1,
+    link: null,
+    locked: false,
+    customData: { excalidrawSkill: { semanticId } }
+  };
+}
+
+function render(specPath, outputPath) {
+  const spec = readJson(specPath);
+  const elements = [];
+  const rects = new Map();
+
+  for (const [index, node] of (spec.nodes ?? []).entries()) {
+    const rect = base('rectangle', node.semanticId);
+    rect.x = 100 + index * 260;
+    rect.y = 120;
+    rect.width = 180;
+    rect.height = 80;
+    rect.customData.excalidrawSkill.role = 'node';
+    rect.customData.excalidrawSkill.label = node.label;
+    rect.customData.excalidrawSkill.shapeRef = node.shapeRef ?? node.kind ?? 'service.backend';
+    rects.set(node.semanticId, rect);
+    elements.push(rect);
+
+    const text = base('text', `${node.semanticId}_label`);
+    text.x = rect.x + 16;
+    text.y = rect.y + 26;
+    text.width = rect.width - 32;
+    text.height = 28;
+    text.backgroundColor = 'transparent';
+    text.text = node.label ?? node.semanticId;
+    text.originalText = text.text;
+    text.fontSize = 18;
+    text.fontFamily = 1;
+    text.textAlign = 'center';
+    text.verticalAlign = 'middle';
+    text.containerId = null;
+    text.lineHeight = 1.25;
+    text.customData.excalidrawSkill.role = 'label';
+    text.customData.excalidrawSkill.node = node.semanticId;
+    elements.push(text);
+  }
+
+  for (const edge of spec.edges ?? []) {
+    const from = rects.get(edge.from);
+    const to = rects.get(edge.to);
+    if (!from || !to) continue;
+    const semanticId = edge.semanticId ?? `${edge.from}_to_${edge.to}`;
+    const arrow = base('arrow', semanticId);
+    arrow.x = from.x + from.width;
+    arrow.y = from.y + from.height / 2;
+    arrow.width = to.x - arrow.x;
+    arrow.height = to.y + to.height / 2 - arrow.y;
+    arrow.points = [[0, 0], [arrow.width, arrow.height]];
+    arrow.startBinding = null;
+    arrow.endBinding = null;
+    arrow.startArrowhead = null;
+    arrow.endArrowhead = 'arrow';
+    arrow.customData.excalidrawSkill.role = 'edge';
+    arrow.customData.excalidrawSkill.from = edge.from;
+    arrow.customData.excalidrawSkill.to = edge.to;
+    arrow.customData.excalidrawSkill.label = edge.label ?? '';
+    arrow.customData.excalidrawSkill.kind = edge.kind ?? 'sync';
+    elements.push(arrow);
+  }
+
+  const scene = {
+    type: 'excalidraw',
+    version: 2,
+    source: 'excalidraw-skill',
+    elements,
+    appState: { gridSize: null, viewBackgroundColor: '#ffffff' },
+    files: {}
+  };
+  const output = outputPath ?? spec.outputPath ?? 'diagram.excalidraw';
+  writeJson(output, scene);
+  console.log(output);
+}
+
+function inspect(filePath) {
+  const data = readJson(filePath);
+  const nodes = [];
+  const edges = [];
+  for (const element of data.elements ?? []) {
+    const meta = element.customData?.excalidrawSkill;
+    if (meta?.role === 'node') nodes.push({ semanticId: meta.semanticId, label: meta.label, shapeRef: meta.shapeRef });
+    if (meta?.role === 'edge') edges.push({ semanticId: meta.semanticId, from: meta.from, to: meta.to, label: meta.label, kind: meta.kind });
+  }
+  console.log(JSON.stringify({ sceneTitle: path.basename(filePath), nodes, edges, warnings: [] }, null, 2));
+}
+
+function validate(filePath) {
+  const data = readJson(filePath);
+  const errors = [];
+  if (data.type !== 'excalidraw') errors.push('type must be excalidraw');
+  if (!Array.isArray(data.elements)) errors.push('elements must be an array');
+  if (!data.appState) errors.push('appState is missing');
+  if (errors.length) {
+    console.error(JSON.stringify({ ok: false, errors }, null, 2));
+    process.exit(1);
+  }
+  console.log(JSON.stringify({ ok: true, elements: data.elements.length }, null, 2));
 }
 
 if (command === 'doctor') {
-  console.log('excalidraw-skill doctor: scaffold');
+  console.log('excalidraw-skill doctor: ok');
   console.log(`node: ${process.version}`);
-  process.exit(0);
-}
-
-if (command === 'init') {
+} else if (command === 'init') {
   console.log('excalidraw-skill init: scaffold');
-  console.log('setup behavior will be implemented in a later iteration');
-  process.exit(0);
+} else if (command === 'list-shapes') {
+  console.log(fs.readFileSync('skills/excalidraw-skill/catalog/shapes.index.json', 'utf8'));
+} else if (command === 'render') {
+  if (!args[0]) throw new Error('render requires a spec file');
+  render(args[0], option('-o'));
+} else if (command === 'inspect') {
+  if (!args[0]) throw new Error('inspect requires a scene file');
+  inspect(args[0]);
+} else if (command === 'validate') {
+  if (!args[0]) throw new Error('validate requires a scene file');
+  validate(args[0]);
+} else if (command === 'patch') {
+  console.log('excalidraw-skill patch: planned');
+} else {
+  console.log('Usage: excalidraw-skill <doctor|init|list-shapes|render|inspect|patch|validate>');
 }
-
-if (command === 'list-shapes') {
-  console.log('Shape catalog: skills/excalidraw-skill/catalog/shapes.index.json');
-  process.exit(0);
-}
-
-if (['render', 'inspect', 'patch', 'validate'].includes(command)) {
-  console.log(`excalidraw-skill ${command}: planned`);
-  console.log('This command is part of the CLI contract but is not implemented yet.');
-  process.exit(0);
-}
-
-printUsage();
