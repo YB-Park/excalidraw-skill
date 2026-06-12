@@ -1,0 +1,28 @@
+{
+  "version": "2.0",
+  "name": "professional-software",
+  "intent": "Readable, consistent, professional software architecture diagrams.",
+  "tokens": {
+    "strokeWidth": 2,
+    "roughness": 0.7,
+    "fontSize": 18,
+    "nodeWidth": 180,
+    "nodeHeight": 80,
+    "rankGap": 280,
+    "nodeGap": 140,
+    "framePadding": 48
+  },
+  "roles": {
+    "actor": {"strokeColor": "#475569", "backgroundColor": "#f8fafc"},
+    "client": {"strokeColor": "#475569", "backgroundColor": "#f8fafc"},
+    "gateway": {"strokeColor": "#2563eb", "backgroundColor": "#eff6ff"},
+    "service": {"strokeColor": "#4f46e5", "backgroundColor": "#eef2ff"},
+    "worker": {"strokeColor": "#7c3aed", "backgroundColor": "#f5f3ff"},
+    "data": {"strokeColor": "#0f766e", "backgroundColor": "#f0fdfa"},
+    "cache": {"strokeColor": "#16a34a", "backgroundColor": "#f0fdf4"},
+    "queue": {"strokeColor": "#9333ea", "backgroundColor": "#faf5ff"},
+    "external": {"strokeColor": "#64748b", "backgroundColor": "#f8fafc"},
+    "risk": {"strokeColor": "#d97706", "backgroundColor": "#fffbeb"},
+    "boundary": {"strokeColor": "#cbd5e1", "backgroundColor": "#f8fafc"}
+  }
+}
