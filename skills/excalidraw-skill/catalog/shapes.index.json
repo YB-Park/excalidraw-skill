@@ -1,18 +1,22 @@
 {
-  "version": "1.0",
-  "purpose": "Small shape index for LLM routing. Read this before any full catalog.",
+  "version": "2.0",
+  "purpose": "Small core shape index for LLM routing. Read before extended catalog.",
   "shapes": [
     {"key": "actor.user", "label": "User", "use": "human actor"},
     {"key": "client.web", "label": "Web App", "use": "browser or frontend app"},
     {"key": "client.mobile", "label": "Mobile App", "use": "mobile app"},
     {"key": "gateway.api", "label": "API Gateway", "use": "gateway, ingress, public API edge"},
     {"key": "service.backend", "label": "Backend Service", "use": "server, microservice, application service"},
-    {"key": "worker.consumer", "label": "Consumer Worker", "use": "async worker or event consumer"},
+    {"key": "service.worker", "label": "Worker", "use": "background worker or scheduled job"},
+    {"key": "service.auth", "label": "Auth Service", "use": "identity, auth, token, session service"},
     {"key": "database.relational", "label": "Relational DB", "use": "PostgreSQL, MySQL, Oracle, RDB"},
+    {"key": "database.document", "label": "Document DB", "use": "MongoDB, document database"},
     {"key": "cache.redis", "label": "Redis Cache", "use": "cache, session store, redis"},
     {"key": "queue.topic", "label": "Message Topic", "use": "Kafka topic, pubsub topic, queue"},
     {"key": "queue.dead-letter", "label": "Dead Letter Queue", "use": "DLQ or failed event queue"},
+    {"key": "storage.object", "label": "Object Storage", "use": "S3, blob storage, file bucket"},
     {"key": "external.system", "label": "External System", "use": "third-party or external dependency"},
-    {"key": "storage.object", "label": "Object Storage", "use": "S3, blob storage, file bucket"}
+    {"key": "boundary.system", "label": "System Boundary", "use": "system or trust boundary frame"},
+    {"key": "risk.security", "label": "Security or Risk", "use": "risk, fraud, security, compliance component"}
   ]
 }
