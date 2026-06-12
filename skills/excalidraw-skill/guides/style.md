@@ -6,11 +6,11 @@ Use this guide when the user asks for polish, consistency, professional look, or
 
 The model chooses intent. The style preset chooses exact visual details.
 
-Do not let the model freely invent colors, line widths, spacing, or font choices.
+Do not let the model freely invent colors, line widths, spacing, icons, or font choices.
 
 ## Default preset
 
-Use `team-architecture` unless the user asks for another style.
+Use `professional-software` unless the user explicitly asks for another style.
 
 ## Visual rules
 
@@ -19,15 +19,27 @@ Use `team-architecture` unless the user asks for another style.
 - Prefer frames for zones, systems, or phases.
 - Use subtle backgrounds.
 - Use color for meaning, not decoration.
-- Keep icons paired with readable labels.
+- Keep component details paired with readable labels.
 - Avoid dense vendor-icon collages.
 - Use edge labels sparingly.
+
+## Font rules
+
+Use the font policy in `skills/excalidraw-skill/styles/fonts.md`.
+
+LLMs must choose only a `fontRole`, not arbitrary font names:
+
+- `default`: normal node labels and edge labels.
+- `mono`: code-like labels such as API paths, event names, topic names, queue names, or short technical identifiers.
+- `sketch`: only when the user explicitly asks for a whiteboard or workshop feel.
+
+The renderer maps these roles to Excalidraw fontFamily values. Do not introduce additional fonts in v0.2.
 
 ## Preset responsibilities
 
 Style presets define:
 
-- font family
+- font role mapping
 - roughness
 - stroke width
 - palette
@@ -44,5 +56,6 @@ The agent selects:
 - semantic emphasis
 - shape family
 - frame grouping
+- optional fontRole for code-like text
 
 The renderer applies exact Excalidraw values.
