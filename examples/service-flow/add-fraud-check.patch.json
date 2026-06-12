@@ -1,0 +1,25 @@
+{
+  "version": "1.0",
+  "targetPath": "examples/service-flow/payment-flow.excalidraw",
+  "preserveManualLayout": true,
+  "operations": [
+    {
+      "op": "addNode",
+      "semanticId": "fraud-check",
+      "label": "Fraud Check",
+      "shapeRef": "service.backend",
+      "near": "payment-service",
+      "side": "right",
+      "reason": "Add optional fraud screening step"
+    },
+    {
+      "op": "addEdge",
+      "semanticId": "payment-to-fraud-check",
+      "from": "payment-service",
+      "to": "fraud-check",
+      "label": "optional check",
+      "kind": "optional"
+    }
+  ],
+  "outputPath": "examples/service-flow/payment-flow.with-fraud-check.excalidraw"
+}
