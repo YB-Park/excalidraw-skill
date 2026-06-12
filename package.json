@@ -1,0 +1,26 @@
+{
+  "name": "@company/excalidraw-skill",
+  "version": "0.0.0",
+  "private": false,
+  "type": "module",
+  "bin": {
+    "excalidraw-skill": "./bin/excalidraw-skill.mjs"
+  },
+  "scripts": {
+    "build": "node -e \"console.log('build: scaffold')\"",
+    "doctor": "node ./bin/excalidraw-skill.mjs doctor",
+    "init": "node ./bin/excalidraw-skill.mjs init --target all"
+  },
+  "engines": {
+    "node": ">=20",
+    "npm": ">=10"
+  },
+  "files": [
+    "bin",
+    "skills",
+    "commands",
+    "assets",
+    "docs",
+    "README.md"
+  ]
+}
