@@ -1,0 +1,26 @@
+{
+  "version": "1.0",
+  "diagramType": "service-flow",
+  "title": "Payment Visual Demo",
+  "stylePreset": "professional-software",
+  "nodes": [
+    {"semanticId": "web-app", "label": "Web App", "shapeRef": "client.web", "group": "Client"},
+    {"semanticId": "api-gateway", "label": "API Gateway", "shapeRef": "gateway.api", "group": "Edge"},
+    {"semanticId": "payment-service", "label": "Payment Service", "shapeRef": "service.backend", "group": "Services"},
+    {"semanticId": "fraud-check", "label": "Fraud Check", "shapeRef": "risk.security", "group": "Services"},
+    {"semanticId": "payment-db", "label": "Payment DB", "shapeRef": "database.relational", "group": "Data"},
+    {"semanticId": "payment-events", "label": "Payment Events", "shapeRef": "queue.topic", "group": "Async"},
+    {"semanticId": "settlement-worker", "label": "Settlement Worker", "shapeRef": "service.worker", "group": "Async"},
+    {"semanticId": "card-network", "label": "Card Network", "shapeRef": "external.system", "group": "External"}
+  ],
+  "edges": [
+    {"from": "web-app", "to": "api-gateway", "label": "HTTPS", "kind": "sync"},
+    {"from": "api-gateway", "to": "payment-service", "label": "authorize", "kind": "sync"},
+    {"from": "payment-service", "to": "fraud-check", "label": "risk check", "kind": "optional"},
+    {"from": "payment-service", "to": "payment-db", "label": "write", "kind": "sync"},
+    {"from": "payment-service", "to": "payment-events", "label": "publish", "kind": "async"},
+    {"from": "payment-events", "to": "settlement-worker", "label": "consume", "kind": "async"},
+    {"from": "payment-service", "to": "card-network", "label": "authorize", "kind": "sync"}
+  ],
+  "outputPath": "examples/service-flow/visual-demo.excalidraw"
+}
