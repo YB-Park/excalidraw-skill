@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "diagramType": "domain-model",
+  "title": "Model Primitives Visual Demo",
+  "stylePreset": "professional-software",
+  "nodes": [
+    {"semanticId": "payment-entity", "label": "Payment", "shapeRef": "domain.entity", "group": "Domain"},
+    {"semanticId": "payment-state", "label": "Authorized", "shapeRef": "state.node", "group": "State"},
+    {"semanticId": "approval-task", "label": "Approve Payment", "shapeRef": "process.task", "group": "Process"},
+    {"semanticId": "risk-decision", "label": "Risk Accepted?", "shapeRef": "process.decision", "group": "Process"},
+    {"semanticId": "api-participant", "label": "API", "shapeRef": "sequence.participant", "group": "Sequence"},
+    {"semanticId": "payment-runtime", "label": "Payment Pod", "shapeRef": "runtime.workload", "group": "Deployment"}
+  ],
+  "edges": [
+    {"from": "approval-task", "to": "risk-decision", "label": "checks", "kind": "sync"},
+    {"from": "risk-decision", "to": "payment-state", "label": "sets", "kind": "sync"},
+    {"from": "payment-state", "to": "payment-entity", "label": "belongs to", "kind": "sync"},
+    {"from": "api-participant", "to": "payment-runtime", "label": "calls", "kind": "sync"}
+  ],
+  "outputPath": "examples/model/model-primitives-demo.excalidraw"
+}
