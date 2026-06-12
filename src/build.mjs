@@ -35,6 +35,7 @@ function main() {
   runStep('src/style-edges.mjs', [outputPath]);
   runStep('src/frame-groups.mjs', [outputPath, specPath]);
   runStep('src/label-edges.mjs', [outputPath]);
+  runStep('src/place-edge-labels.mjs', [outputPath]);
   runStep('src/validate.mjs', [outputPath]);
 
   console.log(outputPath);
