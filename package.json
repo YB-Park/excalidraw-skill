@@ -1,15 +1,15 @@
 {
   "name": "@company/excalidraw-skill",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": false,
   "type": "module",
   "bin": {
     "excalidraw-skill": "./bin/excalidraw-skill.mjs"
   },
   "scripts": {
-    "build": "node -e \"console.log('build: scaffold')\"",
     "doctor": "node ./bin/excalidraw-skill.mjs doctor",
-    "init": "node ./bin/excalidraw-skill.mjs init --target all"
+    "init": "node ./bin/excalidraw-skill.mjs init",
+    "smoke": "node ./bin/excalidraw-skill.mjs build examples/service-flow/payment-flow.grouped.diagram.json"
   },
   "engines": {
     "node": ">=20",
@@ -17,10 +17,13 @@
   },
   "files": [
     "bin",
+    "src",
     "skills",
-    "commands",
+    ".opencode",
+    ".github/prompts",
     "assets",
     "docs",
+    "examples",
     "README.md"
   ]
 }
