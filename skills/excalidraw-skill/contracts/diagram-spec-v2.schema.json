@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://company.local/excalidraw-skill/diagram-spec-v2.schema.json",
+  "title": "DiagramSpec v2",
+  "type": "object",
+  "required": ["version", "diagramType", "title", "stylePreset", "nodes", "edges", "outputPath"],
+  "properties": {
+    "version": {"const": "2.0"},
+    "diagramType": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "stylePreset": {"type": "string", "minLength": 1},
+    "outputPath": {"type": "string", "pattern": "\\.excalidraw$"},
+    "layout": {"$ref": "#/$defs/layout"},
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/node"}
+    },
+    "edges": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/edge"}
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "layout": {
+      "type": "object",
+      "properties": {
+        "profile": {"enum": ["layered-flow", "hub-and-spoke", "swimlane-flow"]},
+        "direction": {"enum": ["left-to-right", "top-to-bottom"]},
+        "aspectRatio": {"enum": ["balanced", "wide", "tall"]},
+        "primaryFlow": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        },
+        "lanes": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/lane"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "lane": {
+      "type": "object",
+      "required": ["id", "position"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "label": {"type": "string"},
+        "position": {"enum": ["top", "center", "bottom", "left", "right"]},
+        "order": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "node": {
+      "type": "object",
+      "required": ["semanticId", "label", "shapeRef"],
+      "properties": {
+        "semanticId": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "kind": {"type": "string"},
+        "shapeRef": {"type": "string", "minLength": 1},
+        "group": {"type": "string"},
+        "fontRole": {"enum": ["default", "mono", "sketch"]},
+        "layoutHints": {"$ref": "#/$defs/nodeLayoutHints"}
+      },
+      "additionalProperties": true
+    },
+    "nodeLayoutHints": {
+      "type": "object",
+      "properties": {
+        "lane": {"type": "string", "minLength": 1},
+        "rank": {"type": "integer", "minimum": 0},
+        "importance": {"enum": ["primary", "secondary", "support"]},
+        "keepNear": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        },
+        "keepApart": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "edge": {
+      "type": "object",
+      "required": ["semanticId", "from", "to", "kind"],
+      "properties": {
+        "semanticId": {"type": "string", "minLength": 1},
+        "from": {"type": "string", "minLength": 1},
+        "to": {"type": "string", "minLength": 1},
+        "label": {"type": "string"},
+        "kind": {"type": "string", "minLength": 1},
+        "fontRole": {"enum": ["default", "mono", "sketch"]},
+        "routeHints": {"$ref": "#/$defs/routeHints"}
+      },
+      "additionalProperties": true
+    },
+    "routeHints": {
+      "type": "object",
+      "properties": {
+        "direction": {"enum": ["auto", "right", "left", "up", "down"]},
+        "priority": {"enum": ["primary", "secondary"]},
+        "labelSide": {"enum": ["auto", "above", "below", "left", "right"]}
+      },
+      "additionalProperties": false
+    }
+  }
+}
