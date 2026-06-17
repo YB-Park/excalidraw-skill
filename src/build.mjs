@@ -32,13 +32,14 @@ function main() {
   runStep('src/style-by-kind.mjs', [outputPath]);
   runStep('src/layout-service-flow.mjs', [outputPath, specPath]);
   runStep('src/apply-components.mjs', [outputPath]);
-  runStep('src/route-edges.mjs', [outputPath]);
+  runStep('src/route-edges.mjs', [outputPath, specPath]);
   runStep('src/style-edges.mjs', [outputPath]);
   runStep('src/frame-groups.mjs', [outputPath, specPath]);
   runStep('src/label-edges.mjs', [outputPath]);
-  runStep('src/place-edge-labels.mjs', [outputPath]);
+  runStep('src/place-edge-labels.mjs', [outputPath, specPath]);
   runStep('src/apply-fonts.mjs', [outputPath]);
   runStep('src/validate.mjs', [outputPath]);
+  runStep('src/quality-report.mjs', [outputPath, specPath]);
 
   console.log(outputPath);
 }
