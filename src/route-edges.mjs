@@ -137,6 +137,22 @@ export function routeEdges(scene, spec = null) {
     const laneOffset = laneIndex === 0 ? 0 : Math.ceil(laneIndex / 2) * 22 * (laneIndex % 2 === 1 ? 1 : -1);
     const obstacles = [...nodes.entries()].filter(([id]) => id !== meta.from && id !== meta.to).map(([, node]) => rectOf(node, 18));
     const options = candidates(start, end, side, bounds, laneOffset);
+    const clearance = 36 + Math.abs(laneOffset);
+    if (side === 'down' || side === 'up') {
+      const stubY = start.y + (side === 'down' ? clearance : -clearance);
+      for (const targetSide of ['left', 'right']) {
+        const sideEnd = anchor(to, targetSide, port.end);
+        const channelX = targetSide === 'left' ? Math.min(start.x, to.x) - clearance : Math.max(start.x, to.x + to.width) + clearance;
+        options.push(dedupe([start, { x: start.x, y: stubY }, { x: channelX, y: stubY }, { x: channelX, y: sideEnd.y }, sideEnd]));
+      }
+    } else {
+      const stubX = start.x + (side === 'right' ? clearance : -clearance);
+      for (const targetSide of ['up', 'down']) {
+        const sideEnd = anchor(to, targetSide, port.end);
+        const channelY = targetSide === 'up' ? Math.min(start.y, to.y) - clearance : Math.max(start.y, to.y + to.height) + clearance;
+        options.push(dedupe([start, { x: stubX, y: start.y }, { x: stubX, y: channelY }, { x: sideEnd.x, y: channelY }, sideEnd]));
+      }
+    }
     options.sort((a, b) => routeScore(a, obstacles, existingSegments, priority) - routeScore(b, obstacles, existingSegments, priority));
     const chosen = options[0] ?? [start, end];
     edge.x = chosen[0].x; edge.y = chosen[0].y; edge.points = chosen.map((point) => [point.x - edge.x, point.y - edge.y]);
