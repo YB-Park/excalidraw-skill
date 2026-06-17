@@ -9,7 +9,9 @@
   "scripts": {
     "doctor": "node ./bin/excalidraw-skill.mjs doctor",
     "init": "node ./bin/excalidraw-skill.mjs init",
-    "smoke": "node ./bin/excalidraw-skill.mjs build examples/service-flow/payment-flow.grouped.diagram.json"
+    "test": "node --test ./src/*.test.mjs",
+    "smoke": "node ./bin/excalidraw-skill.mjs build examples/service-flow/payment-flow.grouped.diagram.json",
+    "smoke:v03": "node ./bin/excalidraw-skill.mjs build examples/service-flow/payment-flow.visual-plan.diagram.json"
   },
   "engines": {
     "node": ">=20",
