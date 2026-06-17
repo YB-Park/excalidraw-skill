@@ -16,6 +16,7 @@ Keep this file small. Read only the guide files needed for the current task.
 - Visual polish or consistency: read `guides/style.md`
 - Custom shape selection: read `catalog/shapes.index.json` first
 - Contract details: read the relevant file in `contracts/`
+- Visual hierarchy, lanes, or primary-flow planning: read `contracts/visual-plan.md`
 
 ## Route by diagram type
 
@@ -26,6 +27,7 @@ Keep this file small. Read only the guide files needed for the current task.
 ## Core contracts
 
 - New scene: `DiagramSpec`
+- New scene with layout intent: `DiagramSpec` v2 plus `Visual Plan`
 - Existing scene summary: `SceneSummary`
 - Existing scene update: `DiagramPatch`
 
@@ -35,5 +37,6 @@ Keep this file small. Read only the guide files needed for the current task.
 - Use semantic ids for meaningful diagram objects.
 - Preserve manual layout unless the user asks for a full relayout.
 - Use team style presets instead of arbitrary visual choices.
+- Express layout intent with lanes, ranks, and primary flow instead of raw coordinates.
 - Use Mermaid only as a temporary helper for simple flow-like reasoning.
 - Do not read every guide by default.
