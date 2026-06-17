@@ -1,5 +1,16 @@
 # v0.3 — Hybrid Visual Planning and Layout
 
+## Implementation status
+
+- M0 benchmark baseline: complete
+- M1 DiagramSpec v2 Visual Plan: complete
+- M2 service-flow layout profiles: complete
+- M3 graph-aware routing: complete
+- M4 collision-aware label placement: complete
+- M5 structural quality report and semantic refinement suggestions: complete
+
+Visual acceptance remains pending. A structural pass does not prove subjective visual quality.
+
 ## Goal
 
 Improve diagram quality without abandoning the compact, editable, deterministic Excalidraw pipeline.
@@ -10,7 +21,7 @@ v0.3 separates three responsibilities:
 2. The LLM adds compact visual intent without raw coordinates.
 3. The local renderer owns exact placement, routing, labels, and Excalidraw details.
 
-The renderer may later produce a quality report and request a small local patch instead of regenerating the whole scene.
+The renderer produces a structural quality report. When thresholds fail, an agent may make a small semantic patch instead of regenerating the whole scene.
 
 ## Non-goals
 
@@ -18,6 +29,7 @@ The renderer may later produce a quality report and request a small local patch 
 - Do not support every diagram type in the first v0.3 pass.
 - Do not add arbitrary colors, fonts, or coordinates to DiagramSpec.
 - Do not build a general-purpose graph layout engine before proving the service-flow use case.
+- Do not treat structural metrics as an aesthetic score.
 
 ## Scope order
 
@@ -59,7 +71,7 @@ The contract must remain smaller and safer than raw Excalidraw JSON.
 
 ### M2 — Service-flow layout profiles
 
-Implement only these first:
+Implemented profiles:
 
 - layered-flow
 - hub-and-spoke
@@ -71,12 +83,13 @@ The payment-flow benchmark is the primary acceptance case.
 
 Route all edges as a set instead of treating each edge independently.
 
-Required foundation:
+Implemented foundation:
 
 - reserve the primary flow first
 - allocate separate bypass lanes
 - offset edges sharing a route
-- avoid nodes and occupied label areas
+- avoid nodes and occupied paths
+- allow side entry when the direct target side is blocked
 - prefer simple routes over decorative bends
 
 ### M4 — Label placement
@@ -90,7 +103,11 @@ Check collisions between:
 
 ### M5 — Quality report and local refinement
 
-Produce a machine-readable quality report. When thresholds fail, allow an LLM to make a small semantic patch rather than rewriting the whole Excalidraw scene.
+The build produces a machine-readable structural quality report and semantic patch suggestions.
+
+The CLI deliberately does not contain an uncontrolled automatic LLM loop. When thresholds fail, the agent should use the existing `DiagramPatch` workflow or adjust compact DiagramSpec hints, then render and measure again.
+
+See `skills/excalidraw-skill/contracts/quality-report.md`.
 
 ## Initial acceptance criteria
 
@@ -103,6 +120,10 @@ The service-flow payment benchmark should:
 - remain editable as a normal `.excalidraw` file
 - keep stable semantic ids
 - require fewer manual edits than the v0.2 result
+
+The structural payment benchmark currently passes with zero node overlaps, edge-to-node crossings, edge crossings, label overlaps, and label-to-node overlaps. This result is recorded in `examples/benchmarks/results/payment-v03-structural.json`.
+
+Subjective visual acceptance still requires a rendered screenshot and human review.
 
 ## Freeze rule
 
