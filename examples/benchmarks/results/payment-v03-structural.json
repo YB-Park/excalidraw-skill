@@ -1,0 +1,24 @@
+{
+  "case": "payment-multilane",
+  "mode": "B",
+  "implementation": "v0.3 core structural pipeline",
+  "result": {
+    "pass": true,
+    "metrics": {
+      "nodeOverlaps": 0,
+      "edgeNodeCrossings": 0,
+      "edgeCrossings": 0,
+      "labelOverlaps": 0,
+      "labelNodeOverlaps": 0,
+      "aspectRatio": 3.59,
+      "nodeCount": 8,
+      "edgeCount": 7,
+      "edgeLabelCount": 7
+    }
+  },
+  "limitations": [
+    "The core geometry pipeline was verified locally.",
+    "A full styled Excalidraw screenshot and manual visual review remain pending.",
+    "Structural pass is not an aesthetic score."
+  ]
+}
