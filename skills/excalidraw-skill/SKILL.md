@@ -17,6 +17,7 @@ Keep this file small. Read only the guide files needed for the current task.
 - Custom shape selection: read `catalog/shapes.index.json` first
 - Contract details: read the relevant file in `contracts/`
 - Visual hierarchy, lanes, or primary-flow planning: read `contracts/visual-plan.md`
+- Structural quality failure or refinement: read `contracts/quality-report.md`
 
 ## Route by diagram type
 
@@ -30,6 +31,7 @@ Keep this file small. Read only the guide files needed for the current task.
 - New scene with layout intent: `DiagramSpec` v2 plus `Visual Plan`
 - Existing scene summary: `SceneSummary`
 - Existing scene update: `DiagramPatch`
+- Rendered structural review: `QualityReport`
 
 ## Hard rules
 
@@ -38,5 +40,7 @@ Keep this file small. Read only the guide files needed for the current task.
 - Preserve manual layout unless the user asks for a full relayout.
 - Use team style presets instead of arbitrary visual choices.
 - Express layout intent with lanes, ranks, and primary flow instead of raw coordinates.
+- Treat a passing `QualityReport` as structural evidence, not aesthetic approval.
+- When quality checks fail, make a small semantic patch instead of rewriting the full scene.
 - Use Mermaid only as a temporary helper for simple flow-like reasoning.
 - Do not read every guide by default.
