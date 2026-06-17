@@ -1,0 +1,35 @@
+{
+  "version": "0.3",
+  "cases": [
+    {
+      "id": "service-flow-linear",
+      "prompt": "examples/benchmarks/service-flow-linear.prompt.md",
+      "diagramType": "service-flow",
+      "targetProfile": "layered-flow"
+    },
+    {
+      "id": "payment-multilane",
+      "prompt": "examples/benchmarks/payment-multilane.prompt.md",
+      "diagramType": "service-flow",
+      "targetProfile": "swimlane-flow"
+    },
+    {
+      "id": "service-hub",
+      "prompt": "examples/benchmarks/service-hub.prompt.md",
+      "diagramType": "service-flow",
+      "targetProfile": "hub-and-spoke"
+    }
+  ],
+  "metrics": [
+    "buildSuccess",
+    "validationSuccess",
+    "nodeOverlaps",
+    "edgeNodeCrossings",
+    "edgeCrossings",
+    "labelOverlaps",
+    "aspectRatio",
+    "manualEdits",
+    "readabilityScore",
+    "professionalismScore"
+  ]
+}
