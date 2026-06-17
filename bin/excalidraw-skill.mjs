@@ -18,7 +18,8 @@ const runners = {
   init: 'src/init.mjs',
   'check-refs': 'src/check-refs.mjs',
   'label-edges': 'src/label-edges.mjs',
-  'layout-service-flow': 'src/layout-service-flow.mjs'
+  'layout-service-flow': 'src/layout-service-flow.mjs',
+  'quality-report': 'src/quality-report.mjs'
 };
 
 function fromRoot(relativePath) {
@@ -38,5 +39,5 @@ if (command === 'doctor') {
 } else if (runners[command]) {
   run(runners[command]);
 } else {
-  console.log('Usage: excalidraw-skill <doctor|init|list-shapes|render|inspect|check-refs|patch|build|layout-service-flow|label-edges|validate>');
+  console.log('Usage: excalidraw-skill <doctor|init|list-shapes|render|inspect|check-refs|patch|build|layout-service-flow|quality-report|label-edges|validate>');
 }
