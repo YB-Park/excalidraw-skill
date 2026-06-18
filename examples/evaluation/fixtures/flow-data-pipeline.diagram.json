@@ -1,0 +1,46 @@
+{
+  "version": "2.0",
+  "diagramType": "data-flow",
+  "title": "Sensor Data Pipeline",
+  "stylePreset": "professional-software",
+  "layout": {
+    "profile": "layered-flow",
+    "direction": "left-to-right",
+    "aspectRatio": "wide",
+    "primaryFlow": [
+      "sensor-input",
+      "normalizer",
+      "filter",
+      "enricher",
+      "batch-buffer",
+      "persistent-store",
+      "analytics-sink"
+    ],
+    "lanes": [
+      {"id": "main", "label": "Data Pipeline", "position": "center", "order": 0},
+      {"id": "support", "label": "Configuration", "position": "bottom", "order": 1}
+    ]
+  },
+  "framePolicy": {"mode": "none"},
+  "nodes": [
+    {"semanticId": "sensor-input", "label": "Sensor Input", "shapeRef": "runtime.device", "layoutHints": {"lane": "main", "rank": 0, "importance": "primary"}},
+    {"semanticId": "normalizer", "label": "Normalizer", "shapeRef": "service.backend", "layoutHints": {"lane": "main", "rank": 1, "importance": "primary"}},
+    {"semanticId": "filter", "label": "Filter", "shapeRef": "service.backend", "layoutHints": {"lane": "main", "rank": 2, "importance": "primary"}},
+    {"semanticId": "enricher", "label": "Enricher", "shapeRef": "service.backend", "layoutHints": {"lane": "main", "rank": 3, "importance": "primary"}},
+    {"semanticId": "batch-buffer", "label": "Batch Buffer", "shapeRef": "queue.topic", "layoutHints": {"lane": "main", "rank": 4, "importance": "primary"}},
+    {"semanticId": "persistent-store", "label": "Persistent Store", "shapeRef": "database.relational", "layoutHints": {"lane": "main", "rank": 5, "importance": "primary"}},
+    {"semanticId": "analytics-sink", "label": "Analytics Sink", "shapeRef": "external.system", "layoutHints": {"lane": "main", "rank": 6, "importance": "primary"}},
+    {"semanticId": "configuration-store", "label": "Configuration Store", "shapeRef": "database.relational", "layoutHints": {"lane": "support", "rank": 2, "importance": "support", "keepNear": ["filter", "enricher"]}}
+  ],
+  "edges": [
+    {"semanticId": "sensor-to-normalizer", "from": "sensor-input", "to": "normalizer", "label": "raw samples", "kind": "transfers", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "normalizer-to-filter", "from": "normalizer", "to": "filter", "label": "normalized", "kind": "transfers", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "filter-to-enricher", "from": "filter", "to": "enricher", "label": "accepted records", "kind": "transfers", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "enricher-to-buffer", "from": "enricher", "to": "batch-buffer", "label": "enriched records", "kind": "transfers", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "buffer-to-store", "from": "batch-buffer", "to": "persistent-store", "label": "flush batch", "kind": "writes", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "store-to-analytics", "from": "persistent-store", "to": "analytics-sink", "label": "export", "kind": "transfers", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "filter-reads-config", "from": "filter", "to": "configuration-store", "label": "read rules", "kind": "reads", "routeHints": {"direction": "down", "priority": "secondary", "labelSide": "right"}},
+    {"semanticId": "enricher-reads-config", "from": "enricher", "to": "configuration-store", "label": "read mappings", "kind": "reads", "routeHints": {"direction": "down", "priority": "secondary", "labelSide": "left"}}
+  ],
+  "outputPath": "examples/evaluation/outputs/flow-data-pipeline.excalidraw"
+}
