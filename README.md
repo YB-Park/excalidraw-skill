@@ -22,6 +22,8 @@ npm run doctor
 npm run init
 npm test
 npm run smoke
+npm run smoke:system
+npm run evaluate
 ```
 
 ## 다이어그램 만들기
@@ -49,14 +51,14 @@ opencode에서는 이렇게 요청합니다.
 - `flow`: 서비스 호출, 이벤트, 데이터와 제어 흐름
 - `sequence`: 시간 순서에 따른 참여자 간 메시지
 
-각 패밀리는 같은 시각 스타일을 공유하지만 레이아웃 문법은 별도로 관리합니다.
+각 패밀리는 같은 시각 스타일과 serialization 기반을 공유하지만 레이아웃 문법과 품질 invariant는 별도로 관리합니다.
 
 ## 현재 구현 상태
 
-- `flow`: service-flow 중심의 파일럿 renderer가 동작합니다.
-- `system-architecture`: 계약과 평가 사례가 정의됐으며 전용 renderer 구현이 다음 우선순위입니다.
-- `module-architecture`: 계약과 평가 사례가 정의됐으며 system-architecture 다음에 구현합니다.
-- `sequence`: 전용 `SequenceSpec`과 평가 사례가 정의됐습니다. 일반 flow renderer로 대체하지 않습니다.
+- `flow`: `flow`, `service-flow`, `event-flow`, `data-flow`가 전용 flow renderer를 사용합니다. 네 개의 runnable 평가 fixture가 있습니다.
+- `system-architecture`: `layered-system` 전용 renderer와 family quality check가 동작합니다. deployment와 context view는 contract-only입니다.
+- `module-architecture`: 계약과 평가 사례가 정의됐으며 renderer 구현 전까지 contract-only입니다.
+- `sequence`: 전용 `SequenceSpec`과 평가 사례가 정의됐습니다. 일반 flow renderer로 대체하지 않으며 현재 contract-only입니다.
 
 ## 평가
 
@@ -66,7 +68,28 @@ opencode에서는 이렇게 요청합니다.
 examples/evaluation/suite.json
 ```
 
-공통 변경은 관련된 여러 패밀리의 사례로 검토해야 합니다.
+현재 runnable fixture를 모두 build하고 검사하려면:
+
+```txt
+npm run evaluate
+```
+
+패밀리별 실행:
+
+```txt
+npm run evaluate:flow
+npm run evaluate:system
+```
+
+평가 결과는 다음 파일에 기록됩니다.
+
+```txt
+examples/evaluation/results/latest.json
+```
+
+최종 pass는 공통 구조 검사인 `structuralPass`와 타입별 invariant 검사인 `familyPass`가 모두 성공해야 합니다. 미구현 view는 성공으로 처리하지 않고 `contract-only`로 별도 표시합니다.
+
+공통 변경은 관련된 모든 runnable 패밀리의 사례로 검토해야 합니다.
 
 ## 문서
 
@@ -82,6 +105,7 @@ examples/evaluation/suite.json
 ## 현재 범위
 
 - 편집 가능한 Excalidraw scene, semantic id, text fitting, style preset, routing, frame suppression, inspect/patch/validate 기반을 제공합니다.
+- 관계 종류에 따라 runtime call, dependency, async, read, write, retry, failure 표현을 구분합니다.
 - 기본 Excalidraw 도형을 사용합니다.
 - 커스텀 도형 라이브러리는 아직 필수가 아닙니다.
-- 구조 검사 통과는 미적 품질 승인을 의미하지 않으며, 실제 화면 검토와 수동 수정 비용을 함께 평가합니다.
+- 구조 및 family quality 검사 통과는 미적 품질 승인을 의미하지 않으며, 실제 화면 검토와 수동 수정 비용을 함께 평가합니다.
