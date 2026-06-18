@@ -22,7 +22,21 @@ Use this guide for new diagrams.
 
 ## Keep it small
 
-Prefer 5 to 9 primary nodes. Use frames only when they communicate a real trust boundary, ownership boundary, deployment boundary, external/internal boundary, or a subsystem containing several nodes. Do not frame a single node only for decoration.
+Prefer 5 to 9 primary nodes.
+
+Treat lanes and node groups as layout hints first, not visible regions. Prefer whitespace, alignment, and supporting lanes over extra boxes.
+
+Use a visible frame only when it communicates a real trust boundary, ownership boundary, deployment boundary, external/internal boundary, or a substantial subsystem containing several nodes.
+
+Default frame rules:
+
+- Prefer zero or one frame in a small diagram.
+- Use at most two frames unless the user explicitly requests more.
+- Do not frame a single node.
+- Do not create a frame around an individual database, queue, topic, worker, service, or provider.
+- Do not create one frame per concern, lane, or node type.
+- Do not wrap the entire diagram in a frame unless that boundary is meaningful.
+- When a visible boundary is required, declare it with `groups[].visualBoundary: true`.
 
 ## Labels and naming
 
@@ -37,10 +51,11 @@ Keep labels concise, but never truncate them. The renderer may wrap labels to at
 Read `contracts/visual-plan.md` when the diagram has:
 
 - a clear primary reading path
-- supporting concerns that should be separated
+- supporting concerns that should be separated by placement
 - multiple visual lanes
 - a central hub with many relationships
 - a need to prefer balanced, wide, or tall composition
+- a real boundary that may require one visible frame
 
 Use DiagramSpec v2 for those cases.
 
@@ -52,6 +67,8 @@ Choose high-level intent only:
 - primary flow
 - lanes
 - node rank and importance
+- logical groups
+- explicit visible boundaries only when semantically necessary
 - small keep-near or keep-apart sets
 - occasional edge direction and label-side hints
 
@@ -59,10 +76,10 @@ Do not add raw coordinates or manually author Excalidraw elements.
 
 ## Visual control
 
-Do not invent colors or raw coordinates. Use `stylePreset`, `layout`, `layoutHints`, `routeHints`, and `shapeRef`.
+Do not invent colors or raw coordinates. Use `stylePreset`, `layout`, `layoutHints`, `routeHints`, `group`, `groups`, and `shapeRef`.
 
-Prefer one obvious primary flow. Place data stores, risk checks, async topics, and background workers in supporting lanes when they are not part of the main reading path.
+Prefer one obvious primary flow. Place data stores, risk checks, async topics, and background workers in supporting lanes when they are not part of the main reading path. A supporting lane should normally remain visually unboxed.
 
 ## Output
 
-For new work, produce a `DiagramSpec` first. The renderer owns exact placement, text wrapping, node size classes, routing, label offsets, and Excalidraw element details.
+For new work, produce a `DiagramSpec` first. The renderer owns exact placement, text wrapping, node size classes, routing, frame suppression, label offsets, and Excalidraw element details.
