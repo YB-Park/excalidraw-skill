@@ -12,6 +12,13 @@ const DEFAULTS = Object.freeze({
   slotGap: 34
 });
 
+const FLOW_TYPES = new Set([
+  'flow',
+  'service-flow',
+  'event-flow',
+  'data-flow'
+]);
+
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
@@ -311,7 +318,7 @@ function layoutHub(spec, sceneNodes) {
   return placements;
 }
 
-function applyPlacements(scene, sceneNodes, labels, placements) {
+function applyPlacements(scene, sceneNodes, labels, placements, spec, profile) {
   for (const [id, target] of placements) {
     const node = sceneNodes.get(id);
     if (!node) continue;
@@ -328,8 +335,10 @@ function applyPlacements(scene, sceneNodes, labels, placements) {
   scene.customData ??= {};
   scene.customData.excalidrawSkill ??= {};
   scene.customData.excalidrawSkill.layout = {
-    engine: 'service-flow-v0.3',
-    profile: scene.customData.excalidrawSkill.layout?.profile ?? null,
+    engine: 'flow-v0.4',
+    family: 'flow',
+    subtype: spec.diagramType,
+    profile,
     placedNodes: placements.size
   };
 }
@@ -337,7 +346,7 @@ function applyPlacements(scene, sceneNodes, labels, placements) {
 export function layoutServiceFlow(scene, spec) {
   if (!scene || typeof scene !== 'object') throw new TypeError('Scene JSON must be an object');
   if (!spec || typeof spec !== 'object') throw new TypeError('DiagramSpec JSON must be an object');
-  if (spec.diagramType !== 'service-flow') return scene;
+  if (!FLOW_TYPES.has(spec.diagramType)) return scene;
 
   const sceneNodes = collectSceneNodes(scene);
   const labels = collectLabels(scene);
@@ -349,10 +358,11 @@ export function layoutServiceFlow(scene, spec) {
   else if (profile === 'hub-and-spoke') placements = layoutHub(spec, sceneNodes);
   else placements = layoutLayered(spec, sceneNodes);
 
-  applyPlacements(scene, sceneNodes, labels, placements);
-  scene.customData.excalidrawSkill.layout.profile = profile;
+  applyPlacements(scene, sceneNodes, labels, placements, spec, profile);
   return scene;
 }
+
+export const layoutFlow = layoutServiceFlow;
 
 function main() {
   const [scenePathArg, specPathArg, flag, outputPathArg] = process.argv.slice(2);
