@@ -2,7 +2,7 @@
 
 `Visual Plan` is the compact v0.3 contract for expressing layout intent without raw coordinates.
 
-The LLM chooses semantic relationships and high-level visual structure. The local renderer chooses exact positions, routes, label offsets, and Excalidraw element details.
+The LLM chooses semantic relationships and high-level visual structure. The local renderer chooses exact positions, routes, label offsets, frames, and Excalidraw element details.
 
 ## Top-level layout
 
@@ -14,7 +14,9 @@ Supported initial fields:
 - `direction`: `left-to-right` or `top-to-bottom`
 - `aspectRatio`: `balanced`, `wide`, or `tall`
 - `primaryFlow`: ordered semantic ids for the main reading path
-- `lanes`: named visual lanes
+- `lanes`: named layout lanes
+
+Lanes are invisible layout constructs by default. Declaring a lane does not request a visible frame, panel, or region.
 
 Example:
 
@@ -48,6 +50,8 @@ Optional `layoutHints` fields:
 - `keepNear`: semantic ids that should remain nearby
 - `keepApart`: semantic ids that should not share the same local area
 
+A node-level `group` is also a logical grouping hint. It does not automatically mean that a visible frame should be drawn.
+
 Example:
 
 ```json
@@ -55,6 +59,7 @@ Example:
   "semanticId": "payment-db",
   "label": "Payment DB",
   "shapeRef": "database.relational",
+  "group": "payments",
   "layoutHints": {
     "lane": "support",
     "rank": 3,
@@ -63,6 +68,64 @@ Example:
   }
 }
 ```
+
+## Visible boundaries
+
+Use a visible frame only when it communicates a real boundary such as:
+
+- trust or security boundary
+- ownership boundary
+- deployment boundary
+- external versus internal boundary
+- a substantial subsystem containing several nodes
+
+Declare those boundaries explicitly with `groups`:
+
+```json
+{
+  "groups": [
+    {
+      "id": "external-systems",
+      "label": "External Systems",
+      "visualBoundary": true
+    }
+  ],
+  "nodes": [
+    {
+      "semanticId": "card-network",
+      "label": "Card Network",
+      "shapeRef": "external.provider",
+      "group": "external-systems"
+    },
+    {
+      "semanticId": "fraud-provider",
+      "label": "Fraud Provider",
+      "shapeRef": "external.provider",
+      "group": "external-systems"
+    }
+  ]
+}
+```
+
+Rules:
+
+- Prefer zero or one visible boundary in a small diagram.
+- Use at most two visible boundaries unless the user explicitly requests more.
+- Do not frame a single database, queue, topic, worker, service, or provider.
+- Do not create one frame per concern, lane, or node type.
+- Do not frame the whole diagram when the frame adds no information.
+- Prefer whitespace and placement over boxes.
+- When `groups` is present, only entries with `visualBoundary: true` should become visible frames.
+
+Optional `framePolicy` fields exist for exceptional cases:
+
+- `mode`: `none` or `explicit`
+- `maxFrames`: maximum visible frames
+- `include`: group ids allowed to render
+- `exclude`: group ids that must not render
+- `minMembers`: minimum nodes required in a frame
+
+Do not emit `framePolicy` unless the user specifically asks for stronger frame control.
 
 ## Edge route hints
 
@@ -97,8 +160,9 @@ Example:
 - Every node lane must reference a declared lane.
 - Use hints only when they communicate real visual intent.
 - Prefer one obvious primary flow and move supporting concerns to separate lanes.
+- Treat lanes and logical groups as invisible unless a real boundary must be shown.
 - Do not use route hints to micromanage every edge.
 
 ## Renderer responsibilities
 
-The renderer may normalize or ignore contradictory hints. Exact placement and routing remain deterministic implementation details.
+The renderer may normalize or ignore contradictory hints. It suppresses tiny, redundant, whole-scene, or excessive automatic frames. Exact placement, routing, and frame selection remain deterministic implementation details.
