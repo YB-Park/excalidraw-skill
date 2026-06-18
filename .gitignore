@@ -1,0 +1,10 @@
+node_modules/
+
+# Generated diagram evaluation artifacts
+examples/evaluation/outputs/*.excalidraw
+examples/evaluation/outputs/*.quality.json
+examples/evaluation/results/*.json
+
+# Local temporary files
+*.tmp
+.DS_Store
