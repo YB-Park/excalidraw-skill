@@ -31,20 +31,27 @@ Still requires evaluation against all four flow cases.
 
 ### system-architecture
 
-Status: contract and evaluation cases defined; dedicated renderer not implemented yet.
+Status: `layered-system` pilot renderer implemented and connected to the build pipeline.
 
-First target: `layered-system`.
+Implemented foundations:
 
-Required capabilities:
+- authoritative top-to-bottom layer ordering
+- focus-module metadata
+- multiple nodes per layer
+- layer-aware node placement using final text-fitted sizes
+- layerless external systems placed in a side column
+- no-op isolation from flow diagrams
+- reference fixture and unit tests
 
-- authoritative layer ordering
-- focus-module emphasis
-- semantic relation styles
-- optional layer bands
-- cross-layer edge channels
-- external/internal placement
+Still required before family readiness:
 
-Second targets:
+- run all four system-architecture evaluation cases
+- add architecture-specific relation styling
+- inspect cross-layer edge routing quality
+- decide whether subtle layer bands improve readability
+- add family-specific quality checks for layer violations
+
+Next views:
 
 - `deployment-view`
 - `context-view`
@@ -86,10 +93,10 @@ The general flow renderer must never be used as a fallback for sequence diagrams
 ## Implementation order
 
 1. Validate the existing flow renderer against all four flow evaluation cases.
-2. Implement `system-architecture / layered-system`.
+2. Validate the new `system-architecture / layered-system` renderer against all four system cases.
 3. Implement `module-architecture / component-view`.
 4. Implement the dedicated sequence renderer.
-5. Add the remaining views only after each first view passes its family evaluation cases.
+5. Add deployment, context, internal-block, and port-interface views after the first view of each family is stable.
 
 ## Change acceptance rule
 
