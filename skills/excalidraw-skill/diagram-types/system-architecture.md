@@ -13,12 +13,19 @@ Use this family when the diagram must explain where a middleware or software mod
 
 ### layered-system
 
-Use for HW → OS → middleware → application layering.
+Use for application → services → middleware → drivers → OS/kernel → hardware layering.
 
+This view has an initial dedicated renderer.
+
+- `architecture.layers[].order` is visual top-to-bottom order
+- application-facing layers normally use lower order values
+- hardware-facing layers normally use higher order values
 - vertical order is semantic and must be preserved
 - a component must not appear in a higher layer merely to shorten an edge
 - references across several layers should use clean channels
 - the focus module may receive stronger emphasis, but not a larger arbitrary scale
+- layerless external systems may be placed in a side column
+- layer bands are not automatically visible; placement may communicate the layers without boxes
 
 ### deployment-view
 
@@ -29,6 +36,8 @@ Use for hosts, devices, processes, containers, and workloads.
 - external devices and systems remain outside internal deployment boundaries
 - distinguish runtime communication from static dependency
 
+Dedicated deployment layout is not implemented yet.
+
 ### context-view
 
 Use for the focus system and its major neighbors.
@@ -36,6 +45,8 @@ Use for the focus system and its major neighbors.
 - place the focus system centrally
 - keep only major users, providers, devices, and peer systems
 - do not expose internal blocks unless they are essential to the context question
+
+Dedicated context layout is not implemented yet.
 
 ## Recommended semantic fields
 
@@ -78,3 +89,5 @@ Do not use one generic arrow kind for all relations.
 ## Good default
 
 For middleware work, use `layered-system` with a small number of ordered layers and one clearly marked focus module. Add deployment frames only when host or process placement matters.
+
+Reference fixture: `examples/system-architecture/layered-middleware.diagram.json`.
