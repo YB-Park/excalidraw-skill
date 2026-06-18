@@ -23,6 +23,7 @@ npm run init
 npm test
 npm run smoke
 npm run smoke:system
+npm run smoke:module
 npm run evaluate
 ```
 
@@ -57,7 +58,7 @@ opencode에서는 이렇게 요청합니다.
 
 - `flow`: `flow`, `service-flow`, `event-flow`, `data-flow`가 전용 flow renderer를 사용합니다. 네 개의 runnable 평가 fixture가 있습니다.
 - `system-architecture`: `layered-system` 전용 renderer와 family quality check가 동작합니다. deployment와 context view는 contract-only입니다.
-- `module-architecture`: 계약과 평가 사례가 정의됐으며 renderer 구현 전까지 contract-only입니다.
+- `module-architecture`: `component-view` 전용 renderer, 단일 module boundary, internal/external scope 검사, runnable fixture가 있습니다. internal-block과 port-interface view는 contract-only입니다.
 - `sequence`: 전용 `SequenceSpec`과 평가 사례가 정의됐습니다. 일반 flow renderer로 대체하지 않으며 현재 contract-only입니다.
 
 ## 평가
@@ -79,6 +80,7 @@ npm run evaluate
 ```txt
 npm run evaluate:flow
 npm run evaluate:system
+npm run evaluate:module
 ```
 
 평가 결과는 다음 파일에 기록됩니다.
