@@ -1,18 +1,30 @@
 # DiagramSpec
 
-`DiagramSpec` is the compact contract for creating a new diagram.
+`DiagramSpec` is the compact graph-like contract for creating system-architecture, module-architecture, and flow diagrams.
 
-The agent writes this contract. The local CLI renders it into an Excalidraw scene.
+Sequence diagrams use `SequenceSpec` instead.
+
+The agent writes the contract. The local CLI renders it into an Excalidraw scene.
 
 ## Versions
 
-- `1.0`: semantic nodes and edges with minimal high-level hints
-- `2.0`: adds a compact Visual Plan for layout intent without raw coordinates
+- `1.0`: semantic nodes and relations with minimal high-level hints
+- `2.0`: adds compact visual intent without raw coordinates
 
-Use `2.0` when layout quality matters or when a diagram has a primary flow plus supporting concerns.
+Use `2.0` when layout quality matters, when semantic ordering must be preserved, or when a diagram has a primary structure plus supporting concerns.
 
 Machine-readable v2 schema: `diagram-spec-v2.schema.json`.
 Visual planning rules: `visual-plan.md`.
+Diagram-family rules: relevant file in `diagram-types/`.
+
+## Supported graph-like families
+
+- `system-architecture`
+- `module-architecture`
+- `flow`
+- compatible subtypes such as `service-flow`, `event-flow`, `data-flow`, and `c4-container-lite`
+
+Do not encode `sequence` with this contract.
 
 ## Required fields
 
@@ -24,25 +36,56 @@ Visual planning rules: `visual-plan.md`.
 - `edges`
 - `outputPath`
 
-## Optional top-level layout
+## Optional top-level fields
 
-DiagramSpec v2 may include:
+Common:
 
-- `layout.profile`
-- `layout.direction`
-- `layout.aspectRatio`
+- `layout`
+- `groups`
+- `framePolicy`
+
+System architecture may add:
+
+- `architecture.focus`
+- `architecture.layers`
+- `architecture.deployments`
+
+Module architecture may add:
+
+- `module.focusModule`
+- `module.boundaryLabel`
+- `module.externalPorts`
+
+Flow may add:
+
 - `layout.primaryFlow`
 - `layout.lanes`
 
-Initial profiles:
+## Layout profiles
+
+Flow profiles:
 
 - `layered-flow`
 - `hub-and-spoke`
 - `swimlane-flow`
 
+System-architecture profiles:
+
+- `layered-system`
+- `deployment-view`
+- `context-view`
+
+Module-architecture profiles:
+
+- `component-view`
+- `internal-block`
+- `port-interface-view`
+
+Each renderer owns its family-specific interpretation. A profile from one family must not silently control another family.
+
 ## Node fields
 
-Core fields:
+Common fields:
 
 - `semanticId`
 - `label`
@@ -50,18 +93,17 @@ Core fields:
 - `shapeRef`
 - `group`
 - `fontRole`
+- `layoutHints`
 
-Optional v2 `layoutHints`:
+Useful family-specific semantic hints may include:
 
-- `lane`
-- `rank`
-- `importance`
-- `keepNear`
-- `keepApart`
+- system architecture: `layer`, `deployment`, `hostRole`
+- module architecture: `responsibility`, `visibility`, `componentRole`
+- flow: `lane`, `rank`, `importance`
 
 ## Edge fields
 
-Core fields:
+Common fields:
 
 - `semanticId`
 - `from`
@@ -69,20 +111,35 @@ Core fields:
 - `label`
 - `kind`
 - `fontRole`
+- optional `routeHints`
 
-Optional v2 `routeHints`:
+Prefer explicit semantic relation kinds:
 
-- `direction`
-- `priority`
-- `labelSide`
+- `calls`
+- `returns`
+- `depends-on`
+- `references`
+- `contains`
+- `publishes`
+- `subscribes`
+- `reads`
+- `writes`
+- `transfers`
+- `interrupts`
+- `controls`
+
+Do not collapse all relations into a generic arrow when the distinction matters.
 
 ## Rules
 
+- Select the diagram family before writing the spec.
 - Use semantic ids, not raw Excalidraw element ids.
 - Use shape refs from the catalog.
 - Use a style preset instead of arbitrary visual values.
 - Do not put raw coordinates in DiagramSpec.
-- Keep the primary flow short and ordered.
-- Use lanes to separate supporting concerns from the primary flow.
+- Preserve semantic ordering such as layer order and flow order.
+- Treat lanes and logical groups as invisible by default.
+- Use visible frames only for meaningful boundaries.
 - Use layout and route hints only when they express real visual intent.
-- Let the renderer own exact positions, bends, label offsets, and Excalidraw details.
+- Let the family renderer own exact positions, bends, label offsets, ports, frames, and Excalidraw details.
+- Evaluate cross-cutting changes against `examples/evaluation/suite.json`.
