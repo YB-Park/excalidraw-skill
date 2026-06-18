@@ -22,7 +22,15 @@ Use this guide for new diagrams.
 
 ## Keep it small
 
-Prefer 5 to 9 primary nodes. Use frames when there are multiple areas or trust zones.
+Prefer 5 to 9 primary nodes. Use frames only when they communicate a real trust boundary, ownership boundary, deployment boundary, external/internal boundary, or a subsystem containing several nodes. Do not frame a single node only for decoration.
+
+## Labels and naming
+
+Preserve user-provided display names whenever possible.
+
+Do not append type suffixes such as `Service`, `Database`, `DB`, `Queue`, `Topic`, or `Worker` merely because the selected `shapeRef` already carries that meaning. Add a suffix only when the user supplied it or when it is necessary to distinguish otherwise ambiguous names.
+
+Keep labels concise, but never truncate them. The renderer may wrap labels to at most two lines and choose from compact, standard, or wide node sizes. Do not insert manual line breaks unless the exact break is semantically important.
 
 ## Visual planning
 
@@ -57,4 +65,4 @@ Prefer one obvious primary flow. Place data stores, risk checks, async topics, a
 
 ## Output
 
-For new work, produce a `DiagramSpec` first. The renderer owns exact placement, routing, label offsets, and Excalidraw element details.
+For new work, produce a `DiagramSpec` first. The renderer owns exact placement, text wrapping, node size classes, routing, label offsets, and Excalidraw element details.
