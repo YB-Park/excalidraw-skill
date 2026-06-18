@@ -66,22 +66,27 @@ Still required before family readiness:
 
 ### module-architecture
 
-Status: contract and evaluation cases defined; cases remain contract-only.
+Status: `component-view` pilot renderer implemented and connected to the build pipeline.
 
-First target: `component-view`.
+Implemented foundations:
 
-Required capabilities:
+- compact placement of internal responsibility blocks
+- one explicit focus-module boundary
+- external callers and providers placed outside the module boundary
+- left and right external placement hints
+- internal and external scope metadata
+- family-specific checks for scope, boundary count, and external placement
+- one runnable Connection Manager fixture
+- no-op isolation from flow and system-architecture renderers
 
-- one focus-module boundary
-- external collaborators outside
-- responsibility-based internal blocks
-- shared-state placement
-- control/data relation distinction
+Still required before family readiness:
 
-Second targets:
-
-- `internal-block`
-- `port-interface-view`
+- run and visually inspect the component-view evaluation
+- inspect internal edge routing and label density
+- improve responsibility-aware placement beyond the initial compact grid
+- implement shared-state placement rules
+- implement and evaluate `internal-block`
+- implement and evaluate `port-interface-view`
 
 ### sequence
 
@@ -111,6 +116,7 @@ Family filters:
 ```text
 npm run evaluate:flow
 npm run evaluate:system
+npm run evaluate:module
 ```
 
 The aggregate result is written to `examples/evaluation/results/latest.json`.
@@ -121,9 +127,9 @@ A runnable case passes only when both `structuralPass` and `familyPass` are true
 
 1. Run the four flow fixtures and fix reported structural or visual problems.
 2. Run the layered-system fixture and fix cross-layer routing or hierarchy problems.
-3. Implement `module-architecture / component-view` and convert its first cases from contract-only to runnable.
+3. Run the module component-view fixture and fix boundary, routing, or hierarchy problems.
 4. Implement the dedicated sequence renderer.
-5. Add deployment, context, internal-block, and port-interface views after the first view of each family is stable.
+5. Add deployment, context, shared-state, internal-block, and port-interface views after the first view of each family is stable.
 
 ## Change acceptance rule
 
