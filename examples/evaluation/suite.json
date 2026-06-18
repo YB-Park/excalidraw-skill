@@ -1,0 +1,134 @@
+{
+  "version": "1.0",
+  "families": ["system-architecture", "module-architecture", "flow", "sequence"],
+  "cases": [
+    {
+      "id": "system-layered-middleware",
+      "family": "system-architecture",
+      "view": "layered-system",
+      "prompt": "Create a HW/SW architecture diagram for an embedded platform with Device Hardware, Bootloader, Linux Kernel, Device Drivers, Middleware Runtime, Our Communication Module, System Services, and Application. Emphasize Our Communication Module and show that it depends on Device Drivers and is called by System Services.",
+      "semanticInvariants": ["all eight entities exist", "layer order is hardware before bootloader before kernel before drivers before middleware before services before application", "our communication module is inside middleware", "system services call our communication module", "our communication module depends on device drivers"],
+      "visualInvariants": ["layer order is visually preserved", "focus module is identifiable", "no frame per single component", "dependency and runtime call are visually distinct"]
+    },
+    {
+      "id": "system-deployment-multi-host",
+      "family": "system-architecture",
+      "view": "deployment-view",
+      "prompt": "Create a deployment architecture with an ECU, an application processor, a cloud backend, and an external sensor. The ECU hosts a realtime process and a middleware daemon. The application processor hosts a UI process. The middleware daemon exchanges data with the sensor and cloud backend and provides data to the UI process.",
+      "semanticInvariants": ["software is assigned to the correct host", "sensor and cloud remain external", "middleware daemon connects to sensor, cloud, and UI"],
+      "visualInvariants": ["host boundaries contain their software", "external systems are outside internal hosts", "deployment boundaries are not confused with software layers"]
+    },
+    {
+      "id": "system-context-focus",
+      "family": "system-architecture",
+      "view": "context-view",
+      "prompt": "Create a context diagram for a Middleware Gateway interacting with Vehicle Applications, Device Drivers, Configuration Service, Diagnostic Tool, and External Cloud. Keep the gateway as the focus and show only major relations.",
+      "semanticInvariants": ["gateway and five neighbors exist", "relation directions are meaningful", "no internal gateway blocks are invented"],
+      "visualInvariants": ["gateway is central", "neighbors are readable", "no excessive frames"]
+    },
+    {
+      "id": "system-trust-boundary",
+      "family": "system-architecture",
+      "view": "context-view",
+      "prompt": "Create a security-oriented architecture showing an Internal Middleware Platform, an External Partner API, an Admin Tool, an Authentication Service, and an Audit Store. Show the real internal/external trust boundary and emphasize authentication and audit relationships.",
+      "semanticInvariants": ["one internal/external trust boundary exists", "partner API is external", "authentication and audit relations are present"],
+      "visualInvariants": ["trust boundary is visible", "boundary does not wrap the whole scene", "at most two visible frames"]
+    },
+    {
+      "id": "module-component-manager-workers",
+      "family": "module-architecture",
+      "view": "component-view",
+      "prompt": "Create a module architecture for a Connection Manager composed of Session Controller, Connection Registry, Retry Scheduler, Transport Adapter, Event Publisher, and Metrics Collector. External callers use the manager through one public API.",
+      "semanticInvariants": ["all six internal blocks exist", "public API is represented", "transport adapter and registry relations are correct"],
+      "visualInvariants": ["one module boundary", "external caller remains outside", "no frame around each internal block"]
+    },
+    {
+      "id": "module-internal-data-control",
+      "family": "module-architecture",
+      "view": "internal-block",
+      "prompt": "Create an internal block diagram for a Telemetry Module with Input Adapter, Decoder, Validator, State Cache, Batch Builder, Output Adapter, and Control Manager. Distinguish data movement from control commands.",
+      "semanticInvariants": ["data path runs input to decoder to validator to cache or batch builder to output", "control manager controls relevant blocks", "state cache users are correct"],
+      "visualInvariants": ["data and control relations differ", "shared state is near its users", "module boundary is clear"]
+    },
+    {
+      "id": "module-port-interface",
+      "family": "module-architecture",
+      "view": "port-interface-view",
+      "prompt": "Create a port and interface view for a Diagnostics Module providing QueryStatus and RunSelfTest, requiring ReadSensors and WriteAudit, and internally containing Command Router, Test Executor, Status Repository, and Audit Adapter.",
+      "semanticInvariants": ["provided and required interfaces are all present", "external systems connect through ports", "internal blocks do not bypass the public boundary"],
+      "visualInvariants": ["provided and required ports are distinguishable", "ports sit on the module boundary", "internal blocks remain inside"]
+    },
+    {
+      "id": "module-shared-state",
+      "family": "module-architecture",
+      "view": "component-view",
+      "prompt": "Create a module architecture where Parser, Policy Engine, and Response Builder share a Configuration Snapshot. Only Configuration Loader writes the snapshot. Show reads and writes explicitly.",
+      "semanticInvariants": ["only configuration loader writes snapshot", "three consumers read snapshot", "no invented ownership"],
+      "visualInvariants": ["shared state is not visually owned by one reader", "read and write relations are distinguishable"]
+    },
+    {
+      "id": "flow-payment-multilane",
+      "family": "flow",
+      "view": "service-flow",
+      "prompt": "Create a payment approval flow with Web App, API Gateway, Payment Service, Fraud Check, Card Network, Payment DB, Payment Events, and Settlement Worker. Keep approval as the primary flow and place fraud, storage, and async processing as support concerns.",
+      "semanticInvariants": ["all eight nodes exist", "primary approval relations exist", "event publish and worker consume relations exist"],
+      "visualInvariants": ["primary flow is obvious", "support concerns do not compete", "labels do not overlap", "no excessive frames"]
+    },
+    {
+      "id": "flow-event-retry-dlq",
+      "family": "flow",
+      "view": "event-flow",
+      "prompt": "Create an event flow with Producer, Orders Topic, Order Consumer, Retry Queue, Dead Letter Queue, Alerting Service, and Order Store. Show normal consumption, retry after transient failure, and dead-letter handling after retries are exhausted.",
+      "semanticInvariants": ["normal, retry, and dead-letter paths exist", "alerting is triggered from dead-letter handling", "store relation is present"],
+      "visualInvariants": ["normal path is primary", "retry path is secondary", "dead-letter path is readable without edge overlap"]
+    },
+    {
+      "id": "flow-data-pipeline",
+      "family": "flow",
+      "view": "data-flow",
+      "prompt": "Create a data pipeline from Sensor Input through Normalizer, Filter, Enricher, Batch Buffer, Persistent Store, and Analytics Sink. Configuration Store is read by Filter and Enricher.",
+      "semanticInvariants": ["pipeline order is preserved", "configuration reads are correct", "persistent store and analytics sink are distinct"],
+      "visualInvariants": ["data direction is consistent", "configuration support does not become part of the main pipeline"]
+    },
+    {
+      "id": "flow-branch-merge",
+      "family": "flow",
+      "view": "service-flow",
+      "prompt": "Create a request flow that validates a request, branches to either Fast Path or Full Analysis, merges at Result Aggregator, persists the result, and returns a response. Invalid requests go to Rejection Handler.",
+      "semanticInvariants": ["branch and merge are represented", "invalid path does not merge into success path incorrectly", "result is persisted before response"],
+      "visualInvariants": ["branch and merge are obvious", "rejection is secondary", "edges do not overlap for long segments"]
+    },
+    {
+      "id": "sequence-sync-nested",
+      "family": "sequence",
+      "view": "synchronous-sequence",
+      "prompt": "Create a sequence diagram where Application calls Middleware API, Middleware API calls Session Manager, Session Manager calls Transport Adapter, Transport Adapter returns a connection result, and the result returns through each caller.",
+      "semanticInvariants": ["participant order is explicit", "message order is correct", "returns match calls"],
+      "visualInvariants": ["time progresses downward", "nested calls and returns are paired", "lifelines remain aligned"]
+    },
+    {
+      "id": "sequence-async-callback",
+      "family": "sequence",
+      "view": "asynchronous-sequence",
+      "prompt": "Create a sequence diagram where Client registers a listener with Middleware, Middleware subscribes to Device Service, Device Service later emits an event, Middleware transforms it, and invokes the Client callback.",
+      "semanticInvariants": ["registration occurs before subscription", "event occurs later", "callback follows transformation"],
+      "visualInvariants": ["async messages are distinct", "later event remains below setup messages", "callback direction is clear"]
+    },
+    {
+      "id": "sequence-alt-timeout",
+      "family": "sequence",
+      "view": "synchronous-sequence",
+      "prompt": "Create a sequence diagram for a request with an alt fragment: on success Provider returns data and Middleware responds; on timeout Middleware retries once, then returns an error if the retry also times out.",
+      "semanticInvariants": ["success and timeout branches are separate", "only one retry occurs", "error follows second timeout"],
+      "visualInvariants": ["alt and retry structure contains the correct messages", "message order is preserved"]
+    },
+    {
+      "id": "sequence-initialization",
+      "family": "sequence",
+      "view": "initialization-sequence",
+      "prompt": "Create an initialization sequence where System Manager starts Middleware, Middleware loads Configuration, registers with Service Registry, initializes Device Adapter, waits for Adapter Ready, then reports Ready to System Manager.",
+      "semanticInvariants": ["startup order is preserved", "ready is reported only after adapter ready", "configuration and registration occur before ready"],
+      "visualInvariants": ["participant order is stable", "waiting and readiness are understandable", "time order is never rearranged"]
+    }
+  ]
+}
