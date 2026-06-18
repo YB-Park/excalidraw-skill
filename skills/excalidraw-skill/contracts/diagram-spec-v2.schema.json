@@ -6,38 +6,50 @@
   "required": ["version", "diagramType", "title", "stylePreset", "nodes", "edges", "outputPath"],
   "properties": {
     "version": {"const": "2.0"},
-    "diagramType": {"type": "string", "minLength": 1},
+    "diagramType": {
+      "enum": [
+        "system-architecture",
+        "module-architecture",
+        "flow",
+        "service-flow",
+        "event-flow",
+        "data-flow",
+        "c4-container-lite"
+      ]
+    },
     "title": {"type": "string", "minLength": 1},
     "stylePreset": {"type": "string", "minLength": 1},
     "outputPath": {"type": "string", "pattern": "\\.excalidraw$"},
     "layout": {"$ref": "#/$defs/layout"},
-    "nodes": {
-      "type": "array",
-      "minItems": 1,
-      "items": {"$ref": "#/$defs/node"}
-    },
-    "edges": {
-      "type": "array",
-      "items": {"$ref": "#/$defs/edge"}
-    }
+    "groups": {"type": "array", "items": {"$ref": "#/$defs/group"}},
+    "framePolicy": {"$ref": "#/$defs/framePolicy"},
+    "architecture": {"$ref": "#/$defs/architecture"},
+    "module": {"$ref": "#/$defs/module"},
+    "nodes": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/node"}},
+    "edges": {"type": "array", "items": {"$ref": "#/$defs/edge"}}
   },
   "additionalProperties": true,
   "$defs": {
     "layout": {
       "type": "object",
       "properties": {
-        "profile": {"enum": ["layered-flow", "hub-and-spoke", "swimlane-flow"]},
+        "profile": {
+          "enum": [
+            "layered-flow",
+            "hub-and-spoke",
+            "swimlane-flow",
+            "layered-system",
+            "deployment-view",
+            "context-view",
+            "component-view",
+            "internal-block",
+            "port-interface-view"
+          ]
+        },
         "direction": {"enum": ["left-to-right", "top-to-bottom"]},
         "aspectRatio": {"enum": ["balanced", "wide", "tall"]},
-        "primaryFlow": {
-          "type": "array",
-          "items": {"type": "string", "minLength": 1},
-          "uniqueItems": true
-        },
-        "lanes": {
-          "type": "array",
-          "items": {"$ref": "#/$defs/lane"}
-        }
+        "primaryFlow": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "lanes": {"type": "array", "items": {"$ref": "#/$defs/lane"}}
       },
       "additionalProperties": false
     },
@@ -52,6 +64,80 @@
       },
       "additionalProperties": false
     },
+    "group": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "label": {"type": "string"},
+        "visualBoundary": {"type": "boolean"},
+        "frame": {"type": "boolean"},
+        "forceFrame": {"type": "boolean"}
+      },
+      "additionalProperties": true
+    },
+    "framePolicy": {
+      "type": "object",
+      "properties": {
+        "mode": {"enum": ["none", "explicit"]},
+        "maxFrames": {"type": "integer", "minimum": 0},
+        "include": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "exclude": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "minMembers": {"type": "integer", "minimum": 1},
+        "allowSingletons": {"type": "boolean"},
+        "allowFullScene": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "architecture": {
+      "type": "object",
+      "properties": {
+        "focus": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "layers": {"type": "array", "items": {"$ref": "#/$defs/layer"}},
+        "deployments": {"type": "array", "items": {"$ref": "#/$defs/deployment"}}
+      },
+      "additionalProperties": true
+    },
+    "layer": {
+      "type": "object",
+      "required": ["id", "order"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "label": {"type": "string"},
+        "order": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "deployment": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "label": {"type": "string"},
+        "kind": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "module": {
+      "type": "object",
+      "properties": {
+        "focusModule": {"type": "string", "minLength": 1},
+        "boundaryLabel": {"type": "string"},
+        "externalPorts": {"type": "array", "items": {"$ref": "#/$defs/port"}}
+      },
+      "additionalProperties": true
+    },
+    "port": {
+      "type": "object",
+      "required": ["semanticId", "label", "direction"],
+      "properties": {
+        "semanticId": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "direction": {"enum": ["provided", "required"]},
+        "kind": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
     "node": {
       "type": "object",
       "required": ["semanticId", "label", "shapeRef"],
@@ -62,6 +148,12 @@
         "shapeRef": {"type": "string", "minLength": 1},
         "group": {"type": "string"},
         "fontRole": {"enum": ["default", "mono", "sketch"]},
+        "layer": {"type": "string"},
+        "deployment": {"type": "string"},
+        "hostRole": {"type": "string"},
+        "responsibility": {"type": "string"},
+        "visibility": {"enum": ["public", "internal", "private"]},
+        "componentRole": {"enum": ["controller", "worker", "adapter", "repository", "buffer", "state", "utility"]},
         "layoutHints": {"$ref": "#/$defs/nodeLayoutHints"}
       },
       "additionalProperties": true
@@ -72,16 +164,8 @@
         "lane": {"type": "string", "minLength": 1},
         "rank": {"type": "integer", "minimum": 0},
         "importance": {"enum": ["primary", "secondary", "support"]},
-        "keepNear": {
-          "type": "array",
-          "items": {"type": "string", "minLength": 1},
-          "uniqueItems": true
-        },
-        "keepApart": {
-          "type": "array",
-          "items": {"type": "string", "minLength": 1},
-          "uniqueItems": true
-        }
+        "keepNear": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "keepApart": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
       },
       "additionalProperties": false
     },
@@ -93,7 +177,27 @@
         "from": {"type": "string", "minLength": 1},
         "to": {"type": "string", "minLength": 1},
         "label": {"type": "string"},
-        "kind": {"type": "string", "minLength": 1},
+        "kind": {
+          "enum": [
+            "calls",
+            "returns",
+            "depends-on",
+            "references",
+            "contains",
+            "publishes",
+            "subscribes",
+            "reads",
+            "writes",
+            "transfers",
+            "interrupts",
+            "controls",
+            "retries",
+            "fails-to",
+            "sync",
+            "async",
+            "optional"
+          ]
+        },
         "fontRole": {"enum": ["default", "mono", "sketch"]},
         "routeHints": {"$ref": "#/$defs/routeHints"}
       },
