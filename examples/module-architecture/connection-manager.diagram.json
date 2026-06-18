@@ -1,0 +1,149 @@
+{
+  "version": "2.0",
+  "diagramType": "module-architecture",
+  "title": "Connection Manager",
+  "stylePreset": "professional-software",
+  "layout": {
+    "profile": "component-view",
+    "direction": "left-to-right",
+    "aspectRatio": "balanced"
+  },
+  "module": {
+    "focusModule": "connection-manager",
+    "boundaryLabel": "Connection Manager"
+  },
+  "groups": [
+    {
+      "id": "connection-manager",
+      "label": "Connection Manager",
+      "visualBoundary": true,
+      "forceFrame": true
+    }
+  ],
+  "framePolicy": {
+    "mode": "explicit",
+    "maxFrames": 1,
+    "include": ["connection-manager"],
+    "minMembers": 2,
+    "allowFullScene": true
+  },
+  "nodes": [
+    {
+      "semanticId": "external-caller",
+      "label": "External Caller",
+      "shapeRef": "client.app"
+    },
+    {
+      "semanticId": "session-controller",
+      "label": "Session Controller",
+      "shapeRef": "service.backend",
+      "group": "connection-manager",
+      "componentRole": "controller",
+      "visibility": "public",
+      "responsibility": "Coordinates connection lifecycle"
+    },
+    {
+      "semanticId": "connection-registry",
+      "label": "Connection Registry",
+      "shapeRef": "storage.database",
+      "group": "connection-manager",
+      "componentRole": "repository",
+      "visibility": "internal",
+      "responsibility": "Tracks active connections"
+    },
+    {
+      "semanticId": "retry-scheduler",
+      "label": "Retry Scheduler",
+      "shapeRef": "runtime.worker",
+      "group": "connection-manager",
+      "componentRole": "worker",
+      "visibility": "internal",
+      "responsibility": "Schedules reconnect attempts"
+    },
+    {
+      "semanticId": "transport-adapter",
+      "label": "Transport Adapter",
+      "shapeRef": "service.backend",
+      "group": "connection-manager",
+      "componentRole": "adapter",
+      "visibility": "internal",
+      "responsibility": "Adapts transport API"
+    },
+    {
+      "semanticId": "event-publisher",
+      "label": "Event Publisher",
+      "shapeRef": "messaging.topic",
+      "group": "connection-manager",
+      "componentRole": "adapter",
+      "visibility": "internal",
+      "responsibility": "Publishes connection events"
+    },
+    {
+      "semanticId": "metrics-collector",
+      "label": "Metrics Collector",
+      "shapeRef": "runtime.worker",
+      "group": "connection-manager",
+      "componentRole": "utility",
+      "visibility": "internal",
+      "responsibility": "Collects operational metrics"
+    },
+    {
+      "semanticId": "transport-provider",
+      "label": "Transport Provider",
+      "shapeRef": "external.system",
+      "layoutHints": {"lane": "right"}
+    }
+  ],
+  "edges": [
+    {
+      "semanticId": "caller-to-controller",
+      "from": "external-caller",
+      "to": "session-controller",
+      "label": "public API",
+      "kind": "calls"
+    },
+    {
+      "semanticId": "controller-to-registry",
+      "from": "session-controller",
+      "to": "connection-registry",
+      "label": "reads / writes",
+      "kind": "references"
+    },
+    {
+      "semanticId": "controller-to-retry",
+      "from": "session-controller",
+      "to": "retry-scheduler",
+      "label": "schedules",
+      "kind": "controls"
+    },
+    {
+      "semanticId": "controller-to-adapter",
+      "from": "session-controller",
+      "to": "transport-adapter",
+      "label": "connect / disconnect",
+      "kind": "calls"
+    },
+    {
+      "semanticId": "controller-to-events",
+      "from": "session-controller",
+      "to": "event-publisher",
+      "label": "publishes state",
+      "kind": "publishes"
+    },
+    {
+      "semanticId": "controller-to-metrics",
+      "from": "session-controller",
+      "to": "metrics-collector",
+      "label": "records",
+      "kind": "writes"
+    },
+    {
+      "semanticId": "adapter-to-provider",
+      "from": "transport-adapter",
+      "to": "transport-provider",
+      "label": "transport API",
+      "kind": "calls"
+    }
+  ],
+  "outputPath": "examples/module-architecture/connection-manager.excalidraw"
+}
