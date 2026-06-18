@@ -1,0 +1,119 @@
+{
+  "version": "2.0",
+  "diagramType": "system-architecture",
+  "title": "Embedded Middleware Platform",
+  "stylePreset": "professional-software",
+  "layout": {
+    "profile": "layered-system",
+    "direction": "top-to-bottom",
+    "aspectRatio": "balanced"
+  },
+  "architecture": {
+    "focus": ["communication-module"],
+    "layers": [
+      {"id": "application", "label": "Application", "order": 0},
+      {"id": "services", "label": "System Services", "order": 1},
+      {"id": "middleware", "label": "Middleware", "order": 2},
+      {"id": "drivers", "label": "Device Drivers", "order": 3},
+      {"id": "kernel", "label": "Linux Kernel", "order": 4},
+      {"id": "bootloader", "label": "Bootloader", "order": 5},
+      {"id": "hardware", "label": "Device Hardware", "order": 6}
+    ]
+  },
+  "nodes": [
+    {
+      "semanticId": "application",
+      "label": "Application",
+      "shapeRef": "client.app",
+      "layer": "application"
+    },
+    {
+      "semanticId": "system-services",
+      "label": "System Services",
+      "shapeRef": "service.backend",
+      "layer": "services"
+    },
+    {
+      "semanticId": "middleware-runtime",
+      "label": "Middleware Runtime",
+      "shapeRef": "runtime.workload",
+      "layer": "middleware"
+    },
+    {
+      "semanticId": "communication-module",
+      "label": "Communication Module",
+      "shapeRef": "service.backend",
+      "layer": "middleware",
+      "layoutHints": {"rank": 0, "importance": "primary"}
+    },
+    {
+      "semanticId": "device-drivers",
+      "label": "Device Drivers",
+      "shapeRef": "runtime.driver",
+      "layer": "drivers"
+    },
+    {
+      "semanticId": "linux-kernel",
+      "label": "Linux Kernel",
+      "shapeRef": "runtime.kernel",
+      "layer": "kernel"
+    },
+    {
+      "semanticId": "bootloader",
+      "label": "Bootloader",
+      "shapeRef": "runtime.bootloader",
+      "layer": "bootloader"
+    },
+    {
+      "semanticId": "device-hardware",
+      "label": "Device Hardware",
+      "shapeRef": "runtime.device",
+      "layer": "hardware"
+    }
+  ],
+  "edges": [
+    {
+      "semanticId": "application-to-services",
+      "from": "application",
+      "to": "system-services",
+      "label": "calls",
+      "kind": "calls"
+    },
+    {
+      "semanticId": "services-to-communication",
+      "from": "system-services",
+      "to": "communication-module",
+      "label": "calls",
+      "kind": "calls"
+    },
+    {
+      "semanticId": "communication-to-runtime",
+      "from": "communication-module",
+      "to": "middleware-runtime",
+      "label": "uses",
+      "kind": "depends-on"
+    },
+    {
+      "semanticId": "communication-to-drivers",
+      "from": "communication-module",
+      "to": "device-drivers",
+      "label": "depends on",
+      "kind": "depends-on"
+    },
+    {
+      "semanticId": "drivers-to-kernel",
+      "from": "device-drivers",
+      "to": "linux-kernel",
+      "label": "uses",
+      "kind": "depends-on"
+    },
+    {
+      "semanticId": "kernel-to-hardware",
+      "from": "linux-kernel",
+      "to": "device-hardware",
+      "label": "controls",
+      "kind": "controls"
+    }
+  ],
+  "outputPath": "examples/system-architecture/layered-middleware.excalidraw"
+}
