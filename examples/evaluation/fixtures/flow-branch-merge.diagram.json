@@ -1,0 +1,39 @@
+{
+  "version": "2.0",
+  "diagramType": "service-flow",
+  "title": "Request Branch and Merge Flow",
+  "stylePreset": "professional-software",
+  "layout": {
+    "profile": "swimlane-flow",
+    "direction": "left-to-right",
+    "aspectRatio": "balanced",
+    "primaryFlow": ["request", "validator", "result-aggregator", "result-store", "response"],
+    "lanes": [
+      {"id": "main", "label": "Successful Request", "position": "center", "order": 0},
+      {"id": "branch", "label": "Analysis Branches", "position": "bottom", "order": 1},
+      {"id": "error", "label": "Rejected Request", "position": "bottom", "order": 2}
+    ]
+  },
+  "framePolicy": {"mode": "none"},
+  "nodes": [
+    {"semanticId": "request", "label": "Request", "shapeRef": "client.web", "layoutHints": {"lane": "main", "rank": 0, "importance": "primary"}},
+    {"semanticId": "validator", "label": "Validator", "shapeRef": "service.backend", "layoutHints": {"lane": "main", "rank": 1, "importance": "primary"}},
+    {"semanticId": "result-aggregator", "label": "Result Aggregator", "shapeRef": "service.backend", "layoutHints": {"lane": "main", "rank": 3, "importance": "primary"}},
+    {"semanticId": "result-store", "label": "Result Store", "shapeRef": "database.relational", "layoutHints": {"lane": "main", "rank": 4, "importance": "primary"}},
+    {"semanticId": "response", "label": "Response", "shapeRef": "client.web", "layoutHints": {"lane": "main", "rank": 5, "importance": "primary"}},
+    {"semanticId": "fast-path", "label": "Fast Path", "shapeRef": "service.worker", "layoutHints": {"lane": "branch", "rank": 2, "importance": "secondary", "keepNear": ["validator", "result-aggregator"]}},
+    {"semanticId": "full-analysis", "label": "Full Analysis", "shapeRef": "service.worker", "layoutHints": {"lane": "branch", "rank": 2, "importance": "secondary", "keepNear": ["validator", "result-aggregator"]}},
+    {"semanticId": "rejection-handler", "label": "Rejection Handler", "shapeRef": "service.backend", "layoutHints": {"lane": "error", "rank": 2, "importance": "support"}}
+  ],
+  "edges": [
+    {"semanticId": "request-to-validator", "from": "request", "to": "validator", "label": "validate", "kind": "calls", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "validator-to-fast", "from": "validator", "to": "fast-path", "label": "simple request", "kind": "optional", "routeHints": {"direction": "down", "priority": "secondary", "labelSide": "right"}},
+    {"semanticId": "validator-to-full", "from": "validator", "to": "full-analysis", "label": "complex request", "kind": "optional", "routeHints": {"direction": "down", "priority": "secondary", "labelSide": "left"}},
+    {"semanticId": "fast-to-aggregator", "from": "fast-path", "to": "result-aggregator", "label": "result", "kind": "transfers", "routeHints": {"direction": "up", "priority": "secondary", "labelSide": "right"}},
+    {"semanticId": "full-to-aggregator", "from": "full-analysis", "to": "result-aggregator", "label": "result", "kind": "transfers", "routeHints": {"direction": "up", "priority": "secondary", "labelSide": "left"}},
+    {"semanticId": "aggregator-to-store", "from": "result-aggregator", "to": "result-store", "label": "persist", "kind": "writes", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "store-to-response", "from": "result-store", "to": "response", "label": "return result", "kind": "returns", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "validator-to-rejection", "from": "validator", "to": "rejection-handler", "label": "invalid", "kind": "fails-to", "routeHints": {"direction": "down", "priority": "secondary", "labelSide": "right"}}
+  ],
+  "outputPath": "examples/evaluation/outputs/flow-branch-merge.excalidraw"
+}
