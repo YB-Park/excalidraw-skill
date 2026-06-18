@@ -2,8 +2,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-
-const [scenePath, specPath, flag, outputPathArg] = process.argv.slice(2);
+import { fileURLToPath } from 'node:url';
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -16,6 +15,12 @@ function writeJson(filePath, data) {
 
 function safeId(prefix, value) {
   return `${prefix}_${String(value).replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+}
+
+function frameBudget(nodeCount, policy = {}) {
+  if (Number.isInteger(policy.maxFrames) && policy.maxFrames >= 0) return policy.maxFrames;
+  if (nodeCount <= 1) return 0;
+  return Math.min(3, Math.max(1, Math.floor(nodeCount / 3)));
 }
 
 function makeFrame(groupName, boxes) {
@@ -55,30 +60,31 @@ function makeFrame(groupName, boxes) {
     customData: {
       excalidrawSkill: {
         semanticId: groupName,
-        role: 'frame'
+        role: 'frame',
+        generatedBy: 'frame-groups',
+        memberCount: boxes.length
       }
     }
   };
 }
 
-function run() {
-  if (!scenePath || !specPath) {
-    console.error('Usage: node src/frame-groups.mjs <scene.excalidraw> <spec.json> [-o output.excalidraw]');
-    process.exit(1);
-  }
-
-  const scene = readJson(scenePath);
-  const spec = readJson(specPath);
+export function frameSceneGroups(scene, spec) {
   const groups = new Map();
   const nodeGroups = new Map();
+  const policy = spec.framePolicy ?? spec.layout?.framePolicy ?? {};
+  const allowSingletons = policy.allowSingletons === true;
+  const allowFullScene = policy.allowFullScene === true;
+  const preferredGroups = new Set(policy.include ?? []);
 
   for (const node of spec.nodes ?? []) {
     if (node.group) nodeGroups.set(node.semanticId, node.group);
   }
 
+  const sceneNodes = [];
   for (const element of scene.elements ?? []) {
     const meta = element.customData?.excalidrawSkill;
     if (meta?.role !== 'node') continue;
+    sceneNodes.push(element);
     const group = nodeGroups.get(meta.semanticId);
     if (!group) continue;
     if (!groups.has(group)) groups.set(group, []);
@@ -92,16 +98,51 @@ function run() {
       .map((meta) => meta.semanticId)
   );
 
-  const frames = [];
-  for (const [groupName, boxes] of groups.entries()) {
-    if (boxes.length === 0 || existingFrames.has(groupName)) continue;
-    frames.push(makeFrame(groupName, boxes));
+  const minimumMembers = allowSingletons ? 1 : 2;
+  const budget = frameBudget(sceneNodes.length, policy);
+  const candidates = [...groups.entries()]
+    .filter(([groupName, boxes]) => !existingFrames.has(groupName)
+      && boxes.length >= minimumMembers
+      && (allowFullScene || boxes.length < sceneNodes.length))
+    .sort((first, second) => {
+      const firstPreferred = preferredGroups.has(first[0]) ? 1 : 0;
+      const secondPreferred = preferredGroups.has(second[0]) ? 1 : 0;
+      return secondPreferred - firstPreferred
+        || second[1].length - first[1].length
+        || first[0].localeCompare(second[0]);
+    })
+    .slice(0, budget);
+
+  const frames = candidates.map(([groupName, boxes]) => makeFrame(groupName, boxes));
+  return {
+    ...scene,
+    elements: [...frames, ...(scene.elements ?? [])],
+    customData: {
+      ...(scene.customData ?? {}),
+      excalidrawSkill: {
+        ...(scene.customData?.excalidrawSkill ?? {}),
+        framePolicy: {
+          budget,
+          candidateCount: groups.size,
+          renderedCount: frames.length,
+          suppressedSingletons: [...groups.values()].filter((boxes) => boxes.length === 1).length
+        }
+      }
+    }
+  };
+}
+
+function run() {
+  const [scenePath, specPath, flag, outputPathArg] = process.argv.slice(2);
+  if (!scenePath || !specPath) {
+    console.error('Usage: node src/frame-groups.mjs <scene.excalidraw> <spec.json> [-o output.excalidraw]');
+    process.exit(1);
   }
 
-  scene.elements = [...frames, ...(scene.elements ?? [])];
   const outputPath = flag === '-o' && outputPathArg ? outputPathArg : scenePath;
-  writeJson(outputPath, scene);
+  writeJson(outputPath, frameSceneGroups(readJson(scenePath), readJson(specPath)));
   console.log(outputPath);
 }
 
-run();
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) run();
