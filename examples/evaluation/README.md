@@ -27,16 +27,12 @@ Run every currently runnable case:
 npm run evaluate
 ```
 
-Run only flow cases:
+Run one runnable family:
 
 ```text
 npm run evaluate:flow
-```
-
-Run only system-architecture cases:
-
-```text
 npm run evaluate:system
+npm run evaluate:module
 ```
 
 The evaluator builds each runnable fixture, reads its quality report, and writes the aggregate result to:
@@ -48,7 +44,7 @@ examples/evaluation/results/latest.json
 A runnable case passes only when both are true:
 
 - `structuralPass`: generic overlap, crossing, routing, label, text, and aspect checks pass
-- `familyPass`: family-specific order, focus, frame, boundary, or primary-flow checks pass
+- `familyPass`: family-specific order, focus, frame, boundary, scope, or primary-flow checks pass
 
 ## Case statuses
 
