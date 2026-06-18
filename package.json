@@ -11,7 +11,8 @@
     "init": "node ./bin/excalidraw-skill.mjs init",
     "test": "node --test ./src/*.test.mjs",
     "smoke": "node ./bin/excalidraw-skill.mjs build examples/service-flow/payment-flow.grouped.diagram.json",
-    "smoke:v03": "node ./bin/excalidraw-skill.mjs build examples/service-flow/payment-flow.visual-plan.diagram.json"
+    "smoke:v03": "node ./bin/excalidraw-skill.mjs build examples/service-flow/payment-flow.visual-plan.diagram.json",
+    "smoke:system": "node ./bin/excalidraw-skill.mjs build examples/system-architecture/layered-middleware.diagram.json"
   },
   "engines": {
     "node": ">=20",
