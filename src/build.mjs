@@ -31,6 +31,7 @@ function main() {
   runStep('src/render.mjs', [specPath]);
   runStep('src/style-by-kind.mjs', [outputPath]);
   runStep('src/layout-service-flow.mjs', [outputPath, specPath]);
+  runStep('src/layout-system-architecture.mjs', [outputPath, specPath]);
   runStep('src/apply-components.mjs', [outputPath]);
   runStep('src/route-edges.mjs', [outputPath, specPath]);
   runStep('src/style-edges.mjs', [outputPath]);
