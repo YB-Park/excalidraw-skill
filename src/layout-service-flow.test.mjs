@@ -67,6 +67,8 @@ test('swimlane-flow separates support nodes and preserves ranks', () => {
   assert.equal(placed.get('fraud').x, placed.get('pay').x);
   assert.notEqual(placed.get('fraud').y, placed.get('db').y);
   assert.equal(scene.customData.excalidrawSkill.layout.profile, 'swimlane-flow');
+  assert.equal(scene.customData.excalidrawSkill.layout.family, 'flow');
+  assert.equal(scene.customData.excalidrawSkill.layout.subtype, 'service-flow');
 });
 
 test('layered-flow keeps primary path together and support away from it', () => {
@@ -116,11 +118,32 @@ test('hub-and-spoke puts external and support nodes on separate sides', () => {
   assert.ok(placed.get('db').y > placed.get('hub').y);
 });
 
-test('non service-flow scenes are unchanged', () => {
+for (const diagramType of ['flow', 'event-flow', 'data-flow']) {
+  test(`${diagramType} uses the flow layout engine`, () => {
+    const nodes = [
+      { semanticId: 'source', layoutHints: { rank: 0, importance: 'primary' } },
+      { semanticId: 'sink', layoutHints: { rank: 1, importance: 'primary' } }
+    ];
+    const spec = {
+      version: '2.0',
+      diagramType,
+      nodes,
+      edges: [],
+      layout: { profile: 'layered-flow', primaryFlow: ['source', 'sink'] }
+    };
+    const scene = layoutServiceFlow(sceneFor(nodes), spec);
+    const placed = positions(scene);
+    assert.ok(placed.get('source').x < placed.get('sink').x);
+    assert.equal(scene.customData.excalidrawSkill.layout.family, 'flow');
+    assert.equal(scene.customData.excalidrawSkill.layout.subtype, diagramType);
+  });
+}
+
+test('non-flow scenes are unchanged', () => {
   const nodes = [{ semanticId: 'a' }];
   const scene = sceneFor(nodes);
   const before = JSON.stringify(scene);
-  layoutServiceFlow(scene, { diagramType: 'event-flow', nodes, edges: [] });
+  layoutServiceFlow(scene, { diagramType: 'system-architecture', nodes, edges: [] });
   assert.equal(JSON.stringify(scene), before);
 });
 
