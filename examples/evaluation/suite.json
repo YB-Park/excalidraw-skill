@@ -1,5 +1,5 @@
 {
-  "version": "1.1",
+  "version": "1.2",
   "families": ["system-architecture", "module-architecture", "flow", "sequence"],
   "cases": [
     {
@@ -46,8 +46,8 @@
       "id": "module-component-manager-workers",
       "family": "module-architecture",
       "view": "component-view",
-      "implementationStatus": "contract-only",
-      "statusReason": "The module-architecture component-view renderer is not implemented yet.",
+      "implementationStatus": "runnable",
+      "fixture": "examples/module-architecture/connection-manager.diagram.json",
       "prompt": "Create a module architecture for a Connection Manager composed of Session Controller, Connection Registry, Retry Scheduler, Transport Adapter, Event Publisher, and Metrics Collector. External callers use the manager through one public API.",
       "semanticInvariants": ["all six internal blocks exist", "public API is represented", "transport adapter and registry relations are correct"],
       "visualInvariants": ["one module boundary", "external caller remains outside", "no frame around each internal block"]
@@ -77,7 +77,7 @@
       "family": "module-architecture",
       "view": "component-view",
       "implementationStatus": "contract-only",
-      "statusReason": "The module-architecture component-view renderer is not implemented yet.",
+      "statusReason": "Shared-state placement rules are not implemented yet.",
       "prompt": "Create a module architecture where Parser, Policy Engine, and Response Builder share a Configuration Snapshot. Only Configuration Loader writes the snapshot. Show reads and writes explicitly.",
       "semanticInvariants": ["only configuration loader writes snapshot", "three consumers read snapshot", "no invented ownership"],
       "visualInvariants": ["shared state is not visually owned by one reader", "read and write relations are distinguishable"]
