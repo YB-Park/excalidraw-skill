@@ -12,7 +12,10 @@
     "test": "node --test ./src/*.test.mjs",
     "smoke": "node ./bin/excalidraw-skill.mjs build examples/service-flow/payment-flow.grouped.diagram.json",
     "smoke:v03": "node ./bin/excalidraw-skill.mjs build examples/service-flow/payment-flow.visual-plan.diagram.json",
-    "smoke:system": "node ./bin/excalidraw-skill.mjs build examples/system-architecture/layered-middleware.diagram.json"
+    "smoke:system": "node ./bin/excalidraw-skill.mjs build examples/system-architecture/layered-middleware.diagram.json",
+    "evaluate": "node ./src/evaluate-suite.mjs",
+    "evaluate:flow": "node ./src/evaluate-suite.mjs --family flow",
+    "evaluate:system": "node ./src/evaluate-suite.mjs --family system-architecture"
   },
   "engines": {
     "node": ">=20",
