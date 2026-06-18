@@ -32,7 +32,7 @@ function isExternalSpecNode(node) {
   const shape = String(node?.shapeRef ?? node?.kind ?? '').toLowerCase();
   const group = String(node?.group ?? '').toLowerCase();
   const role = String(node?.hostRole ?? '').toLowerCase();
-  return shape.includes('external') || shape.includes('provider') || group.includes('external') || role === 'external';
+  return shape.includes('external') || shape.includes('provider') || shape.includes('client') || group.includes('external') || role === 'external';
 }
 
 function frameChecks(scene, spec, nodeCount) {
@@ -216,6 +216,73 @@ function checkFlow(spec, nodes) {
   };
 }
 
+function checkComponentView(scene, spec, nodes) {
+  const focusModule = spec.module?.focusModule ?? null;
+  const expectedInternal = (spec.nodes ?? [])
+    .filter((node) => !isExternalSpecNode(node))
+    .map((node) => node.semanticId);
+  const expectedExternal = (spec.nodes ?? [])
+    .filter((node) => isExternalSpecNode(node))
+    .map((node) => node.semanticId);
+
+  const missingInternal = expectedInternal.filter((id) => !nodes.has(id));
+  const scopeViolations = expectedInternal
+    .filter((id) => nodes.has(id) && metaOf(nodes.get(id)).moduleScope !== 'internal');
+  const externalScopeViolations = expectedExternal
+    .filter((id) => nodes.has(id) && metaOf(nodes.get(id)).moduleScope !== 'external');
+
+  const frames = sceneFrames(scene);
+  const moduleFrames = frames.filter((frame) => metaOf(frame).semanticId === focusModule);
+  const moduleBoundaryViolations = moduleFrames.length === 1 ? 0 : 1;
+  const externalPlacementViolations = [];
+  if (moduleFrames.length === 1) {
+    const frame = moduleFrames[0];
+    const left = Number(frame.x ?? 0);
+    const right = left + Number(frame.width ?? 0);
+    const top = Number(frame.y ?? 0);
+    const bottom = top + Number(frame.height ?? 0);
+    for (const id of expectedExternal) {
+      const node = nodes.get(id);
+      if (!node) continue;
+      const nodeLeft = Number(node.x ?? 0);
+      const nodeRight = nodeLeft + Number(node.width ?? 0);
+      const nodeTop = Number(node.y ?? 0);
+      const nodeBottom = nodeTop + Number(node.height ?? 0);
+      const overlapsBoundary = nodeRight > left && nodeLeft < right && nodeBottom > top && nodeTop < bottom;
+      if (overlapsBoundary) externalPlacementViolations.push(id);
+    }
+  }
+
+  const metrics = {
+    missingInternal: missingInternal.length,
+    scopeViolations: scopeViolations.length,
+    externalScopeViolations: externalScopeViolations.length,
+    moduleBoundaryViolations,
+    externalPlacementViolations: externalPlacementViolations.length
+  };
+  return {
+    metrics,
+    details: {
+      focusModule,
+      expectedInternal,
+      expectedExternal,
+      missingInternal,
+      scopeViolations,
+      externalScopeViolations,
+      moduleFrameCount: moduleFrames.length,
+      externalPlacementViolations
+    },
+    suggestions: [
+      ...missingInternal.map((node) => ({ operation: 'add-module-component', node })),
+      ...scopeViolations.map((node) => ({ operation: 'mark-module-internal', node, module: focusModule })),
+      ...externalScopeViolations.map((node) => ({ operation: 'mark-module-external', node })),
+      ...(moduleBoundaryViolations ? [{ operation: 'restore-single-module-boundary', module: focusModule }] : []),
+      ...externalPlacementViolations.map((node) => ({ operation: 'move-external-outside-module', node, module: focusModule }))
+    ],
+    pass: Object.values(metrics).every((value) => value === 0)
+  };
+}
+
 export function createFamilyQualityReport(scene, spec = null) {
   const diagramType = spec?.diagramType ?? null;
   const family = normalizeFamily(diagramType);
@@ -240,9 +307,16 @@ export function createFamilyQualityReport(scene, spec = null) {
     } else {
       familyResult = checkLayeredSystem(scene, spec, nodes);
     }
-  } else if (family === 'module-architecture' || family === 'sequence') {
+  } else if (family === 'module-architecture') {
+    if (profile !== 'component-view') {
+      supported = false;
+      reason = `Unsupported module-architecture profile: ${profile ?? 'none'}`;
+    } else {
+      familyResult = checkComponentView(scene, spec, nodes);
+    }
+  } else if (family === 'sequence') {
     supported = false;
-    reason = `Renderer quality checks are not implemented for ${family}`;
+    reason = 'Renderer quality checks are not implemented for sequence';
   }
 
   const metrics = { ...frames.metrics, ...familyResult.metrics };
@@ -254,7 +328,7 @@ export function createFamilyQualityReport(scene, spec = null) {
   ];
 
   return {
-    version: '0.1.0',
+    version: '0.2.0',
     family,
     diagramType,
     profile,
