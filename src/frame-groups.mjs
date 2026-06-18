@@ -17,13 +17,30 @@ function safeId(prefix, value) {
   return `${prefix}_${String(value).replace(/[^a-zA-Z0-9_-]/g, '_')}`;
 }
 
-function frameBudget(nodeCount, policy = {}) {
+function frameBudget(nodeCount, policy = {}, explicitMode = false) {
   if (Number.isInteger(policy.maxFrames) && policy.maxFrames >= 0) return policy.maxFrames;
-  if (nodeCount <= 1) return 0;
-  return Math.min(3, Math.max(1, Math.floor(nodeCount / 3)));
+  if (policy.mode === 'none') return 0;
+  if (explicitMode) return 2;
+  if (nodeCount <= 4) return 0;
+  if (nodeCount <= 8) return 1;
+  return 2;
 }
 
-function makeFrame(groupName, boxes) {
+function groupDefinitions(spec) {
+  const definitions = new Map();
+  for (const group of Array.isArray(spec.groups) ? spec.groups : []) {
+    if (!group || typeof group.id !== 'string') continue;
+    definitions.set(group.id, {
+      label: group.label ?? group.id,
+      visualBoundary: group.visualBoundary === true || group.frame === true,
+      disabled: group.visualBoundary === false || group.frame === false,
+      force: group.forceFrame === true
+    });
+  }
+  return definitions;
+}
+
+function makeFrame(groupName, label, boxes, mode) {
   const pad = 48;
   const left = Math.min(...boxes.map((box) => box.x)) - pad;
   const top = Math.min(...boxes.map((box) => box.y)) - pad;
@@ -56,13 +73,14 @@ function makeFrame(groupName, boxes) {
     updated: 1,
     link: null,
     locked: false,
-    name: groupName,
+    name: label,
     customData: {
       excalidrawSkill: {
         semanticId: groupName,
         role: 'frame',
         generatedBy: 'frame-groups',
-        memberCount: boxes.length
+        memberCount: boxes.length,
+        frameMode: mode
       }
     }
   };
@@ -72,9 +90,12 @@ export function frameSceneGroups(scene, spec) {
   const groups = new Map();
   const nodeGroups = new Map();
   const policy = spec.framePolicy ?? spec.layout?.framePolicy ?? {};
+  const definitions = groupDefinitions(spec);
+  const explicitMode = definitions.size > 0 || policy.mode === 'explicit' || Array.isArray(policy.include);
   const allowSingletons = policy.allowSingletons === true;
   const allowFullScene = policy.allowFullScene === true;
   const preferredGroups = new Set(policy.include ?? []);
+  const excludedGroups = new Set(policy.exclude ?? []);
 
   for (const node of spec.nodes ?? []) {
     if (node.group) nodeGroups.set(node.semanticId, node.group);
@@ -98,22 +119,52 @@ export function frameSceneGroups(scene, spec) {
       .map((meta) => meta.semanticId)
   );
 
-  const minimumMembers = allowSingletons ? 1 : 2;
-  const budget = frameBudget(sceneNodes.length, policy);
-  const candidates = [...groups.entries()]
-    .filter(([groupName, boxes]) => !existingFrames.has(groupName)
-      && boxes.length >= minimumMembers
-      && (allowFullScene || boxes.length < sceneNodes.length))
-    .sort((first, second) => {
-      const firstPreferred = preferredGroups.has(first[0]) ? 1 : 0;
-      const secondPreferred = preferredGroups.has(second[0]) ? 1 : 0;
-      return secondPreferred - firstPreferred
-        || second[1].length - first[1].length
-        || first[0].localeCompare(second[0]);
-    })
-    .slice(0, budget);
+  const defaultMinimum = allowSingletons ? 1 : explicitMode ? 2 : 3;
+  const minimumMembers = Number.isInteger(policy.minMembers) && policy.minMembers > 0
+    ? policy.minMembers
+    : defaultMinimum;
+  const budget = frameBudget(sceneNodes.length, policy, explicitMode);
 
-  const frames = candidates.map(([groupName, boxes]) => makeFrame(groupName, boxes));
+  let suppressedSmallGroups = 0;
+  let suppressedUnspecifiedGroups = 0;
+  let suppressedFullScene = 0;
+  const candidates = [];
+
+  for (const [groupName, boxes] of groups.entries()) {
+    if (existingFrames.has(groupName) || excludedGroups.has(groupName)) continue;
+    const definition = definitions.get(groupName);
+    if (definition?.disabled) continue;
+
+    const explicit = preferredGroups.has(groupName) || definition?.visualBoundary === true;
+    if (explicitMode && !explicit) {
+      suppressedUnspecifiedGroups += 1;
+      continue;
+    }
+    if (boxes.length < minimumMembers && !definition?.force) {
+      suppressedSmallGroups += 1;
+      continue;
+    }
+    if (!allowFullScene && boxes.length >= sceneNodes.length && !definition?.force) {
+      suppressedFullScene += 1;
+      continue;
+    }
+
+    candidates.push({
+      groupName,
+      label: definition?.label ?? groupName,
+      boxes,
+      mode: explicit ? 'explicit' : 'auto'
+    });
+  }
+
+  candidates.sort((a, b) => {
+    const explicitDelta = (b.mode === 'explicit' ? 1 : 0) - (a.mode === 'explicit' ? 1 : 0);
+    return explicitDelta || b.boxes.length - a.boxes.length || a.groupName.localeCompare(b.groupName);
+  });
+
+  const selected = candidates.slice(0, budget);
+  const frames = selected.map(({ groupName, label, boxes, mode }) => makeFrame(groupName, label, boxes, mode));
+
   return {
     ...scene,
     elements: [...frames, ...(scene.elements ?? [])],
@@ -123,9 +174,12 @@ export function frameSceneGroups(scene, spec) {
         ...(scene.customData?.excalidrawSkill ?? {}),
         framePolicy: {
           budget,
-          candidateCount: groups.size,
+          candidateCount: candidates.length,
           renderedCount: frames.length,
-          suppressedSingletons: [...groups.values()].filter((boxes) => boxes.length === 1).length
+          suppressedSmallGroups,
+          suppressedUnspecifiedGroups,
+          suppressedFullScene,
+          suppressedByBudget: Math.max(0, candidates.length - frames.length)
         }
       }
     }
