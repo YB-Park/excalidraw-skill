@@ -16,9 +16,19 @@ Use this family when the diagram must explain the internal composition of one mo
 
 Use for responsibilities and static dependencies.
 
+This view has an initial dedicated renderer.
+
+- set `module.focusModule` to the semantic id of the module boundary
+- assign internal nodes to that same `group`
+- declare one matching group with `visualBoundary: true`
+- keep callers, providers, and external systems outside that group
+- use `layoutHints.lane: right` when an external provider should sit on the right side
 - emphasize ownership and dependency
 - keep implementation details below the level needed for review
 - distinguish public interfaces from internal helpers
+- do not create one frame per internal block
+
+Reference fixture: `examples/module-architecture/connection-manager.diagram.json`.
 
 ### internal-block
 
@@ -29,6 +39,8 @@ Use for blocks, data paths, control paths, queues, buffers, and state.
 - use separate relation kinds for data and control
 - place shared state near its actual users
 
+Dedicated internal-block layout is not implemented yet.
+
 ### port-interface-view
 
 Use when external interfaces are the main story.
@@ -37,6 +49,8 @@ Use when external interfaces are the main story.
 - place ports on the module boundary
 - connect external modules to ports, not directly to arbitrary internal blocks
 - label direction and responsibility clearly
+
+Dedicated port-interface layout is not implemented yet.
 
 ## Recommended semantic fields
 
