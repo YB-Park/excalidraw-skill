@@ -1,11 +1,20 @@
 ---
 name: excalidraw-skill
-description: Generate, inspect, update, and polish software diagrams using editable Excalidraw scenes, compact contracts, team style presets, and a local CLI.
+description: Generate, inspect, update, and polish software diagrams using editable Excalidraw scenes, compact contracts, team style presets, and an installed CLI.
 ---
 
 # Excalidraw Skill Router
 
 This is the only top-level skill the agent should select for Excalidraw diagram work.
+
+Resolve every relative path in this file from the directory containing this `SKILL.md`. The installed bundle is self-contained.
+
+## Runtime
+
+- Use the `excalidraw-skill` command from `PATH`.
+- Run commands in the user's current workspace.
+- Treat input and output paths as workspace-relative unless the user provides an absolute path.
+- If the CLI is unavailable, report that the global CLI installation is missing instead of hand-writing raw Excalidraw JSON.
 
 Keep this file small. Read only the guide files needed for the current task.
 
@@ -45,7 +54,7 @@ Legacy helpers:
 
 - Select the diagram family from the question the diagram must answer.
 - Do not overload one scene with system, module, flow, and sequence concerns at once.
-- Prefer the local CLI over hand-written raw Excalidraw JSON.
+- Prefer the installed CLI over hand-written raw Excalidraw JSON.
 - Use semantic ids for meaningful diagram objects.
 - Preserve manual layout unless the user asks for a full relayout.
 - Use team style presets instead of arbitrary visual choices.
@@ -54,5 +63,4 @@ Legacy helpers:
 - When quality checks fail, make a small semantic patch instead of rewriting the full scene.
 - Use Mermaid only as a temporary helper for simple flow-like reasoning.
 - Never route sequence diagrams through the general graph layout engine.
-- Test cross-cutting changes against `examples/evaluation/suite.json`, not only the payment example.
 - Do not read every guide by default.
