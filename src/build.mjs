@@ -8,15 +8,19 @@ import { fileURLToPath } from 'node:url';
 const [specPath] = process.argv.slice(2);
 const srcDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(srcDir, '..');
+const invocationCwd = process.cwd();
 
 function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(path.resolve(process.cwd(), filePath), 'utf8'));
+  return JSON.parse(fs.readFileSync(path.resolve(invocationCwd, filePath), 'utf8'));
 }
 
 function runStep(relativeFile, args) {
   const file = path.join(rootDir, relativeFile);
-  const result = spawnSync(process.execPath, [file, ...args], { stdio: 'inherit', cwd: rootDir });
-  if ((result.status ?? 0) !== 0) process.exit(result.status ?? 1);
+  const result = spawnSync(process.execPath, [file, ...args], {
+    stdio: 'inherit',
+    cwd: invocationCwd
+  });
+  if ((result.status ?? 1) !== 0) process.exit(result.status ?? 1);
 }
 
 function main() {
