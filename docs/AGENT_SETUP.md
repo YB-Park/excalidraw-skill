@@ -12,17 +12,18 @@ Do the setup. Do not explain every internal detail unless something fails.
 
 ## Goal
 
-Prepare both the global Copilot skill and the CLI so Excalidraw diagramming can be used from any workspace on this machine.
+Prepare a global Copilot skill and a user-owned runtime so Excalidraw diagramming can be used from any workspace on this machine.
 
 Project-local setup remains available when the user explicitly wants only the current repository configured.
 
 ## Rules
 
-- Use the explicit global installer for `~/.copilot/skills`; do not copy files manually.
-- Do not overwrite an unmanaged global skill directory unless the user explicitly permits `--force`.
+- Use the explicit global installer; do not copy files manually.
+- Do not require `npm install -g`, a system symlink, or administrator privileges for the default installation.
+- Do not use `sudo` as the default response to npm `EACCES` errors.
+- Do not overwrite unmanaged skill or runtime directories unless the user explicitly permits `--force`.
 - Keep project-local initialization separate from global installation.
 - Stop and report the smallest blocker if a required command is missing.
-- Do not overwrite user files unless the command is designed to be safe.
 
 ## Required checks
 
@@ -47,20 +48,21 @@ From this repository, run:
 ```txt
 npm install
 npm test
-npm install -g .
-excalidraw-skill install --global
-excalidraw-skill doctor --global
+npm run skill:install:global
+npm run skill:doctor:global
 ```
 
-Then confirm the global skill exists:
+Confirm both managed directories exist:
 
 ```txt
-~/.copilot/skills/excalidraw-skill/SKILL.md
+~/.copilot/skills/excalidraw-skill
+~/.copilot/tools/excalidraw-skill
 ```
 
-The installed directory must also contain:
+The skill directory must contain:
 
 ```txt
+SKILL.md
 guides/
 contracts/
 diagram-types/
@@ -69,9 +71,39 @@ docs/
 .excalidraw-skill-install.json
 ```
 
-`doctor --global` must report both `skillOk: true` and `cliOk: true`.
+The runtime directory must contain:
+
+```txt
+bin/excalidraw-skill.mjs
+src/
+assets/
+package.json
+.excalidraw-skill-runtime.json
+```
+
+The skill marker must contain an absolute `runtimeEntry` path. `doctor --global` must report `skillOk: true`, `runtimeOk: true`, and `ok: true`.
+
+`cliOk` may be false. The optional PATH command is not required because the skill calls its managed runtime directly.
 
 After installation, start a new Copilot chat or reload VS Code so Copilot scans the skill directory again.
+
+## Optional PATH command
+
+Only install the convenience command when the user explicitly wants to run `excalidraw-skill` directly in a terminal.
+
+If `npm install -g .` reports `EACCES`, prefer a Node version manager or a user-owned npm prefix. Do not automatically retry with `sudo`.
+
+On macOS or Linux, one supported user-prefix approach is:
+
+```txt
+npm config set prefix ~/.local
+```
+
+Ensure `~/.local/bin` is on `PATH`, then run:
+
+```txt
+npm install -g .
+```
 
 ## Project-local setup
 
@@ -90,7 +122,7 @@ Then check these files exist in the current workspace:
 .github/prompts/excalidraw.prompt.md
 ```
 
-`npm run init` does not install anything into `~/.copilot/skills`.
+`npm run init` does not install anything into `~/.copilot`.
 
 ## Smoke test
 
@@ -108,15 +140,15 @@ If this succeeds, report the generated file path:
 examples/service-flow/payment-flow.grouped.excalidraw
 ```
 
-## Cross-workspace CLI check
+## Managed runtime check
 
-From another writable workspace, run:
+Read the global skill marker and use its `runtimeEntry` value to run a command from another writable workspace:
 
 ```txt
-excalidraw-skill init
+node <runtimeEntry> init
 ```
 
-The `.opencode` and `.github/prompts` entrypoints must be created in that workspace, not in the globally installed npm package directory.
+The `.opencode` and `.github/prompts` entrypoints must be created in that workspace, not in the managed runtime directory.
 
 ## VS Code Excalidraw extension
 
@@ -147,25 +179,27 @@ After setup, open a fresh Copilot chat in any unrelated project and request:
 결제 승인 흐름을 Excalidraw 다이어그램으로 만들어줘. 사용 가능한 skill을 먼저 확인해줘.
 ```
 
-Copilot should discover the global `excalidraw-skill` bundle and use the `excalidraw-skill` CLI from `PATH`.
+Copilot should discover the global `excalidraw-skill` bundle, read `runtimeEntry`, and use the managed runtime.
 
 ## Update
 
 After pulling a newer version:
 
 ```txt
-npm install -g .
-excalidraw-skill install --global
-excalidraw-skill doctor --global
+git pull
+npm install
+npm test
+npm run skill:install:global
+npm run skill:doctor:global
 ```
 
 ## What success looks like
 
 - `npm test` passes.
-- `excalidraw-skill` is available on `PATH`.
 - `~/.copilot/skills/excalidraw-skill/SKILL.md` exists.
-- the installed skill bundle is self-contained.
-- `doctor --global` reports ok.
+- `~/.copilot/tools/excalidraw-skill/bin/excalidraw-skill.mjs` exists.
+- the installed skill marker points to the runtime entry.
+- `doctor --global` reports `skillOk`, `runtimeOk`, and `ok` as true.
 - project-local `init` modifies the invoking workspace.
 - `smoke` generates a `.excalidraw` file.
 - VS Code can open the generated `.excalidraw` file when the extension is installed.
