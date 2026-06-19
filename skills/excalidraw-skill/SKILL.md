@@ -1,6 +1,6 @@
 ---
 name: excalidraw-skill
-description: Generate, inspect, update, and polish software diagrams using editable Excalidraw scenes, compact contracts, team style presets, and an installed CLI.
+description: Generate, inspect, update, and polish software diagrams using editable Excalidraw scenes, compact contracts, team style presets, and an installed user runtime.
 ---
 
 # Excalidraw Skill Router
@@ -11,10 +11,12 @@ Resolve every relative path in this file from the directory containing this `SKI
 
 ## Runtime
 
-- Use the `excalidraw-skill` command from `PATH`.
+- Read `.excalidraw-skill-install.json` beside this file.
+- Use its absolute `runtimeEntry` value with Node.js: `node <runtimeEntry> <command> ...`.
+- If the optional `excalidraw-skill` command exists on `PATH`, it may be used instead.
 - Run commands in the user's current workspace.
 - Treat input and output paths as workspace-relative unless the user provides an absolute path.
-- If the CLI is unavailable, report that the global CLI installation is missing instead of hand-writing raw Excalidraw JSON.
+- If `runtimeEntry` is missing or unreadable, report that the global runtime installation is incomplete instead of hand-writing raw Excalidraw JSON.
 
 Keep this file small. Read only the guide files needed for the current task.
 
@@ -54,7 +56,7 @@ Legacy helpers:
 
 - Select the diagram family from the question the diagram must answer.
 - Do not overload one scene with system, module, flow, and sequence concerns at once.
-- Prefer the installed CLI over hand-written raw Excalidraw JSON.
+- Prefer the installed runtime over hand-written raw Excalidraw JSON.
 - Use semantic ids for meaningful diagram objects.
 - Preserve manual layout unless the user asks for a full relayout.
 - Use team style presets instead of arbitrary visual choices.
