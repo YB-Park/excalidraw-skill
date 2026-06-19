@@ -4,22 +4,58 @@ LLM과 함께 수정 가능한 Excalidraw 소프트웨어 다이어그램을 만
 
 최종 산출물은 사람이 직접 열어보고 수정할 수 있는 `.excalidraw` 파일입니다.
 
-## 빠른 시작
+## 전역 설치
 
-VS Code에서 이 프로젝트 폴더를 연 뒤, 사용하는 LLM에게 이렇게 요청하세요.
+한 번 설치한 뒤 같은 PC의 다른 프로젝트에서도 Copilot skill과 CLI를 사용하려면 저장소에서 다음을 실행하세요.
 
 ```txt
-Read docs/AGENT_SETUP.md and set this up.
+npm install
+npm test
+npm install -g .
+excalidraw-skill install --global
+excalidraw-skill doctor --global
 ```
 
-LLM은 환경 확인, 설치, 초기화, smoke test, VS Code Excalidraw 확장 확인까지 진행하도록 안내되어 있습니다.
+전역 skill bundle은 다음 위치에 설치됩니다.
 
-직접 실행하려면:
+```txt
+~/.copilot/skills/excalidraw-skill
+```
+
+설치 후 VS Code를 reload하거나 새 Copilot Chat을 시작하세요.
+
+LLM에게 설치를 맡기려면 VS Code에서 이 프로젝트를 열고 다음처럼 요청할 수 있습니다.
+
+```txt
+Read docs/AGENT_SETUP.md and set this up globally.
+```
+
+업데이트할 때는 다음 명령을 다시 실행합니다.
+
+```txt
+git pull
+npm install -g .
+excalidraw-skill install --global
+excalidraw-skill doctor --global
+```
+
+상세 내용: `docs/GLOBAL_INSTALL.md`
+
+## 프로젝트 로컬 설정
+
+현재 프로젝트에 opencode와 prompt entrypoint만 만들려면:
 
 ```txt
 npm install
 npm run doctor
 npm run init
+```
+
+`npm run init`은 `.opencode/commands/excalidraw.md`와 `.github/prompts/excalidraw.prompt.md`를 현재 workspace에 생성합니다. `~/.copilot/skills`에는 아무것도 설치하지 않습니다.
+
+## 개발 및 확인
+
+```txt
 npm test
 npm run smoke
 npm run smoke:system
@@ -95,6 +131,7 @@ examples/evaluation/results/latest.json
 
 ## 문서
 
+- 전역 설치: `docs/GLOBAL_INSTALL.md`
 - LLM 설치 런북: `docs/AGENT_SETUP.md`
 - 사용법: `docs/USAGE.md`
 - 다이어그램 타입: `docs/DIAGRAM_TYPES.md`
