@@ -141,10 +141,10 @@ Extension id: pomdtr.excalidraw-editor
 
 ## First user-facing test
 
-After setup, open a fresh Copilot chat in any project and request:
+After setup, open a fresh Copilot chat in any unrelated project and request:
 
 ```txt
-시스템 초기화 과정을 시퀀스 다이어그램으로 만들어줘
+결제 승인 흐름을 Excalidraw 다이어그램으로 만들어줘. 사용 가능한 skill을 먼저 확인해줘.
 ```
 
 Copilot should discover the global `excalidraw-skill` bundle and use the `excalidraw-skill` CLI from `PATH`.
