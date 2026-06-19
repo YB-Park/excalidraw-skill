@@ -20,6 +20,10 @@ function tempDir(t) {
   return dir;
 }
 
+function normalizeMarkdown(text) {
+  return `${text.replace(/\r\n?/g, '\n').replace(/\n+$/, '')}\n`;
+}
+
 test('installs a self-contained global skill bundle', (t) => {
   const targetDir = path.join(tempDir(t), '.copilot', 'skills', 'excalidraw-skill');
   const result = installGlobalSkill({ rootDir, targetDir, installedAt: '2026-01-01T00:00:00.000Z' });
@@ -79,9 +83,12 @@ test('resolves COPILOT_HOME and explicit target overrides', () => {
 
 test('bundled docs stay synchronized with repository docs', () => {
   for (const name of ['DIAGRAM_TYPES.md', 'QUALITY_CRITERIA.md']) {
+    const bundled = fs.readFileSync(path.join(rootDir, 'skills', 'excalidraw-skill', 'docs', name), 'utf8');
+    const repository = fs.readFileSync(path.join(rootDir, 'docs', name), 'utf8');
     assert.equal(
-      fs.readFileSync(path.join(rootDir, 'skills', 'excalidraw-skill', 'docs', name), 'utf8'),
-      fs.readFileSync(path.join(rootDir, 'docs', name), 'utf8')
+      normalizeMarkdown(bundled),
+      normalizeMarkdown(repository),
+      `${name} content differs between repository docs and the bundled skill`
     );
   }
 });
