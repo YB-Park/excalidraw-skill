@@ -5,19 +5,22 @@ This file is for an LLM agent setting up this repository for a human user.
 The human should be able to say:
 
 ```txt
-Read docs/AGENT_SETUP.md and set this up.
+Read docs/AGENT_SETUP.md and set this up globally.
 ```
 
 Do the setup. Do not explain every internal detail unless something fails.
 
 ## Goal
 
-Prepare the local workspace so the Excalidraw diagramming skill can be used from opencode, VS Code, and the local CLI.
+Prepare both the global Copilot skill and the CLI so Excalidraw diagramming can be used from any workspace on this machine.
+
+Project-local setup remains available when the user explicitly wants only the current repository configured.
 
 ## Rules
 
-- Keep edits local to this repository unless the user explicitly asks for a global install.
-- Prefer project-local setup for the first release.
+- Use the explicit global installer for `~/.copilot/skills`; do not copy files manually.
+- Do not overwrite an unmanaged global skill directory unless the user explicitly permits `--force`.
+- Keep project-local initialization separate from global installation.
 - Stop and report the smallest blocker if a required command is missing.
 - Do not overwrite user files unless the command is designed to be safe.
 
@@ -37,9 +40,42 @@ Expected minimums:
 - npm 10 or newer
 - Git available
 
-## Package setup
+## Global setup
 
-Run:
+From this repository, run:
+
+```txt
+npm install
+npm test
+npm install -g .
+excalidraw-skill install --global
+excalidraw-skill doctor --global
+```
+
+Then confirm the global skill exists:
+
+```txt
+~/.copilot/skills/excalidraw-skill/SKILL.md
+```
+
+The installed directory must also contain:
+
+```txt
+guides/
+contracts/
+diagram-types/
+catalog/
+docs/
+.excalidraw-skill-install.json
+```
+
+`doctor --global` must report both `skillOk: true` and `cliOk: true`.
+
+After installation, start a new Copilot chat or reload VS Code so Copilot scans the skill directory again.
+
+## Project-local setup
+
+Use this only when the user wants entrypoints inside the current project:
 
 ```txt
 npm install
@@ -47,18 +83,18 @@ npm run doctor
 npm run init
 ```
 
-Then check these files exist:
+Then check these files exist in the current workspace:
 
 ```txt
-skills/excalidraw-skill/SKILL.md
 .opencode/commands/excalidraw.md
 .github/prompts/excalidraw.prompt.md
-bin/excalidraw-skill.mjs
 ```
+
+`npm run init` does not install anything into `~/.copilot/skills`.
 
 ## Smoke test
 
-Run:
+Run from this repository:
 
 ```txt
 npm run smoke
@@ -71,6 +107,16 @@ If this succeeds, report the generated file path:
 ```txt
 examples/service-flow/payment-flow.grouped.excalidraw
 ```
+
+## Cross-workspace CLI check
+
+From another writable workspace, run:
+
+```txt
+excalidraw-skill init
+```
+
+The `.opencode` and `.github/prompts` entrypoints must be created in that workspace, not in the globally installed npm package directory.
 
 ## VS Code Excalidraw extension
 
@@ -95,19 +141,31 @@ Extension id: pomdtr.excalidraw-editor
 
 ## First user-facing test
 
-After setup, suggest this command:
+After setup, open a fresh Copilot chat in any project and request:
 
 ```txt
-/excalidraw 결제 승인 흐름 다이어그램 만들어줘
+시스템 초기화 과정을 시퀀스 다이어그램으로 만들어줘
 ```
 
-For VS Code/Copilot Chat, suggest opening `.github/prompts/excalidraw.prompt.md` or asking the model to read `skills/excalidraw-skill/SKILL.md`.
+Copilot should discover the global `excalidraw-skill` bundle and use the `excalidraw-skill` CLI from `PATH`.
+
+## Update
+
+After pulling a newer version:
+
+```txt
+npm install -g .
+excalidraw-skill install --global
+excalidraw-skill doctor --global
+```
 
 ## What success looks like
 
-- `doctor` passes.
-- `init` reports checked and created entrypoints.
+- `npm test` passes.
+- `excalidraw-skill` is available on `PATH`.
+- `~/.copilot/skills/excalidraw-skill/SKILL.md` exists.
+- the installed skill bundle is self-contained.
+- `doctor --global` reports ok.
+- project-local `init` modifies the invoking workspace.
 - `smoke` generates a `.excalidraw` file.
-- `inspect` prints a compact scene summary.
-- `validate` returns ok.
 - VS Code can open the generated `.excalidraw` file when the extension is installed.
