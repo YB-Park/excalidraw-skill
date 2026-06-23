@@ -14,21 +14,46 @@ import {
 import { textElementOverflows } from './text-fit.mjs';
 import { createFamilyQualityReport } from './family-quality.mjs';
 
-function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+const VISUAL_ROLES = new Set(['default', 'data-plane', 'control-plane', 'event-stream', 'error-path', 'dependency', 'muted']);
+const VISUAL_EMPHASIS = new Set(['normal', 'strong', 'critical', 'muted']);
+const VISUAL_STROKES = new Set(['solid', 'dashed', 'dotted']);
+
+function readJson(filePath) { return JSON.parse(fs.readFileSync(filePath, 'utf8')); }
+function writeJson(filePath, data) { fs.mkdirSync(path.dirname(filePath), { recursive: true }); fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`); }
+function metaOf(element) { return element.customData?.excalidrawSkill ?? {}; }
+function pairKey(first, second) { return [first, second].sort().join('::'); }
+
+function normalizeVisual(value) {
+  const visual = value && typeof value === 'object' ? value : {};
+  return {
+    role: VISUAL_ROLES.has(visual.role) ? visual.role : 'default',
+    emphasis: VISUAL_EMPHASIS.has(visual.emphasis) ? visual.emphasis : 'normal',
+    stroke: VISUAL_STROKES.has(visual.stroke) ? visual.stroke : undefined
+  };
 }
 
-function writeJson(filePath, data) {
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`);
-}
+function specEdgeId(edge) { return edge.semanticId ?? `${edge.from}_to_${edge.to}`; }
 
-function metaOf(element) {
-  return element.customData?.excalidrawSkill ?? {};
-}
-
-function pairKey(first, second) {
-  return [first, second].sort().join('::');
+function visualMismatches(edges, spec) {
+  const byId = new Map(edges.map((edge) => [metaOf(edge).semanticId, edge]));
+  const mismatches = [];
+  for (const edgeSpec of spec?.edges ?? []) {
+    if (!edgeSpec.visual) continue;
+    const id = specEdgeId(edgeSpec);
+    const edge = byId.get(id);
+    const expected = normalizeVisual(edgeSpec.visual);
+    if (!edge) {
+      mismatches.push({ edge: id, reason: 'missing-edge', expected });
+      continue;
+    }
+    const meta = metaOf(edge);
+    const actual = normalizeVisual(meta.visual);
+    const same = expected.role === actual.role && expected.emphasis === actual.emphasis && expected.stroke === actual.stroke;
+    if (meta.styleSource !== 'edge.visual' || !same) {
+      mismatches.push({ edge: id, reason: 'style-source-or-visual-mismatch', expected, actual, styleSource: meta.styleSource ?? null });
+    }
+  }
+  return mismatches;
 }
 
 function endpointSegment(edge, sharedNode) {
@@ -51,26 +76,11 @@ function nodeSideAtPoint(node, point) {
 function segmentPerpendicularToSide(segment, side) {
   const vertical = Math.abs(segment.a.x - segment.b.x) < 1e-9;
   const horizontal = Math.abs(segment.a.y - segment.b.y) < 1e-9;
-  return side === 'up' || side === 'down'
-    ? vertical
-    : side === 'left' || side === 'right'
-      ? horizontal
-      : false;
+  return side === 'up' || side === 'down' ? vertical : side === 'left' || side === 'right' ? horizontal : false;
 }
 
 function emptyFamilyQuality(spec, scene) {
-  return {
-    version: '0.1.0',
-    family: null,
-    diagramType: spec?.diagramType ?? null,
-    profile: spec?.layout?.profile ?? scene.customData?.excalidrawSkill?.layout?.profile ?? null,
-    supported: true,
-    reason: null,
-    pass: true,
-    metrics: {},
-    details: {},
-    suggestedPatches: []
-  };
+  return { version: '0.1.0', family: null, diagramType: spec?.diagramType ?? null, profile: spec?.layout?.profile ?? scene.customData?.excalidrawSkill?.layout?.profile ?? null, supported: true, reason: null, pass: true, metrics: {}, details: {}, suggestedPatches: [] };
 }
 
 export function createQualityReport(scene, spec = null) {
@@ -78,7 +88,6 @@ export function createQualityReport(scene, spec = null) {
   const edges = [];
   const edgeLabels = [];
   const nodeLabels = [];
-
   for (const element of scene.elements ?? []) {
     const meta = metaOf(element);
     if (meta.role === 'node') nodes.push(element);
@@ -91,9 +100,7 @@ export function createQualityReport(scene, spec = null) {
   const nodeOverlaps = [];
   for (let first = 0; first < nodes.length; first += 1) {
     for (let second = first + 1; second < nodes.length; second += 1) {
-      if (boxesOverlap(rectOf(nodes[first]), rectOf(nodes[second]))) {
-        nodeOverlaps.push([metaOf(nodes[first]).semanticId, metaOf(nodes[second]).semanticId]);
-      }
+      if (boxesOverlap(rectOf(nodes[first]), rectOf(nodes[second]))) nodeOverlaps.push([metaOf(nodes[first]).semanticId, metaOf(nodes[second]).semanticId]);
     }
   }
 
@@ -103,9 +110,7 @@ export function createQualityReport(scene, spec = null) {
     for (const node of nodes) {
       const nodeId = metaOf(node).semanticId;
       if (nodeId === edgeMeta.from || nodeId === edgeMeta.to) continue;
-      if (segmentsFromEdge(edge).some((segment) => segmentIntersectsRect(segment, rectOf(node, 3)))) {
-        edgeNodeCrossings.push({ edge: edgeMeta.semanticId, node: nodeId });
-      }
+      if (segmentsFromEdge(edge).some((segment) => segmentIntersectsRect(segment, rectOf(node, 3)))) edgeNodeCrossings.push({ edge: edgeMeta.semanticId, node: nodeId });
     }
   }
 
@@ -115,30 +120,19 @@ export function createQualityReport(scene, spec = null) {
     for (let secondIndex = firstIndex + 1; secondIndex < edges.length; secondIndex += 1) {
       const firstMeta = metaOf(edges[firstIndex]);
       const secondMeta = metaOf(edges[secondIndex]);
-      const sharedNodes = [firstMeta.from, firstMeta.to]
-        .filter((id) => id === secondMeta.from || id === secondMeta.to);
+      const sharedNodes = [firstMeta.from, firstMeta.to].filter((id) => id === secondMeta.from || id === secondMeta.to);
       let crosses = false;
       for (const first of segmentsFromEdge(edges[firstIndex])) {
         for (const second of segmentsFromEdge(edges[secondIndex])) {
           if (segmentsIntersect(first, second, { includeEndpoints: false })) crosses = true;
         }
       }
-      if (crosses && sharedNodes.length === 0) {
-        edgeCrossingPairs.add(pairKey(firstMeta.semanticId, secondMeta.semanticId));
-      }
+      if (crosses && sharedNodes.length === 0) edgeCrossingPairs.add(pairKey(firstMeta.semanticId, secondMeta.semanticId));
       for (const sharedNode of sharedNodes) {
         const firstSegment = endpointSegment(edges[firstIndex], sharedNode);
         const secondSegment = endpointSegment(edges[secondIndex], sharedNode);
-        const overlap = firstSegment && secondSegment
-          ? collinearOverlapLength(firstSegment, secondSegment)
-          : 0;
-        if (overlap > 8) {
-          endpointOverlaps.push({
-            node: sharedNode,
-            edges: [firstMeta.semanticId, secondMeta.semanticId],
-            overlap: Number(overlap.toFixed(1))
-          });
-        }
+        const overlap = firstSegment && secondSegment ? collinearOverlapLength(firstSegment, secondSegment) : 0;
+        if (overlap > 8) endpointOverlaps.push({ node: sharedNode, edges: [firstMeta.semanticId, secondMeta.semanticId], overlap: Number(overlap.toFixed(1)) });
       }
     }
   }
@@ -146,33 +140,20 @@ export function createQualityReport(scene, spec = null) {
   const labelOverlaps = [];
   for (let first = 0; first < edgeLabels.length; first += 1) {
     for (let second = first + 1; second < edgeLabels.length; second += 1) {
-      if (boxesOverlap(rectOf(edgeLabels[first]), rectOf(edgeLabels[second]))) {
-        labelOverlaps.push([metaOf(edgeLabels[first]).edge, metaOf(edgeLabels[second]).edge]);
-      }
+      if (boxesOverlap(rectOf(edgeLabels[first]), rectOf(edgeLabels[second]))) labelOverlaps.push([metaOf(edgeLabels[first]).edge, metaOf(edgeLabels[second]).edge]);
     }
   }
 
   const labelNodeOverlaps = [];
   for (const label of edgeLabels) {
-    for (const node of nodes) {
-      if (boxesOverlap(rectOf(label), rectOf(node))) {
-        labelNodeOverlaps.push({ edge: metaOf(label).edge, node: metaOf(node).semanticId });
-      }
-    }
+    for (const node of nodes) if (boxesOverlap(rectOf(label), rectOf(node))) labelNodeOverlaps.push({ edge: metaOf(label).edge, node: metaOf(node).semanticId });
   }
 
   const textOverflows = [];
   for (const label of nodeLabels) {
     const result = textElementOverflows(label);
     if (result.overflow || metaOf(label).textFit?.overflow) {
-      textOverflows.push({
-        node: metaOf(label).node,
-        estimatedWidth: Number(result.estimatedWidth.toFixed(1)),
-        availableWidth: label.width,
-        requiredHeight: Number(result.requiredHeight.toFixed(1)),
-        availableHeight: label.height,
-        lineCount: result.lineCount
-      });
+      textOverflows.push({ node: metaOf(label).node, estimatedWidth: Number(result.estimatedWidth.toFixed(1)), availableWidth: label.width, requiredHeight: Number(result.requiredHeight.toFixed(1)), availableHeight: label.height, lineCount: result.lineCount });
     }
   }
 
@@ -187,36 +168,19 @@ export function createQualityReport(scene, spec = null) {
     const last = segments.at(-1);
     const sourceSide = nodeSideAtPoint(source, first.a);
     const targetSide = nodeSideAtPoint(target, last.b);
-    if (!segmentPerpendicularToSide(first, sourceSide)) {
-      endpointApproachViolations.push({ edge: meta.semanticId, endpoint: 'source', side: sourceSide });
-    }
-    if (!segmentPerpendicularToSide(last, targetSide)) {
-      endpointApproachViolations.push({ edge: meta.semanticId, endpoint: 'target', side: targetSide });
-    }
+    if (!segmentPerpendicularToSide(first, sourceSide)) endpointApproachViolations.push({ edge: meta.semanticId, endpoint: 'source', side: sourceSide });
+    if (!segmentPerpendicularToSide(last, targetSide)) endpointApproachViolations.push({ edge: meta.semanticId, endpoint: 'target', side: targetSide });
   }
 
+  const edgeVisualMismatches = visualMismatches(edges, spec);
+  const unresolvedFrameCollisions = Number(scene.customData?.excalidrawSkill?.framePolicy?.unresolvedFrameCollisions ?? 0);
   const minX = nodes.length ? Math.min(...nodes.map((node) => node.x)) : 0;
   const maxX = nodes.length ? Math.max(...nodes.map((node) => node.x + node.width)) : 0;
   const minY = nodes.length ? Math.min(...nodes.map((node) => node.y)) : 0;
   const maxY = nodes.length ? Math.max(...nodes.map((node) => node.y + node.height)) : 0;
-  const width = Math.max(1, maxX - minX);
-  const height = Math.max(1, maxY - minY);
-  const aspectRatio = Math.max(width / height, height / width);
+  const aspectRatio = Math.max(Math.max(1, maxX - minX) / Math.max(1, maxY - minY), Math.max(1, maxY - minY) / Math.max(1, maxX - minX));
 
-  const structuralMetrics = {
-    nodeOverlaps: nodeOverlaps.length,
-    edgeNodeCrossings: edgeNodeCrossings.length,
-    edgeCrossings: edgeCrossingPairs.size,
-    endpointOverlaps: endpointOverlaps.length,
-    endpointApproachViolations: endpointApproachViolations.length,
-    labelOverlaps: labelOverlaps.length,
-    labelNodeOverlaps: labelNodeOverlaps.length,
-    textOverflows: textOverflows.length,
-    aspectRatio: Number(aspectRatio.toFixed(2)),
-    nodeCount: nodes.length,
-    edgeCount: edges.length,
-    edgeLabelCount: edgeLabels.length
-  };
+  const structuralMetrics = { nodeOverlaps: nodeOverlaps.length, edgeNodeCrossings: edgeNodeCrossings.length, edgeCrossings: edgeCrossingPairs.size, endpointOverlaps: endpointOverlaps.length, endpointApproachViolations: endpointApproachViolations.length, labelOverlaps: labelOverlaps.length, labelNodeOverlaps: labelNodeOverlaps.length, textOverflows: textOverflows.length, edgeVisualMismatches: edgeVisualMismatches.length, unresolvedFrameCollisions, aspectRatio: Number(aspectRatio.toFixed(2)), nodeCount: nodes.length, edgeCount: edges.length, edgeLabelCount: edgeLabels.length };
 
   const suggestions = [];
   for (const nodesPair of nodeOverlaps) suggestions.push({ operation: 'move-apart', nodes: nodesPair });
@@ -226,78 +190,30 @@ export function createQualityReport(scene, spec = null) {
   for (const labelsPair of labelOverlaps) suggestions.push({ operation: 'separate-edge-labels', edges: labelsPair });
   for (const overlap of labelNodeOverlaps) suggestions.push({ operation: 'move-edge-label', ...overlap, labelSide: 'auto' });
   for (const overflow of textOverflows) suggestions.push({ operation: 'wrap-or-resize-node-label', ...overflow });
+  for (const mismatch of edgeVisualMismatches) suggestions.push({ operation: 'fix-edge-visual', ...mismatch });
+  if (unresolvedFrameCollisions > 0) suggestions.push({ operation: 'increase-frame-spacing', unresolvedFrameCollisions });
   if (aspectRatio > 8) suggestions.push({ operation: 'change-layout-aspect', aspectRatio: 'balanced' });
 
-  const structuralPass = structuralMetrics.nodeOverlaps === 0
-    && structuralMetrics.edgeNodeCrossings === 0
-    && structuralMetrics.endpointOverlaps === 0
-    && structuralMetrics.endpointApproachViolations === 0
-    && structuralMetrics.labelOverlaps === 0
-    && structuralMetrics.labelNodeOverlaps === 0
-    && structuralMetrics.textOverflows === 0
-    && structuralMetrics.edgeCrossings <= 2
-    && structuralMetrics.aspectRatio <= 8;
+  const structuralPass = structuralMetrics.nodeOverlaps === 0 && structuralMetrics.edgeNodeCrossings === 0 && structuralMetrics.endpointOverlaps === 0 && structuralMetrics.endpointApproachViolations === 0 && structuralMetrics.labelOverlaps === 0 && structuralMetrics.labelNodeOverlaps === 0 && structuralMetrics.textOverflows === 0 && structuralMetrics.edgeVisualMismatches === 0 && structuralMetrics.unresolvedFrameCollisions === 0 && structuralMetrics.edgeCrossings <= 2 && structuralMetrics.aspectRatio <= 8;
+  const familyQuality = spec ? createFamilyQualityReport(scene, spec) : emptyFamilyQuality(spec, scene);
 
-  const familyQuality = spec
-    ? createFamilyQualityReport(scene, spec)
-    : emptyFamilyQuality(spec, scene);
-
-  return {
-    version: '0.4.0',
-    pass: structuralPass && familyQuality.pass,
-    structuralPass,
-    familyPass: familyQuality.pass,
-    diagramType: spec?.diagramType ?? null,
-    layoutProfile: spec?.layout?.profile ?? scene.customData?.excalidrawSkill?.layout?.profile ?? null,
-    metrics: { ...structuralMetrics, ...familyQuality.metrics },
-    details: {
-      nodeOverlaps,
-      edgeNodeCrossings,
-      edgeCrossings: [...edgeCrossingPairs],
-      endpointOverlaps,
-      endpointApproachViolations,
-      labelOverlaps,
-      labelNodeOverlaps,
-      textOverflows,
-      family: familyQuality.details
-    },
-    familyQuality,
-    suggestedPatches: [...suggestions, ...familyQuality.suggestedPatches]
-  };
+  return { version: '0.4.1', pass: structuralPass && familyQuality.pass, structuralPass, familyPass: familyQuality.pass, diagramType: spec?.diagramType ?? null, layoutProfile: spec?.layout?.profile ?? scene.customData?.excalidrawSkill?.layout?.profile ?? null, metrics: { ...structuralMetrics, ...familyQuality.metrics }, details: { nodeOverlaps, edgeNodeCrossings, edgeCrossings: [...edgeCrossingPairs], endpointOverlaps, endpointApproachViolations, labelOverlaps, labelNodeOverlaps, textOverflows, edgeVisualMismatches, unresolvedFrameCollisions, family: familyQuality.details }, familyQuality, suggestedPatches: [...suggestions, ...familyQuality.suggestedPatches] };
 }
 
 function main() {
   const [scenePathArg, specPathArg, flag, outputPathArg] = process.argv.slice(2);
-  if (!scenePathArg) {
-    console.error('Usage: node src/quality-report.mjs <scene.excalidraw> [spec.json] [-o report.json]');
-    process.exit(1);
-  }
+  if (!scenePathArg) { console.error('Usage: node src/quality-report.mjs <scene.excalidraw> [spec.json] [-o report.json]'); process.exit(1); }
   const scenePath = path.resolve(process.cwd(), scenePathArg);
-  const specPath = specPathArg && specPathArg !== '-o'
-    ? path.resolve(process.cwd(), specPathArg)
-    : null;
+  const specPath = specPathArg && specPathArg !== '-o' ? path.resolve(process.cwd(), specPathArg) : null;
   const actualFlag = specPath ? flag : specPathArg;
   const actualOutput = specPath ? outputPathArg : flag;
-  const outputPath = actualFlag === '-o' && actualOutput
-    ? path.resolve(process.cwd(), actualOutput)
-    : `${scenePath}.quality.json`;
+  const outputPath = actualFlag === '-o' && actualOutput ? path.resolve(process.cwd(), actualOutput) : `${scenePath}.quality.json`;
   const report = createQualityReport(readJson(scenePath), specPath ? readJson(specPath) : null);
   writeJson(outputPath, report);
-  console.log(JSON.stringify({
-    outputPath: path.relative(process.cwd(), outputPath) || outputPath,
-    pass: report.pass,
-    structuralPass: report.structuralPass,
-    familyPass: report.familyPass,
-    metrics: report.metrics
-  }, null, 2));
+  console.log(JSON.stringify({ outputPath: path.relative(process.cwd(), outputPath) || outputPath, pass: report.pass, structuralPass: report.structuralPass, familyPass: report.familyPass, metrics: report.metrics }, null, 2));
 }
 
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
-  try {
-    main();
-  } catch (error) {
-    console.error(`quality-report failed: ${error instanceof Error ? error.message : String(error)}`);
-    process.exit(1);
-  }
+  try { main(); } catch (error) { console.error(`quality-report failed: ${error instanceof Error ? error.message : String(error)}`); process.exit(1); }
 }
