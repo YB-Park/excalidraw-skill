@@ -207,7 +207,7 @@ function approachBlocked(end, side, source, obstacles, bounds) {
   return obstacles.some((rect) => segmentIntersectsRect(probe, rect));
 }
 
-function scoreRoute(points, obstacles, existingSegments, approachPenalty = 0) {
+function scoreRoute(points, obstacles, existingSegments, sidePenalty = 0, approachPenalty = 0) {
   const segments = segmentsFromPoints(points);
   let nodeHits = 0;
   let crossings = 0;
@@ -221,6 +221,7 @@ function scoreRoute(points, obstacles, existingSegments, approachPenalty = 0) {
   }
   return [
     nodeHits,
+    sidePenalty,
     approachPenalty,
     overlapLength > 8 ? 1 : 0,
     overlapLength,
@@ -245,6 +246,10 @@ function edgeSpecMap(spec) {
   ]));
 }
 
+function nodeSpecMap(spec) {
+  return new Map((spec?.nodes ?? []).map((node) => [node.semanticId, node]));
+}
+
 function primaryPairs(spec) {
   const ids = spec?.layout?.primaryFlow ?? [];
   const pairs = new Set();
@@ -254,7 +259,58 @@ function primaryPairs(spec) {
   return pairs;
 }
 
-function unifiedPortOffsets(edges, nodes, specs) {
+function isLayeredSystem(spec) {
+  return spec?.diagramType === 'system-architecture'
+    && (spec.layout?.profile ?? 'layered-system') === 'layered-system';
+}
+
+function explicitDirection(edgeSpec) {
+  const direction = edgeSpec?.routeHints?.direction;
+  return ['right', 'left', 'up', 'down'].includes(direction) ? direction : null;
+}
+
+function layeredVerticalSides(from, to, fromSpec, toSpec, spec) {
+  if (!isLayeredSystem(spec)) return null;
+  if (!fromSpec?.layer || !toSpec?.layer || fromSpec.layer === toSpec.layer) return null;
+  const source = center(from);
+  const target = center(to);
+  if (Math.abs(target.y - source.y) < 48) return null;
+  const sourceSide = target.y >= source.y ? 'down' : 'up';
+  return {
+    sourceSide,
+    targetSide: opposite(sourceSide),
+    preferTargetSide: true
+  };
+}
+
+function sidesForEdge(from, to, edgeSpec, spec, nodeSpecs, meta) {
+  const direction = explicitDirection(edgeSpec);
+  if (direction) {
+    return {
+      sourceSide: sideFor(from, to, direction),
+      targetSide: opposite(sideFor(from, to, direction)),
+      preferTargetSide: false
+    };
+  }
+
+  const layeredSides = layeredVerticalSides(
+    from,
+    to,
+    nodeSpecs.get(meta.from),
+    nodeSpecs.get(meta.to),
+    spec
+  );
+  if (layeredSides) return layeredSides;
+
+  const sourceSide = sideFor(from, to);
+  return {
+    sourceSide,
+    targetSide: opposite(sourceSide),
+    preferTargetSide: false
+  };
+}
+
+function unifiedPortOffsets(edges, nodes, specs, spec, nodeSpecs) {
   const groups = new Map();
   const edgeSides = new Map();
   for (const edge of edges) {
@@ -262,16 +318,11 @@ function unifiedPortOffsets(edges, nodes, specs) {
     const from = nodes.get(meta.from);
     const to = nodes.get(meta.to);
     if (!from || !to) continue;
-    const sourceSide = sideFor(
-      from,
-      to,
-      specs.get(meta.semanticId)?.routeHints?.direction ?? 'auto'
-    );
-    const targetSide = opposite(sourceSide);
-    edgeSides.set(edge.id, { sourceSide, targetSide });
+    const sides = sidesForEdge(from, to, specs.get(meta.semanticId), spec, nodeSpecs, meta);
+    edgeSides.set(edge.id, sides);
     for (const endpoint of [
-      { nodeId: meta.from, side: sourceSide, end: 'start', other: to },
-      { nodeId: meta.to, side: targetSide, end: 'end', other: from }
+      { nodeId: meta.from, side: sides.sourceSide, end: 'start', other: to },
+      { nodeId: meta.to, side: sides.targetSide, end: 'end', other: from }
     ]) {
       const key = `${endpoint.nodeId}:${endpoint.side}`;
       const list = groups.get(key) ?? [];
@@ -348,8 +399,9 @@ export function routeEdges(scene, spec = null) {
   if (nodes.size === 0) return scene;
 
   const specs = edgeSpecMap(spec);
+  const nodeSpecs = nodeSpecMap(spec);
   const primary = primaryPairs(spec);
-  const { offsets, edgeSides } = unifiedPortOffsets(edges, nodes, specs);
+  const { offsets, edgeSides } = unifiedPortOffsets(edges, nodes, specs, spec, nodeSpecs);
   const bounds = sceneBounds(nodes);
 
   edges.sort((first, second) => {
@@ -375,10 +427,14 @@ export function routeEdges(scene, spec = null) {
     const to = nodes.get(meta.to);
     if (!from || !to) continue;
 
-    const sides = edgeSides.get(edge.id) ?? {
-      sourceSide: sideFor(from, to),
-      targetSide: opposite(sideFor(from, to))
-    };
+    const sides = edgeSides.get(edge.id) ?? sidesForEdge(
+      from,
+      to,
+      specs.get(meta.semanticId),
+      spec,
+      nodeSpecs,
+      meta
+    );
     const port = offsets.get(edge.id) ?? { start: 0, end: 0 };
     const start = anchor(from, sides.sourceSide, port.start);
     const preferredEnd = anchor(to, sides.targetSide, port.end);
@@ -420,6 +476,7 @@ export function routeEdges(scene, spec = null) {
         obstacles,
         bounds
       ) ? 1 : 0;
+      const sidePenalty = sides.preferTargetSide && targetSide !== sides.targetSide ? 2 : 0;
       for (const points of candidates(
         start,
         end,
@@ -431,7 +488,7 @@ export function routeEdges(scene, spec = null) {
         options.push({
           points,
           targetSide,
-          score: scoreRoute(points, obstacles, existingSegments, approachPenalty)
+          score: scoreRoute(points, obstacles, existingSegments, sidePenalty, approachPenalty)
         });
       }
     }
@@ -451,7 +508,7 @@ export function routeEdges(scene, spec = null) {
     edge.width = last[0];
     edge.height = last[1];
     meta.route = {
-      engine: 'graph-aware-v0.3.2',
+      engine: 'graph-aware-v0.3.3',
       sourceSide: sides.sourceSide,
       targetSide: chosen.targetSide,
       bends: Math.max(0, chosen.points.length - 2)
