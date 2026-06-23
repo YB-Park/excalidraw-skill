@@ -1,0 +1,28 @@
+{
+  "version": "2.0",
+  "diagramType": "service-flow",
+  "title": "Vertical Center Axis Flow",
+  "stylePreset": "default-software",
+  "outputPath": "examples/evaluation/output/flow-swimlane-vertical-center-axis.excalidraw",
+  "layout": {
+    "profile": "swimlane-flow",
+    "direction": "top-to-bottom",
+    "centerAxisX": 460,
+    "primaryFlow": ["ingress", "api", "worker"],
+    "lanes": [
+      {"id": "side", "label": "Side", "position": "left", "order": 0},
+      {"id": "main", "label": "Main", "position": "center", "order": 1}
+    ]
+  },
+  "nodes": [
+    {"semanticId": "side-node", "label": "Side Node", "shapeRef": "external.system", "layoutHints": {"lane": "side", "rank": 0, "importance": "secondary"}},
+    {"semanticId": "ingress", "label": "Ingress", "shapeRef": "service.gateway", "layoutHints": {"lane": "main", "rank": 0, "importance": "primary"}},
+    {"semanticId": "api", "label": "API", "shapeRef": "service.backend", "layoutHints": {"lane": "main", "rank": 1, "importance": "primary"}},
+    {"semanticId": "worker", "label": "Worker", "shapeRef": "service.worker", "layoutHints": {"lane": "main", "rank": 2, "importance": "primary"}}
+  ],
+  "edges": [
+    {"semanticId": "side-ingress", "from": "side-node", "to": "ingress", "kind": "calls"},
+    {"semanticId": "ingress-api", "from": "ingress", "to": "api", "kind": "calls"},
+    {"semanticId": "api-worker", "from": "api", "to": "worker", "kind": "calls"}
+  ]
+}
