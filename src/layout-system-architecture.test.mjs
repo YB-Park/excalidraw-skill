@@ -105,6 +105,33 @@ test('places layerless external systems in a side column', () => {
   assert.deepEqual(scene.customData.excalidrawSkill.layout.externalIds, ['cloud']);
 });
 
+test('reserves frame-aware vertical gap for adjacent explicit singleton frames', () => {
+  const ids = ['upper', 'lower'];
+  const spec = {
+    diagramType: 'system-architecture',
+    layout: { profile: 'layered-system' },
+    architecture: {
+      layers: [
+        { id: 'upper-layer', order: 0 },
+        { id: 'lower-layer', order: 1 }
+      ]
+    },
+    groups: [
+      { id: 'upper-frame', label: 'Upper Frame', visualBoundary: true },
+      { id: 'lower-frame', label: 'Lower Frame', visualBoundary: true }
+    ],
+    nodes: [
+      { semanticId: 'upper', layer: 'upper-layer', group: 'upper-frame' },
+      { semanticId: 'lower', layer: 'lower-layer', group: 'lower-frame' }
+    ]
+  };
+
+  const scene = layoutSystemArchitecture(sceneFor(ids), spec);
+  const p = positions(scene);
+  assert.ok(p.get('lower').y - p.get('upper').y >= 288);
+  assert.equal(scene.customData.excalidrawSkill.layout.engine, 'system-architecture-v0.2');
+});
+
 test('is a no-op for flow diagrams', () => {
   const scene = sceneFor(['a', 'b']);
   const before = JSON.stringify(scene);
