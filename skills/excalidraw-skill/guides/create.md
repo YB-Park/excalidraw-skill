@@ -8,25 +8,26 @@ New diagram work must follow the `build` workflow. Do not call `patch` for a new
 
 1. Restate the diagram goal in one sentence.
 2. Choose exactly one diagram family from the question the diagram must answer.
-3. If the chosen family is graph-like and currently renderable, write a `DiagramSpec` JSON file in the workspace.
-4. Set `outputPath` in the spec to the desired `.excalidraw` output path.
-5. Add a compact Visual Plan when layout quality depends on hierarchy, lanes, or a primary flow.
-6. Run the build command:
+3. If unsure about supported families, profiles, frames, or edge visual intent, run `capabilities`, `schema`, `examples`, or `explain` rather than reading runtime implementation files.
+4. If the chosen family is graph-like and currently renderable, write a `DiagramSpec` JSON file in the workspace.
+5. Set `outputPath` in the spec to the desired `.excalidraw` output path.
+6. Add a compact Visual Plan when layout quality depends on hierarchy, lanes, a primary flow, explicit boundaries, or semantic edge emphasis.
+7. Run the build command:
 
 ```text
 node <runtimeEntry> build <spec.json>
 ```
 
-7. Inspect and review the generated output:
+8. Inspect and review the generated output:
 
 ```text
 node <runtimeEntry> inspect <output.excalidraw>
 node <runtimeEntry> quality-report <output.excalidraw> <spec.json>
 ```
 
-8. Report the output path and the quality summary. Mention any important `suggestedPatches` or visual-review caveats.
+9. Report the output path and the quality summary. Mention any important `suggestedPatches` or visual-review caveats.
 
-`validate` checks basic file validity only. Use `quality-report` for structural and family-specific quality evidence.
+`validate` checks basic file validity only. Use `quality-report` for structural, family-specific, and intent-preservation evidence.
 
 ## Diagram family selection
 
@@ -50,10 +51,11 @@ Do not overload one scene with system, module, flow, and sequence concerns. Crea
 
 For renderable graph-like diagrams:
 
-- Use `version: "2.0"` when visual hierarchy, primary flow, lanes, or support concerns matter.
-- Use `stylePreset`, `shapeRef`, semantic ids, relation kinds, and layout hints.
+- Use `version: "2.0"` when visual hierarchy, primary flow, lanes, support concerns, or semantic edge styling matter.
+- Use `stylePreset`, `shapeRef`, semantic ids, relation kinds, layout hints, and semantic `edge.visual` when needed.
 - Do not add raw coordinates.
 - Do not hand-author raw Excalidraw elements.
+- Do not use raw edge colors, raw stroke widths, or arbitrary Excalidraw style values in the spec.
 - Preserve the user's source terminology in labels.
 - Prefer 5 to 9 primary nodes unless the user explicitly asks for more detail.
 
@@ -67,19 +69,53 @@ Read `contracts/visual-plan.md` when the diagram has:
 - a central hub with many relationships
 - a need to prefer balanced, wide, or tall composition
 - a real boundary that may require one visible frame
+- semantic edge emphasis such as data-plane, event-stream, control-plane, or error-path edges
 
 Choose high-level intent only:
 
 - layout profile
 - direction
 - aspect ratio
+- center lane axis when a swimlane center must remain stable
 - primary flow
 - lanes
 - node rank and importance
 - logical groups
 - explicit visible boundaries only when semantically necessary
+- semantic edge visual intent
 - small keep-near or keep-apart sets
 - occasional edge direction and label-side hints
+
+## Edge visual intent
+
+Use `edge.visual` when the visual styling is semantically meaningful. `kind` remains the relation meaning and fallback preset. `edge.visual` wins over kind-based styling in the final output.
+
+Allowed fields:
+
+- `visual.role`: `default`, `data-plane`, `control-plane`, `event-stream`, `error-path`, `dependency`, `muted`
+- `visual.emphasis`: `normal`, `strong`, `critical`, `muted`
+- `visual.stroke`: `solid`, `dashed`, `dotted`
+
+Example:
+
+```json
+{
+  "semanticId": "collector-pipeline",
+  "from": "collector",
+  "to": "pipeline",
+  "kind": "transfers",
+  "visual": { "role": "data-plane", "emphasis": "critical", "stroke": "solid" }
+}
+```
+
+## Swimlane center anchoring
+
+For `swimlane-flow`, use center axis hints only when the center lane must remain stable despite left/right or top/bottom support lanes.
+
+- `direction: "top-to-bottom"` may use `layout.centerAxisX`.
+- `direction: "left-to-right"` may use `layout.centerAxisY`.
+
+Do not use these as raw coordinates for individual nodes. They anchor the center lane, not every object.
 
 ## Frames and boundaries
 
@@ -91,13 +127,13 @@ Default frame rules:
 
 - Prefer zero or one frame in a small diagram.
 - Use at most two frames unless the user explicitly requests more.
-- Do not frame a single node.
-- Do not create a frame around an individual database, queue, topic, worker, service, or provider.
+- Do not frame a single node unless the user explicitly requested a singleton boundary and `framePolicy.allowSingletons: true` is set.
+- Do not create a frame around an individual database, queue, topic, worker, service, or provider by default.
 - Do not create one frame per concern, lane, or node type.
 - Do not wrap the entire diagram in a frame unless that boundary is meaningful.
 - When a visible boundary is required, declare it with `groups[].visualBoundary: true`.
 - If a meaningful boundary intentionally contains every node in the scene, it must still be explicit: use `groups[].visualBoundary: true`, `groups[].forceFrame: true`, or `framePolicy.include`. Implicit full-scene groupings are suppressed by default.
-- One-member visible frames are allowed only when intentionally requested, and the renderer gives them larger padding. Adjacent explicit frames in `layered-system` layouts reserve extra vertical gap.
+- Adjacent explicit frames reserve spacing for frame rectangles and native frame titles at 100% export scale.
 
 ## Labels and naming
 
