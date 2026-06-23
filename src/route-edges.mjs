@@ -221,8 +221,8 @@ function scoreRoute(points, obstacles, existingSegments, sidePenalty = 0, approa
   }
   return [
     nodeHits,
-    sidePenalty,
     approachPenalty,
+    sidePenalty,
     overlapLength > 8 ? 1 : 0,
     overlapLength,
     crossings,
@@ -259,28 +259,63 @@ function primaryPairs(spec) {
   return pairs;
 }
 
-function isLayeredSystem(spec) {
-  return spec?.diagramType === 'system-architecture'
-    && (spec.layout?.profile ?? 'layered-system') === 'layered-system';
-}
-
 function explicitDirection(edgeSpec) {
   const direction = edgeSpec?.routeHints?.direction;
   return ['right', 'left', 'up', 'down'].includes(direction) ? direction : null;
 }
 
-function layeredVerticalSides(from, to, fromSpec, toSpec, spec) {
-  if (!isLayeredSystem(spec)) return null;
-  if (!fromSpec?.layer || !toSpec?.layer || fromSpec.layer === toSpec.layer) return null;
+function alignmentTolerance(sizeA, sizeB) {
+  return Math.max(24, Math.min(sizeA, sizeB) * 0.25);
+}
+
+function axisAlignment(from, to) {
   const source = center(from);
   const target = center(to);
-  if (Math.abs(target.y - source.y) < 48) return null;
-  const sourceSide = target.y >= source.y ? 'down' : 'up';
+  const dx = Math.abs(target.x - source.x);
+  const dy = Math.abs(target.y - source.y);
   return {
-    sourceSide,
-    targetSide: opposite(sourceSide),
-    preferTargetSide: true
+    dx,
+    dy,
+    sameColumn: dx <= alignmentTolerance(from.width, to.width),
+    sameRow: dy <= alignmentTolerance(from.height, to.height)
   };
+}
+
+function isLayeredSystem(spec) {
+  return spec?.diagramType === 'system-architecture'
+    && (spec.layout?.profile ?? 'layered-system') === 'layered-system';
+}
+
+function axisLockedSides(from, to, spec, fromSpec, toSpec) {
+  const alignment = axisAlignment(from, to);
+  const source = center(from);
+  const target = center(to);
+  const layeredRankEdge = isLayeredSystem(spec)
+    && fromSpec?.layer
+    && toSpec?.layer
+    && fromSpec.layer !== toSpec.layer;
+
+  if (alignment.sameColumn && target.y !== source.y && (layeredRankEdge || alignment.dy >= alignment.dx)) {
+    const sourceSide = target.y >= source.y ? 'down' : 'up';
+    return {
+      sourceSide,
+      targetSide: opposite(sourceSide),
+      preferTargetSide: true,
+      axisLock: 'vertical'
+    };
+  }
+
+  if (alignment.sameRow && target.x !== source.x && (!layeredRankEdge || alignment.dx >= alignment.dy)) {
+    const sourceSide = target.x >= source.x ? 'right' : 'left';
+    return {
+      sourceSide,
+      targetSide: opposite(sourceSide),
+      preferTargetSide: true,
+      axisLock: 'horizontal'
+    };
+  }
+
+  return null;
 }
 
 function sidesForEdge(from, to, edgeSpec, spec, nodeSpecs, meta) {
@@ -289,25 +324,33 @@ function sidesForEdge(from, to, edgeSpec, spec, nodeSpecs, meta) {
     return {
       sourceSide: sideFor(from, to, direction),
       targetSide: opposite(sideFor(from, to, direction)),
-      preferTargetSide: false
+      preferTargetSide: false,
+      axisLock: null
     };
   }
 
-  const layeredSides = layeredVerticalSides(
+  const lockedSides = axisLockedSides(
     from,
     to,
+    spec,
     nodeSpecs.get(meta.from),
-    nodeSpecs.get(meta.to),
-    spec
+    nodeSpecs.get(meta.to)
   );
-  if (layeredSides) return layeredSides;
+  if (lockedSides) return lockedSides;
 
   const sourceSide = sideFor(from, to);
   return {
     sourceSide,
     targetSide: opposite(sourceSide),
-    preferTargetSide: false
+    preferTargetSide: false,
+    axisLock: null
   };
+}
+
+function alignedForPorts(from, to, sides) {
+  const alignment = axisAlignment(from, to);
+  return (['up', 'down'].includes(sides.sourceSide) && alignment.sameColumn)
+    || (['left', 'right'].includes(sides.sourceSide) && alignment.sameRow);
 }
 
 function unifiedPortOffsets(edges, nodes, specs, spec, nodeSpecs) {
@@ -360,14 +403,7 @@ function unifiedPortOffsets(edges, nodes, specs, spec, nodeSpecs) {
     const from = nodes.get(meta.from);
     const to = nodes.get(meta.to);
     const sides = edgeSides.get(edge.id);
-    if (!from || !to || !sides) continue;
-    const fromCenter = center(from);
-    const toCenter = center(to);
-    const aligned = (['up', 'down'].includes(sides.sourceSide)
-      && Math.abs(fromCenter.x - toCenter.x) <= 24)
-      || (['left', 'right'].includes(sides.sourceSide)
-        && Math.abs(fromCenter.y - toCenter.y) <= 24);
-    if (!aligned) continue;
+    if (!from || !to || !sides || !alignedForPorts(from, to, sides)) continue;
     const current = offsets.get(edge.id) ?? { start: 0, end: 0 };
     const startKey = `${meta.from}:${sides.sourceSide}`;
     const endKey = `${meta.to}:${sides.targetSide}`;
@@ -476,7 +512,7 @@ export function routeEdges(scene, spec = null) {
         obstacles,
         bounds
       ) ? 1 : 0;
-      const sidePenalty = sides.preferTargetSide && targetSide !== sides.targetSide ? 2 : 0;
+      const sidePenalty = sides.preferTargetSide && targetSide !== sides.targetSide ? 1 : 0;
       for (const points of candidates(
         start,
         end,
@@ -508,9 +544,10 @@ export function routeEdges(scene, spec = null) {
     edge.width = last[0];
     edge.height = last[1];
     meta.route = {
-      engine: 'graph-aware-v0.3.3',
+      engine: 'graph-aware-v0.3.4',
       sourceSide: sides.sourceSide,
       targetSide: chosen.targetSide,
+      axisLock: sides.axisLock,
       bends: Math.max(0, chosen.points.length - 2)
     };
     existingSegments.push(...segmentsFromPoints(chosen.points));
