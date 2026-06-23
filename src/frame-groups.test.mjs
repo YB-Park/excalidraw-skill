@@ -18,6 +18,10 @@ function frames(scene) {
   return scene.elements.filter((element) => element.customData?.excalidrawSkill?.role === 'frame');
 }
 
+function framePolicy(scene) {
+  return scene.customData?.excalidrawSkill?.framePolicy;
+}
+
 test('does not auto-frame groups with one or two nodes', () => {
   const scene = { elements: [node('a'), node('b', 300), node('c', 600), node('d', 900), node('e', 1200)] };
   const spec = { nodes: [
@@ -73,7 +77,47 @@ test('explicit definitions suppress unspecified logical groups', () => {
 test('does not frame the whole scene by default', () => {
   const scene = { elements: [node('a'), node('b', 220), node('c', 440), node('d', 660), node('e', 880)] };
   const spec = { nodes: ['a', 'b', 'c', 'd', 'e'].map((id) => ({ semanticId: id, group: 'all' })) };
-  assert.equal(frames(frameSceneGroups(scene, spec)).length, 0);
+  const result = frameSceneGroups(scene, spec);
+  assert.equal(frames(result).length, 0);
+  assert.equal(framePolicy(result).candidateCount, 0);
+  assert.equal(framePolicy(result).renderedCount, 0);
+  assert.equal(framePolicy(result).suppressedFullScene, 1);
+});
+
+test('explicit visual boundary can frame the whole scene', () => {
+  const scene = { elements: [node('a'), node('b', 220), node('c', 440)] };
+  const spec = {
+    groups: [{ id: 'runtime-boundary', label: 'Runtime Boundary', visualBoundary: true }],
+    nodes: ['a', 'b', 'c'].map((id) => ({ semanticId: id, group: 'runtime-boundary' }))
+  };
+  const result = frameSceneGroups(scene, spec);
+  const renderedFrames = frames(result);
+
+  assert.equal(renderedFrames.length, 1);
+  assert.equal(renderedFrames[0].name, 'Runtime Boundary');
+  assert.equal(renderedFrames[0].customData.excalidrawSkill.semanticId, 'runtime-boundary');
+  assert.equal(renderedFrames[0].customData.excalidrawSkill.frameMode, 'explicit');
+  assert.equal(renderedFrames[0].customData.excalidrawSkill.memberCount, 3);
+  assert.equal(framePolicy(result).candidateCount, 1);
+  assert.equal(framePolicy(result).renderedCount, 1);
+  assert.equal(framePolicy(result).suppressedFullScene, 0);
+});
+
+test('framePolicy.include can explicitly frame the whole scene', () => {
+  const scene = { elements: [node('a'), node('b', 220), node('c', 440)] };
+  const spec = {
+    framePolicy: { include: ['system-context'] },
+    nodes: ['a', 'b', 'c'].map((id) => ({ semanticId: id, group: 'system-context' }))
+  };
+  const result = frameSceneGroups(scene, spec);
+  const renderedFrames = frames(result);
+
+  assert.equal(renderedFrames.length, 1);
+  assert.equal(renderedFrames[0].customData.excalidrawSkill.semanticId, 'system-context');
+  assert.equal(renderedFrames[0].customData.excalidrawSkill.frameMode, 'explicit');
+  assert.equal(framePolicy(result).candidateCount, 1);
+  assert.equal(framePolicy(result).renderedCount, 1);
+  assert.equal(framePolicy(result).suppressedFullScene, 0);
 });
 
 test('respects explicit maxFrames override', () => {
