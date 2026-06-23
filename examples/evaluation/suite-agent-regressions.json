@@ -1,0 +1,51 @@
+{
+  "version": "1.0",
+  "families": ["system-architecture", "flow"],
+  "cases": [
+    {
+      "id": "system-layered-axis-lock",
+      "family": "system-architecture",
+      "view": "layered-system",
+      "implementationStatus": "runnable",
+      "fixture": "examples/evaluation/fixtures/system-layered-axis-lock.diagram.json",
+      "semanticInvariants": ["three layers exist", "relations connect adjacent layers"],
+      "visualInvariants": ["layer order is preserved", "same-column edges use vertical entry"]
+    },
+    {
+      "id": "frame-title-boundary-spacing",
+      "family": "system-architecture",
+      "view": "layered-system",
+      "implementationStatus": "runnable",
+      "fixture": "examples/evaluation/fixtures/frame-title-boundary-spacing.diagram.json",
+      "semanticInvariants": ["two explicit boundaries exist", "each boundary contains its intended node"],
+      "visualInvariants": ["frame rectangles do not collide", "native title reserve is accounted for"]
+    },
+    {
+      "id": "flow-swimlane-vertical-center-axis",
+      "family": "flow",
+      "view": "service-flow",
+      "implementationStatus": "runnable",
+      "fixture": "examples/evaluation/fixtures/flow-swimlane-vertical-center-axis.diagram.json",
+      "semanticInvariants": ["primary flow nodes are ordered", "side lane does not become the main flow"],
+      "visualInvariants": ["center lane remains on centerAxisX", "same-lane sequential edges remain vertical"]
+    },
+    {
+      "id": "flow-swimlane-horizontal-center-axis",
+      "family": "flow",
+      "view": "service-flow",
+      "implementationStatus": "runnable",
+      "fixture": "examples/evaluation/fixtures/flow-swimlane-horizontal-center-axis.diagram.json",
+      "semanticInvariants": ["primary flow nodes are ordered", "support lane remains separate"],
+      "visualInvariants": ["center lane remains on centerAxisY", "same-lane sequential edges remain horizontal"]
+    },
+    {
+      "id": "flow-edge-visual-data-plane",
+      "family": "flow",
+      "view": "data-flow",
+      "implementationStatus": "runnable",
+      "fixture": "examples/evaluation/fixtures/flow-edge-visual-data-plane.diagram.json",
+      "semanticInvariants": ["pipeline order is preserved", "data-plane relation uses edge.visual"],
+      "visualInvariants": ["edge.visual survives final styling", "data-plane emphasis is visible"]
+    }
+  ]
+}
