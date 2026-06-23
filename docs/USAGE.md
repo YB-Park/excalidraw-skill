@@ -35,6 +35,17 @@ Or run the CLI directly:
 node ./bin/excalidraw-skill.mjs build examples/service-flow/payment-flow.grouped.diagram.json
 ```
 
+For new diagrams, `build` is the normal entry point. It runs rendering, styling, family layout, routing, validation, and quality-report generation.
+
+Do not use `patch` for new diagrams. Do not use low-level `render` directly unless debugging the renderer pipeline.
+
+Recommended manual review after building:
+
+```txt
+node ./bin/excalidraw-skill.mjs inspect examples/service-flow/payment-flow.grouped.excalidraw
+node ./bin/excalidraw-skill.mjs quality-report examples/service-flow/payment-flow.grouped.excalidraw examples/service-flow/payment-flow.grouped.diagram.json
+```
+
 ## Edit an existing diagram
 
 The intended edit flow is:
@@ -44,6 +55,7 @@ inspect existing .excalidraw
 create a DiagramPatch
 apply patch
 validate result
+review quality report
 ```
 
 Example:
@@ -52,7 +64,22 @@ Example:
 node ./bin/excalidraw-skill.mjs inspect examples/service-flow/payment-flow.grouped.excalidraw
 node ./bin/excalidraw-skill.mjs patch examples/service-flow/payment-flow.grouped.excalidraw examples/service-flow/add-fraud-check.patch.json
 node ./bin/excalidraw-skill.mjs validate examples/service-flow/payment-flow.with-fraud-check.excalidraw
+node ./bin/excalidraw-skill.mjs quality-report examples/service-flow/payment-flow.with-fraud-check.excalidraw
 ```
+
+`patch` is edit-only. A bare `patch` command is not a valid generation step.
+
+## Agent command help
+
+The CLI prints agent-oriented recipes:
+
+```txt
+node ./bin/excalidraw-skill.mjs --help
+node ./bin/excalidraw-skill.mjs build --help
+node ./bin/excalidraw-skill.mjs patch --help
+```
+
+Agents should follow the router and command recipes instead of probing multiple subcommand help screens during normal generation.
 
 ## VS Code extension
 
