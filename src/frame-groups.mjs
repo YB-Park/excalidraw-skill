@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const FRAME_PADDING = 48;
 const SINGLETON_FRAME_PADDING = 80;
+const MIN_FRAME_GAP = 16;
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -47,12 +48,122 @@ function paddingForFrame(boxes) {
   return boxes.length <= 1 ? SINGLETON_FRAME_PADDING : FRAME_PADDING;
 }
 
+function memberBounds(boxes) {
+  return {
+    left: Math.min(...boxes.map((box) => box.x)),
+    top: Math.min(...boxes.map((box) => box.y)),
+    right: Math.max(...boxes.map((box) => box.x + box.width)),
+    bottom: Math.max(...boxes.map((box) => box.y + box.height))
+  };
+}
+
+function frameRect(frame) {
+  return {
+    left: frame.x,
+    top: frame.y,
+    right: frame.x + frame.width,
+    bottom: frame.y + frame.height
+  };
+}
+
+function rectsCollide(first, second, gap = 0) {
+  return first.left < second.right + gap
+    && first.right + gap > second.left
+    && first.top < second.bottom + gap
+    && first.bottom + gap > second.top;
+}
+
+function setFrameLeft(frame, left) {
+  const right = frame.x + frame.width;
+  frame.x = left;
+  frame.width = Math.max(1, right - left);
+}
+
+function setFrameTop(frame, top) {
+  const bottom = frame.y + frame.height;
+  frame.y = top;
+  frame.height = Math.max(1, bottom - top);
+}
+
+function setFrameRight(frame, right) {
+  frame.width = Math.max(1, right - frame.x);
+}
+
+function setFrameBottom(frame, bottom) {
+  frame.height = Math.max(1, bottom - frame.y);
+}
+
+function separateHorizontal(leftItem, rightItem) {
+  const available = rightItem.member.left - leftItem.member.right;
+  if (available < MIN_FRAME_GAP) return false;
+  const splitLeft = leftItem.member.right + (available - MIN_FRAME_GAP) / 2;
+  const splitRight = splitLeft + MIN_FRAME_GAP;
+  setFrameRight(leftItem.frame, Math.min(frameRect(leftItem.frame).right, splitLeft));
+  setFrameLeft(rightItem.frame, Math.max(frameRect(rightItem.frame).left, splitRight));
+  return true;
+}
+
+function separateVertical(topItem, bottomItem) {
+  const available = bottomItem.member.top - topItem.member.bottom;
+  if (available < MIN_FRAME_GAP) return false;
+  const splitTop = topItem.member.bottom + (available - MIN_FRAME_GAP) / 2;
+  const splitBottom = splitTop + MIN_FRAME_GAP;
+  setFrameBottom(topItem.frame, Math.min(frameRect(topItem.frame).bottom, splitTop));
+  setFrameTop(bottomItem.frame, Math.max(frameRect(bottomItem.frame).top, splitBottom));
+  return true;
+}
+
+function resolveFramePair(first, second) {
+  if (first.mode !== 'explicit' || second.mode !== 'explicit') return 'ignored';
+  if (!rectsCollide(frameRect(first.frame), frameRect(second.frame), MIN_FRAME_GAP)) return 'clear';
+
+  const options = [];
+  if (first.member.right <= second.member.left) {
+    options.push({ available: second.member.left - first.member.right, apply: () => separateHorizontal(first, second) });
+  } else if (second.member.right <= first.member.left) {
+    options.push({ available: first.member.left - second.member.right, apply: () => separateHorizontal(second, first) });
+  }
+  if (first.member.bottom <= second.member.top) {
+    options.push({ available: second.member.top - first.member.bottom, apply: () => separateVertical(first, second) });
+  } else if (second.member.bottom <= first.member.top) {
+    options.push({ available: first.member.top - second.member.bottom, apply: () => separateVertical(second, first) });
+  }
+
+  const option = options
+    .filter((candidate) => candidate.available >= MIN_FRAME_GAP)
+    .sort((a, b) => b.available - a.available)[0];
+  return option?.apply() ? 'adjusted' : 'unresolved';
+}
+
+function resolveFrameCollisions(items) {
+  let adjusted = 0;
+  let unresolved = 0;
+  for (let pass = 0; pass < 4; pass += 1) {
+    let changed = false;
+    unresolved = 0;
+    for (let index = 0; index < items.length; index += 1) {
+      for (let next = index + 1; next < items.length; next += 1) {
+        const result = resolveFramePair(items[index], items[next]);
+        if (result === 'adjusted') {
+          adjusted += 1;
+          changed = true;
+        } else if (result === 'unresolved') {
+          unresolved += 1;
+        }
+      }
+    }
+    if (!changed) break;
+  }
+  return { adjusted, unresolved };
+}
+
 function makeFrame(groupName, label, boxes, mode) {
   const pad = paddingForFrame(boxes);
-  const left = Math.min(...boxes.map((box) => box.x)) - pad;
-  const top = Math.min(...boxes.map((box) => box.y)) - pad;
-  const right = Math.max(...boxes.map((box) => box.x + box.width)) + pad;
-  const bottom = Math.max(...boxes.map((box) => box.y + box.height)) + pad;
+  const bounds = memberBounds(boxes);
+  const left = bounds.left - pad;
+  const top = bounds.top - pad;
+  const right = bounds.right + pad;
+  const bottom = bounds.bottom + pad;
 
   return {
     id: safeId('frame', groupName),
@@ -173,7 +284,13 @@ export function frameSceneGroups(scene, spec) {
   });
 
   const selected = candidates.slice(0, budget);
-  const frames = selected.map(({ groupName, label, boxes, mode }) => makeFrame(groupName, label, boxes, mode));
+  const frameItems = selected.map(({ groupName, label, boxes, mode }) => ({
+    frame: makeFrame(groupName, label, boxes, mode),
+    member: memberBounds(boxes),
+    mode
+  }));
+  const collisionPolicy = resolveFrameCollisions(frameItems);
+  const frames = frameItems.map((item) => item.frame);
 
   return {
     ...scene,
@@ -189,6 +306,8 @@ export function frameSceneGroups(scene, spec) {
           suppressedSmallGroups,
           suppressedUnspecifiedGroups,
           suppressedFullScene,
+          adjustedFrameCollisions: collisionPolicy.adjusted,
+          unresolvedFrameCollisions: collisionPolicy.unresolved,
           suppressedByBudget: Math.max(0, candidates.length - frames.length)
         }
       }
