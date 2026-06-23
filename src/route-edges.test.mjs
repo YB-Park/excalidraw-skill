@@ -2,15 +2,143 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { routeEdges } from './route-edges.mjs';
 import { absolutePoints, collinearOverlapLength, rectOf, segmentIntersectsRect, segmentsFromEdge } from './geometry.mjs';
-function node(id, x, y) { return { id: `node_${id}`, type: 'rectangle', x, y, width: 180, height: 80, customData: { excalidrawSkill: { role: 'node', semanticId: id } } }; }
-function edge(id, from, to) { return { id: `edge_${id}`, type: 'arrow', x: 0, y: 0, width: 0, height: 0, points: [[0, 0], [0, 0]], customData: { excalidrawSkill: { role: 'edge', semanticId: id, from, to, kind: 'sync' } } }; }
 
-test('routes around blocking nodes', () => { const a = node('a', 0, 0); const blocker = node('blocker', 300, 0); const b = node('b', 600, 0); const e = edge('a-b', 'a', 'b'); routeEdges({ elements: [a, blocker, b, e] }, { layout: { primaryFlow: ['a', 'b'] }, edges: [{ semanticId: 'a-b', from: 'a', to: 'b', routeHints: { priority: 'primary', direction: 'right' } }] }); assert.ok(e.points.length >= 4); assert.ok(segmentsFromEdge(e).every((segment) => !segmentIntersectsRect(segment, rectOf(blocker, 10)))); });
+function node(id, x, y) {
+  return {
+    id: `node_${id}`,
+    type: 'rectangle',
+    x,
+    y,
+    width: 180,
+    height: 80,
+    customData: { excalidrawSkill: { role: 'node', semanticId: id } }
+  };
+}
 
-test('unifies incoming and outgoing ports on the same node side', () => { const payment = node('payment', 300, 0); const fraud = node('fraud', 300, 260); const events = node('events', 300, 520); const incoming = edge('fraud-payment', 'fraud', 'payment'); const outgoing = edge('payment-events', 'payment', 'events'); routeEdges({ elements: [payment, fraud, events, incoming, outgoing] }, { edges: [{ semanticId: 'fraud-payment', from: 'fraud', to: 'payment', routeHints: { direction: 'up' } }, { semanticId: 'payment-events', from: 'payment', to: 'events', routeHints: { direction: 'down' } }] }); const incomingEnd = absolutePoints(incoming).at(-1); const outgoingStart = absolutePoints(outgoing)[0]; assert.notEqual(incomingEnd.x, outgoingStart.x); });
+function edge(id, from, to) {
+  return {
+    id: `edge_${id}`,
+    type: 'arrow',
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    points: [[0, 0], [0, 0]],
+    customData: { excalidrawSkill: { role: 'edge', semanticId: id, from, to, kind: 'sync' } }
+  };
+}
 
-test('keeps vertically aligned nodes on a straight route when ports allow it', () => { const a = node('a', 100, 0); const b = node('b', 100, 260); const e = edge('a-b', 'a', 'b'); routeEdges({ elements: [a, b, e] }, { edges: [{ semanticId: 'a-b', from: 'a', to: 'b', routeHints: { direction: 'down' } }] }); assert.equal(e.points.length, 2); assert.equal(absolutePoints(e)[0].x, absolutePoints(e).at(-1).x); });
+test('routes around blocking nodes', () => {
+  const a = node('a', 0, 0);
+  const blocker = node('blocker', 300, 0);
+  const b = node('b', 600, 0);
+  const e = edge('a-b', 'a', 'b');
+  routeEdges({ elements: [a, blocker, b, e] }, {
+    layout: { primaryFlow: ['a', 'b'] },
+    edges: [{ semanticId: 'a-b', from: 'a', to: 'b', routeHints: { priority: 'primary', direction: 'right' } }]
+  });
+  assert.ok(e.points.length >= 4);
+  assert.ok(segmentsFromEdge(e).every((segment) => !segmentIntersectsRect(segment, rectOf(blocker, 10))));
+});
 
-test('enters the target perpendicular to its top side', () => { const a = node('a', 80, 0); const b = node('b', 100, 260); const e = edge('a-b', 'a', 'b'); routeEdges({ elements: [a, b, e] }, { edges: [{ semanticId: 'a-b', from: 'a', to: 'b', routeHints: { direction: 'down' } }] }); const points = absolutePoints(e); const before = points.at(-2); const end = points.at(-1); assert.equal(before.x, end.x); assert.notEqual(before.y, end.y); });
+test('unifies incoming and outgoing ports on the same node side', () => {
+  const payment = node('payment', 300, 0);
+  const fraud = node('fraud', 300, 260);
+  const events = node('events', 300, 520);
+  const incoming = edge('fraud-payment', 'fraud', 'payment');
+  const outgoing = edge('payment-events', 'payment', 'events');
+  routeEdges({ elements: [payment, fraud, events, incoming, outgoing] }, {
+    edges: [
+      { semanticId: 'fraud-payment', from: 'fraud', to: 'payment', routeHints: { direction: 'up' } },
+      { semanticId: 'payment-events', from: 'payment', to: 'events', routeHints: { direction: 'down' } }
+    ]
+  });
+  const incomingEnd = absolutePoints(incoming).at(-1);
+  const outgoingStart = absolutePoints(outgoing)[0];
+  assert.notEqual(incomingEnd.x, outgoingStart.x);
+});
 
-test('does not share endpoint segments accidentally', () => { const a = node('a', 0, 100); const b = node('b', 500, 0); const c = node('c', 500, 220); const ab = edge('a-b', 'a', 'b'); const ac = edge('a-c', 'a', 'c'); routeEdges({ elements: [a, b, c, ab, ac] }, { edges: [{ semanticId: 'a-b', from: 'a', to: 'b', routeHints: { direction: 'right' } }, { semanticId: 'a-c', from: 'a', to: 'c', routeHints: { direction: 'right' } }] }); const firstA = segmentsFromEdge(ab)[0]; const firstB = segmentsFromEdge(ac)[0]; assert.equal(collinearOverlapLength(firstA, firstB), 0); });
+test('keeps vertically aligned nodes on a straight route when ports allow it', () => {
+  const a = node('a', 100, 0);
+  const b = node('b', 100, 260);
+  const e = edge('a-b', 'a', 'b');
+  routeEdges({ elements: [a, b, e] }, {
+    edges: [{ semanticId: 'a-b', from: 'a', to: 'b', routeHints: { direction: 'down' } }]
+  });
+  assert.equal(e.points.length, 2);
+  assert.equal(absolutePoints(e)[0].x, absolutePoints(e).at(-1).x);
+});
+
+test('enters the target perpendicular to its top side', () => {
+  const a = node('a', 80, 0);
+  const b = node('b', 100, 260);
+  const e = edge('a-b', 'a', 'b');
+  routeEdges({ elements: [a, b, e] }, {
+    edges: [{ semanticId: 'a-b', from: 'a', to: 'b', routeHints: { direction: 'down' } }]
+  });
+  const points = absolutePoints(e);
+  const before = points.at(-2);
+  const end = points.at(-1);
+  assert.equal(before.x, end.x);
+  assert.notEqual(before.y, end.y);
+});
+
+test('does not share endpoint segments accidentally', () => {
+  const a = node('a', 0, 100);
+  const b = node('b', 500, 0);
+  const c = node('c', 500, 220);
+  const ab = edge('a-b', 'a', 'b');
+  const ac = edge('a-c', 'a', 'c');
+  routeEdges({ elements: [a, b, c, ab, ac] }, {
+    edges: [
+      { semanticId: 'a-b', from: 'a', to: 'b', routeHints: { direction: 'right' } },
+      { semanticId: 'a-c', from: 'a', to: 'c', routeHints: { direction: 'right' } }
+    ]
+  });
+  const firstA = segmentsFromEdge(ab)[0];
+  const firstB = segmentsFromEdge(ac)[0];
+  assert.equal(collinearOverlapLength(firstA, firstB), 0);
+});
+
+test('prefers down-to-up ports for layered-system edges across vertical layers', () => {
+  const app = node('app', 80, 0);
+  const runtime = node('runtime', 260, 260);
+  const e = edge('app-runtime', 'app', 'runtime');
+  routeEdges({ elements: [app, runtime, e] }, {
+    diagramType: 'system-architecture',
+    layout: { profile: 'layered-system' },
+    architecture: {
+      layers: [
+        { id: 'application', order: 0 },
+        { id: 'runtime', order: 1 }
+      ]
+    },
+    nodes: [
+      { semanticId: 'app', layer: 'application' },
+      { semanticId: 'runtime', layer: 'runtime' }
+    ],
+    edges: [{ semanticId: 'app-runtime', from: 'app', to: 'runtime' }]
+  });
+  const points = absolutePoints(e);
+  assert.equal(e.customData.excalidrawSkill.route.sourceSide, 'down');
+  assert.equal(e.customData.excalidrawSkill.route.targetSide, 'up');
+  assert.equal(points[0].y, app.y + app.height);
+  assert.equal(points.at(-1).y, runtime.y);
+});
+
+test('explicit direction overrides layered-system vertical port preference', () => {
+  const app = node('app', 80, 0);
+  const runtime = node('runtime', 260, 260);
+  const e = edge('app-runtime', 'app', 'runtime');
+  routeEdges({ elements: [app, runtime, e] }, {
+    diagramType: 'system-architecture',
+    layout: { profile: 'layered-system' },
+    nodes: [
+      { semanticId: 'app', layer: 'application' },
+      { semanticId: 'runtime', layer: 'runtime' }
+    ],
+    edges: [{ semanticId: 'app-runtime', from: 'app', to: 'runtime', routeHints: { direction: 'right' } }]
+  });
+  assert.equal(e.customData.excalidrawSkill.route.sourceSide, 'right');
+  assert.equal(e.customData.excalidrawSkill.route.targetSide, 'left');
+});
