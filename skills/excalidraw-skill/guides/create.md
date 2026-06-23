@@ -97,6 +97,7 @@ Default frame rules:
 - Do not wrap the entire diagram in a frame unless that boundary is meaningful.
 - When a visible boundary is required, declare it with `groups[].visualBoundary: true`.
 - If a meaningful boundary intentionally contains every node in the scene, it must still be explicit: use `groups[].visualBoundary: true`, `groups[].forceFrame: true`, or `framePolicy.include`. Implicit full-scene groupings are suppressed by default.
+- One-member visible frames are allowed only when intentionally requested, and the renderer gives them larger padding. Adjacent explicit frames in `layered-system` layouts reserve extra vertical gap.
 
 ## Labels and naming
 
