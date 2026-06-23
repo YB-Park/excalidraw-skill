@@ -1,0 +1,80 @@
+{
+  "version": "1.0",
+  "recipes": [
+    {
+      "id": "flow-swimlane-top-to-bottom-center-axis",
+      "family": "flow",
+      "diagramType": "service-flow",
+      "profile": "swimlane-flow",
+      "purpose": "A vertical primary flow with a stable center lane and optional left/right support lanes.",
+      "snippet": {
+        "version": "2.0",
+        "diagramType": "service-flow",
+        "title": "Vertical Service Flow",
+        "stylePreset": "default-software",
+        "outputPath": "diagrams/vertical-service-flow.excalidraw",
+        "layout": {
+          "profile": "swimlane-flow",
+          "direction": "top-to-bottom",
+          "centerAxisX": 460,
+          "primaryFlow": ["ingress", "api", "worker"],
+          "lanes": [
+            {"id": "actors", "position": "left", "order": 0},
+            {"id": "main", "position": "center", "order": 1}
+          ]
+        }
+      }
+    },
+    {
+      "id": "flow-swimlane-left-to-right-center-axis",
+      "family": "flow",
+      "diagramType": "service-flow",
+      "profile": "swimlane-flow",
+      "purpose": "A horizontal primary flow whose center lane remains anchored even with top/bottom support lanes.",
+      "snippet": {
+        "version": "2.0",
+        "diagramType": "service-flow",
+        "title": "Horizontal Service Flow",
+        "stylePreset": "default-software",
+        "outputPath": "diagrams/horizontal-service-flow.excalidraw",
+        "layout": {
+          "profile": "swimlane-flow",
+          "direction": "left-to-right",
+          "centerAxisY": 280,
+          "primaryFlow": ["client", "gateway", "service", "store"],
+          "lanes": [
+            {"id": "main", "position": "center", "order": 1},
+            {"id": "support", "position": "bottom", "order": 2}
+          ]
+        }
+      }
+    },
+    {
+      "id": "edge-visual-data-plane-critical",
+      "family": "flow",
+      "diagramType": "data-flow",
+      "profile": "layered-flow",
+      "purpose": "A prominent data-plane edge without raw color or stroke values.",
+      "edge": {
+        "semanticId": "collector-pipeline",
+        "from": "collector",
+        "to": "pipeline",
+        "kind": "transfers",
+        "visual": {"role": "data-plane", "emphasis": "critical", "stroke": "solid"}
+      }
+    },
+    {
+      "id": "explicit-boundary-frame",
+      "family": "system-architecture",
+      "diagramType": "system-architecture",
+      "profile": "layered-system",
+      "purpose": "A visible boundary only when the boundary itself communicates ownership, trust, deployment, or subsystem meaning.",
+      "snippet": {
+        "groups": [
+          {"id": "runtime-boundary", "label": "Runtime Boundary", "visualBoundary": true}
+        ],
+        "framePolicy": {"include": ["runtime-boundary"]}
+      }
+    }
+  ]
+}
