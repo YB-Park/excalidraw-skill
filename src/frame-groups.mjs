@@ -7,6 +7,11 @@ import { fileURLToPath } from 'node:url';
 const FRAME_PADDING = 48;
 const SINGLETON_FRAME_PADDING = 80;
 const MIN_FRAME_GAP = 16;
+const FRAME_TITLE_HEIGHT = 32;
+const FRAME_TITLE_CHAR_WIDTH = 7.5;
+const FRAME_TITLE_PADDING_X = 24;
+const FRAME_TITLE_MIN_WIDTH = 64;
+const FRAME_TITLE_MAX_WIDTH = 360;
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -48,6 +53,18 @@ function paddingForFrame(boxes) {
   return boxes.length <= 1 ? SINGLETON_FRAME_PADDING : FRAME_PADDING;
 }
 
+function titleMetrics(frame) {
+  const label = String(frame.name ?? '').trim();
+  if (!label) return { width: 0, height: 0 };
+  return {
+    width: Math.max(
+      FRAME_TITLE_MIN_WIDTH,
+      Math.min(FRAME_TITLE_MAX_WIDTH, label.length * FRAME_TITLE_CHAR_WIDTH + FRAME_TITLE_PADDING_X)
+    ),
+    height: FRAME_TITLE_HEIGHT
+  };
+}
+
 function memberBounds(boxes) {
   return {
     left: Math.min(...boxes.map((box) => box.x)),
@@ -63,6 +80,17 @@ function frameRect(frame) {
     top: frame.y,
     right: frame.x + frame.width,
     bottom: frame.y + frame.height
+  };
+}
+
+function frameVisualRect(frame) {
+  const rect = frameRect(frame);
+  const title = titleMetrics(frame);
+  return {
+    left: rect.left,
+    top: rect.top - title.height,
+    right: Math.max(rect.right, rect.left + title.width),
+    bottom: rect.bottom
   };
 }
 
@@ -104,10 +132,11 @@ function separateHorizontal(leftItem, rightItem) {
 }
 
 function separateVertical(topItem, bottomItem) {
+  const requiredGap = MIN_FRAME_GAP + titleMetrics(bottomItem.frame).height;
   const available = bottomItem.member.top - topItem.member.bottom;
-  if (available < MIN_FRAME_GAP) return false;
-  const splitTop = topItem.member.bottom + (available - MIN_FRAME_GAP) / 2;
-  const splitBottom = splitTop + MIN_FRAME_GAP;
+  if (available < requiredGap) return false;
+  const splitTop = topItem.member.bottom + (available - requiredGap) / 2;
+  const splitBottom = splitTop + requiredGap;
   setFrameBottom(topItem.frame, Math.min(frameRect(topItem.frame).bottom, splitTop));
   setFrameTop(bottomItem.frame, Math.max(frameRect(bottomItem.frame).top, splitBottom));
   return true;
@@ -115,7 +144,7 @@ function separateVertical(topItem, bottomItem) {
 
 function resolveFramePair(first, second) {
   if (first.mode !== 'explicit' || second.mode !== 'explicit') return 'ignored';
-  if (!rectsCollide(frameRect(first.frame), frameRect(second.frame), MIN_FRAME_GAP)) return 'clear';
+  if (!rectsCollide(frameVisualRect(first.frame), frameVisualRect(second.frame), MIN_FRAME_GAP)) return 'clear';
 
   const options = [];
   if (first.member.right <= second.member.left) {
@@ -199,7 +228,12 @@ function makeFrame(groupName, label, boxes, mode) {
         generatedBy: 'frame-groups',
         memberCount: boxes.length,
         frameMode: mode,
-        padding: pad
+        padding: pad,
+        titleReserve: label ? {
+          mode: 'native-100pct-estimate',
+          height: FRAME_TITLE_HEIGHT,
+          width: titleMetrics({ name: label }).width
+        } : null
       }
     }
   };
@@ -306,6 +340,8 @@ export function frameSceneGroups(scene, spec) {
           suppressedSmallGroups,
           suppressedUnspecifiedGroups,
           suppressedFullScene,
+          titleReserveMode: 'native-100pct-estimate',
+          titleReserveHeight: FRAME_TITLE_HEIGHT,
           adjustedFrameCollisions: collisionPolicy.adjusted,
           unresolvedFrameCollisions: collisionPolicy.unresolved,
           suppressedByBudget: Math.max(0, candidates.length - frames.length)
