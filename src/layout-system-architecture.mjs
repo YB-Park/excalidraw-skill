@@ -137,24 +137,36 @@ function groupMemberCounts(spec) {
   return counts;
 }
 
-function entryFramePad(entry, framedGroups, memberCounts) {
-  const group = entry.node.group;
-  if (!group || !framedGroups.has(group)) return 0;
+function rowFramedGroups(entries, framedGroups) {
+  return new Set(entries
+    .map((entry) => entry.node.group)
+    .filter((group) => group && framedGroups.has(group)));
+}
+
+function groupsOverlap(first, second) {
+  return [...first].some((group) => second.has(group));
+}
+
+function framePadForGroup(group, memberCounts) {
   return (memberCounts.get(group) ?? 0) <= 1
     ? DEFAULTS.singletonFramePad
     : DEFAULTS.framePad;
 }
 
-function rowFramePad(entries, framedGroups, memberCounts) {
-  return Math.max(0, ...entries.map((entry) => entryFramePad(entry, framedGroups, memberCounts)));
+function rowFramePad(groups, memberCounts) {
+  return Math.max(0, ...[...groups].map((group) => framePadForGroup(group, memberCounts)));
 }
 
 function gapAfterRow(entries, nextEntries, framedGroups, memberCounts) {
   if (!nextEntries) return DEFAULTS.layerGap;
-  const currentPad = rowFramePad(entries, framedGroups, memberCounts);
-  const nextPad = rowFramePad(nextEntries, framedGroups, memberCounts);
-  if (currentPad === 0 && nextPad === 0) return DEFAULTS.layerGap;
-  return Math.max(DEFAULTS.layerGap, currentPad + nextPad + DEFAULTS.frameGap);
+  const currentGroups = rowFramedGroups(entries, framedGroups);
+  const nextGroups = rowFramedGroups(nextEntries, framedGroups);
+  if (currentGroups.size === 0 || nextGroups.size === 0) return DEFAULTS.layerGap;
+  if (groupsOverlap(currentGroups, nextGroups)) return DEFAULTS.layerGap;
+  return Math.max(
+    DEFAULTS.layerGap,
+    rowFramePad(currentGroups, memberCounts) + rowFramePad(nextGroups, memberCounts) + DEFAULTS.frameGap
+  );
 }
 
 function rowWidth(entries, sceneNodes) {
@@ -250,7 +262,7 @@ function applyPlacements(scene, sceneNodes, labels, result, profile) {
   scene.customData ??= {};
   scene.customData.excalidrawSkill ??= {};
   scene.customData.excalidrawSkill.layout = {
-    engine: 'system-architecture-v0.2',
+    engine: 'system-architecture-v0.2.1',
     family: 'system-architecture',
     profile,
     placedNodes: result.placements.size,
