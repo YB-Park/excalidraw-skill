@@ -120,6 +120,40 @@ test('framePolicy.include can explicitly frame the whole scene', () => {
   assert.equal(framePolicy(result).suppressedFullScene, 0);
 });
 
+test('one-member frames use larger padding when allowed', () => {
+  const scene = { elements: [node('x', 100, 120)] };
+  const spec = {
+    framePolicy: { allowSingletons: true },
+    groups: [{ id: 'x-frame', label: 'X Frame', visualBoundary: true }],
+    nodes: [{ semanticId: 'x', group: 'x-frame' }]
+  };
+  const result = frameSceneGroups(scene, spec);
+  const [frame] = frames(result);
+
+  assert.equal(frame.customData.excalidrawSkill.padding, 80);
+  assert.equal(frame.x, 20);
+  assert.equal(frame.y, 40);
+  assert.equal(frame.width, 340);
+  assert.equal(frame.height, 240);
+});
+
+test('multi-node frames keep standard padding', () => {
+  const scene = { elements: [node('a', 100, 120), node('b', 320, 120)] };
+  const spec = {
+    groups: [{ id: 'pair-frame', label: 'Pair Frame', visualBoundary: true }],
+    nodes: [
+      { semanticId: 'a', group: 'pair-frame' },
+      { semanticId: 'b', group: 'pair-frame' }
+    ]
+  };
+  const result = frameSceneGroups(scene, spec);
+  const [frame] = frames(result);
+
+  assert.equal(frame.customData.excalidrawSkill.padding, 48);
+  assert.equal(frame.x, 52);
+  assert.equal(frame.y, 72);
+});
+
 test('respects explicit maxFrames override', () => {
   const elements = [];
   const nodes = [];
