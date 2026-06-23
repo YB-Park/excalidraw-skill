@@ -111,6 +111,7 @@ Common fields:
 - `label`
 - `kind`
 - `fontRole`
+- optional `visual`
 - optional `routeHints`
 
 Prefer explicit semantic relation kinds:
@@ -130,6 +131,38 @@ Prefer explicit semantic relation kinds:
 
 Do not collapse all relations into a generic arrow when the distinction matters.
 
+### Edge visual intent
+
+Use `edge.visual` for semantic styling intent. Do not use raw colors, raw coordinates, or arbitrary Excalidraw style values in the spec.
+
+Allowed fields:
+
+- `visual.role`: `default`, `data-plane`, `control-plane`, `event-stream`, `error-path`, `dependency`, `muted`
+- `visual.emphasis`: `normal`, `strong`, `critical`, `muted`
+- `visual.stroke`: `solid`, `dashed`, `dotted`
+
+Examples:
+
+```json
+{
+  "semanticId": "data-to-pipeline",
+  "from": "collector",
+  "to": "pipeline",
+  "kind": "transfers",
+  "visual": { "role": "data-plane", "emphasis": "critical", "stroke": "solid" }
+}
+```
+
+```json
+{
+  "semanticId": "events-to-worker",
+  "from": "topic",
+  "to": "worker",
+  "kind": "publishes",
+  "visual": { "role": "event-stream", "stroke": "dashed" }
+}
+```
+
 ## Rules
 
 - Select the diagram family before writing the spec.
@@ -137,6 +170,7 @@ Do not collapse all relations into a generic arrow when the distinction matters.
 - Use shape refs from the catalog.
 - Use a style preset instead of arbitrary visual values.
 - Do not put raw coordinates in DiagramSpec.
+- Use `edge.visual` instead of raw edge color/width/style values.
 - Preserve semantic ordering such as layer order and flow order.
 - Treat lanes and logical groups as invisible by default.
 - Use visible frames only for meaningful boundaries.
