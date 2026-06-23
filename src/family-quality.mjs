@@ -37,9 +37,12 @@ function isExternalSpecNode(node) {
 
 function frameChecks(scene, spec, nodeCount) {
   const frames = sceneFrames(scene);
-  const singletonFrames = frames
-    .filter((frame) => Number(metaOf(frame).memberCount ?? 0) <= 1)
-    .map((frame) => metaOf(frame).semanticId ?? frame.id);
+  const allowSingletons = spec?.framePolicy?.allowSingletons === true || spec?.layout?.framePolicy?.allowSingletons === true;
+  const singletonFrames = allowSingletons
+    ? []
+    : frames
+      .filter((frame) => Number(metaOf(frame).memberCount ?? 0) <= 1)
+      .map((frame) => metaOf(frame).semanticId ?? frame.id);
   const fullSceneFrames = frames
     .filter((frame) => Number(metaOf(frame).memberCount ?? 0) >= nodeCount && nodeCount > 0)
     .map((frame) => metaOf(frame).semanticId ?? frame.id);
@@ -50,25 +53,33 @@ function frameChecks(scene, spec, nodeCount) {
       : null;
   const frameBudgetExceeded = budget === null ? 0 : Math.max(0, frames.length - budget);
   const allowFullScene = spec?.framePolicy?.allowFullScene === true;
+  const unresolvedFrameCollisions = Number(scene.customData?.excalidrawSkill?.framePolicy?.unresolvedFrameCollisions ?? 0);
 
   return {
     metrics: {
       visibleFrames: frames.length,
       singletonFrames: singletonFrames.length,
       fullSceneFrames: allowFullScene ? 0 : fullSceneFrames.length,
-      frameBudgetExceeded
+      frameBudgetExceeded,
+      unresolvedFrameCollisions
     },
     details: {
       singletonFrames,
       fullSceneFrames: allowFullScene ? [] : fullSceneFrames,
-      frameBudget: budget
+      frameBudget: budget,
+      allowSingletons,
+      unresolvedFrameCollisions
     },
     suggestions: [
       ...singletonFrames.map((frame) => ({ operation: 'remove-singleton-frame', frame })),
       ...(allowFullScene ? [] : fullSceneFrames.map((frame) => ({ operation: 'remove-full-scene-frame', frame }))),
-      ...(frameBudgetExceeded > 0 ? [{ operation: 'reduce-visible-frames', maxFrames: budget }] : [])
+      ...(frameBudgetExceeded > 0 ? [{ operation: 'reduce-visible-frames', maxFrames: budget }] : []),
+      ...(unresolvedFrameCollisions > 0 ? [{ operation: 'increase-frame-spacing', unresolvedFrameCollisions }] : [])
     ],
-    pass: singletonFrames.length === 0 && (allowFullScene || fullSceneFrames.length === 0) && frameBudgetExceeded === 0
+    pass: singletonFrames.length === 0
+      && (allowFullScene || fullSceneFrames.length === 0)
+      && frameBudgetExceeded === 0
+      && unresolvedFrameCollisions === 0
   };
 }
 
@@ -152,13 +163,7 @@ function checkLayeredSystem(scene, spec, nodes) {
 
   return {
     metrics,
-    details: {
-      missingLayerAssignments,
-      layerOrderViolations,
-      focusMissing,
-      focusNotMarked,
-      externalPlacementViolations
-    },
+    details: { missingLayerAssignments, layerOrderViolations, focusMissing, focusNotMarked, externalPlacementViolations },
     suggestions,
     pass: Object.values(metrics).every((value) => value === 0)
   };
@@ -178,6 +183,36 @@ function primaryFlowIds(spec) {
     .map(({ node }) => node.semanticId);
 }
 
+function centerLaneAxisViolations(spec, nodes) {
+  if (spec.layout?.profile !== 'swimlane-flow') return [];
+  const direction = spec.layout?.direction ?? 'left-to-right';
+  const centerLane = (spec.layout?.lanes ?? []).find((lane) => lane.position === 'center')?.id;
+  if (!centerLane) return [];
+  const axis = direction === 'top-to-bottom'
+    ? Number(spec.layout?.centerAxisX ?? 460)
+    : Number(spec.layout?.centerAxisY ?? 280);
+  const grouped = new Map();
+  for (const node of spec.nodes ?? []) {
+    if (node.layoutHints?.lane !== centerLane) continue;
+    const rank = Number.isFinite(node.layoutHints?.rank) ? node.layoutHints.rank : 0;
+    const list = grouped.get(rank) ?? [];
+    list.push(node);
+    grouped.set(rank, list);
+  }
+  const violations = [];
+  for (const group of grouped.values()) {
+    if (group.length !== 1) continue;
+    const specNode = group[0];
+    const sceneNode = nodes.get(specNode.semanticId);
+    if (!sceneNode) continue;
+    const value = direction === 'top-to-bottom' ? centerX(sceneNode) : centerY(sceneNode);
+    if (Math.abs(value - axis) > 1) {
+      violations.push({ node: specNode.semanticId, direction, axis, value: Number(value.toFixed(1)) });
+    }
+  }
+  return violations;
+}
+
 function checkFlow(spec, nodes) {
   const primary = primaryFlowIds(spec);
   const primaryFlowMissing = primary.filter((id) => !nodes.has(id));
@@ -191,26 +226,23 @@ function checkFlow(spec, nodes) {
     const fromValue = direction === 'top-to-bottom' ? centerY(from) : centerX(from);
     const toValue = direction === 'top-to-bottom' ? centerY(to) : centerX(to);
     if (fromValue >= toValue) {
-      primaryFlowOrderViolations.push({
-        from: present[index],
-        to: present[index + 1],
-        direction,
-        fromValue,
-        toValue
-      });
+      primaryFlowOrderViolations.push({ from: present[index], to: present[index + 1], direction, fromValue, toValue });
     }
   }
 
+  const centerAxisViolations = centerLaneAxisViolations(spec, nodes);
   const metrics = {
     primaryFlowMissing: primaryFlowMissing.length,
-    primaryFlowOrderViolations: primaryFlowOrderViolations.length
+    primaryFlowOrderViolations: primaryFlowOrderViolations.length,
+    centerAxisViolations: centerAxisViolations.length
   };
   return {
     metrics,
-    details: { primaryFlowMissing, primaryFlowOrderViolations, primaryFlow: primary },
+    details: { primaryFlowMissing, primaryFlowOrderViolations, centerAxisViolations, primaryFlow: primary },
     suggestions: [
       ...primaryFlowMissing.map((node) => ({ operation: 'add-primary-flow-node', node })),
-      ...primaryFlowOrderViolations.map((violation) => ({ operation: 'restore-primary-flow-order', ...violation }))
+      ...primaryFlowOrderViolations.map((violation) => ({ operation: 'restore-primary-flow-order', ...violation })),
+      ...centerAxisViolations.map((violation) => ({ operation: 'restore-center-axis', ...violation }))
     ],
     pass: Object.values(metrics).every((value) => value === 0)
   };
@@ -226,10 +258,8 @@ function checkComponentView(scene, spec, nodes) {
     .map((node) => node.semanticId);
 
   const missingInternal = expectedInternal.filter((id) => !nodes.has(id));
-  const scopeViolations = expectedInternal
-    .filter((id) => nodes.has(id) && metaOf(nodes.get(id)).moduleScope !== 'internal');
-  const externalScopeViolations = expectedExternal
-    .filter((id) => nodes.has(id) && metaOf(nodes.get(id)).moduleScope !== 'external');
+  const scopeViolations = expectedInternal.filter((id) => nodes.has(id) && metaOf(nodes.get(id)).moduleScope !== 'internal');
+  const externalScopeViolations = expectedExternal.filter((id) => nodes.has(id) && metaOf(nodes.get(id)).moduleScope !== 'external');
 
   const frames = sceneFrames(scene);
   const moduleFrames = frames.filter((frame) => metaOf(frame).semanticId === focusModule);
@@ -262,16 +292,7 @@ function checkComponentView(scene, spec, nodes) {
   };
   return {
     metrics,
-    details: {
-      focusModule,
-      expectedInternal,
-      expectedExternal,
-      missingInternal,
-      scopeViolations,
-      externalScopeViolations,
-      moduleFrameCount: moduleFrames.length,
-      externalPlacementViolations
-    },
+    details: { focusModule, expectedInternal, expectedExternal, missingInternal, scopeViolations, externalScopeViolations, moduleFrameCount: moduleFrames.length, externalPlacementViolations },
     suggestions: [
       ...missingInternal.map((node) => ({ operation: 'add-module-component', node })),
       ...scopeViolations.map((node) => ({ operation: 'mark-module-internal', node, module: focusModule })),
@@ -328,7 +349,7 @@ export function createFamilyQualityReport(scene, spec = null) {
   ];
 
   return {
-    version: '0.2.0',
+    version: '0.2.1',
     family,
     diagramType,
     profile,
