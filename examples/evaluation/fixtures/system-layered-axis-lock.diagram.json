@@ -1,0 +1,25 @@
+{
+  "version": "2.0",
+  "diagramType": "system-architecture",
+  "title": "Layered Axis Lock",
+  "stylePreset": "default-software",
+  "outputPath": "examples/evaluation/output/system-layered-axis-lock.excalidraw",
+  "layout": {"profile": "layered-system"},
+  "architecture": {
+    "layers": [
+      {"id": "application", "label": "Application", "order": 0},
+      {"id": "runtime", "label": "Runtime", "order": 1},
+      {"id": "platform", "label": "Platform", "order": 2}
+    ],
+    "focus": ["runtime-core"]
+  },
+  "nodes": [
+    {"semanticId": "app", "label": "Application", "shapeRef": "service.backend", "layer": "application", "layoutHints": {"rank": 0}},
+    {"semanticId": "runtime-core", "label": "Runtime Core", "shapeRef": "service.backend", "layer": "runtime", "layoutHints": {"rank": 0}},
+    {"semanticId": "driver", "label": "Driver", "shapeRef": "service.backend", "layer": "platform", "layoutHints": {"rank": 0}}
+  ],
+  "edges": [
+    {"semanticId": "app-runtime", "from": "app", "to": "runtime-core", "kind": "calls"},
+    {"semanticId": "runtime-driver", "from": "runtime-core", "to": "driver", "kind": "depends-on"}
+  ]
+}
