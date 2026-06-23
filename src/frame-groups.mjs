@@ -4,6 +4,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+const FRAME_PADDING = 48;
+const SINGLETON_FRAME_PADDING = 80;
+
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
@@ -40,8 +43,12 @@ function groupDefinitions(spec) {
   return definitions;
 }
 
+function paddingForFrame(boxes) {
+  return boxes.length <= 1 ? SINGLETON_FRAME_PADDING : FRAME_PADDING;
+}
+
 function makeFrame(groupName, label, boxes, mode) {
-  const pad = 48;
+  const pad = paddingForFrame(boxes);
   const left = Math.min(...boxes.map((box) => box.x)) - pad;
   const top = Math.min(...boxes.map((box) => box.y)) - pad;
   const right = Math.max(...boxes.map((box) => box.x + box.width)) + pad;
@@ -80,7 +87,8 @@ function makeFrame(groupName, label, boxes, mode) {
         role: 'frame',
         generatedBy: 'frame-groups',
         memberCount: boxes.length,
-        frameMode: mode
+        frameMode: mode,
+        padding: pad
       }
     }
   };
