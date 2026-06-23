@@ -9,7 +9,10 @@ const DEFAULTS = Object.freeze({
   originY: 120,
   nodeGap: 70,
   layerGap: 100,
-  externalGap: 180
+  externalGap: 180,
+  frameGap: 48,
+  framePad: 48,
+  singletonFramePad: 80
 });
 
 function readJson(filePath) {
@@ -116,6 +119,44 @@ function orderLayerEntries(entries, focus) {
   });
 }
 
+function framedGroupIds(spec) {
+  const ids = new Set(spec.framePolicy?.include ?? spec.layout?.framePolicy?.include ?? []);
+  for (const group of spec.groups ?? []) {
+    if (!group || typeof group.id !== 'string') continue;
+    if (group.visualBoundary === true || group.frame === true || group.forceFrame === true) ids.add(group.id);
+  }
+  return ids;
+}
+
+function groupMemberCounts(spec) {
+  const counts = new Map();
+  for (const node of spec.nodes ?? []) {
+    if (!node.group) continue;
+    counts.set(node.group, (counts.get(node.group) ?? 0) + 1);
+  }
+  return counts;
+}
+
+function entryFramePad(entry, framedGroups, memberCounts) {
+  const group = entry.node.group;
+  if (!group || !framedGroups.has(group)) return 0;
+  return (memberCounts.get(group) ?? 0) <= 1
+    ? DEFAULTS.singletonFramePad
+    : DEFAULTS.framePad;
+}
+
+function rowFramePad(entries, framedGroups, memberCounts) {
+  return Math.max(0, ...entries.map((entry) => entryFramePad(entry, framedGroups, memberCounts)));
+}
+
+function gapAfterRow(entries, nextEntries, framedGroups, memberCounts) {
+  if (!nextEntries) return DEFAULTS.layerGap;
+  const currentPad = rowFramePad(entries, framedGroups, memberCounts);
+  const nextPad = rowFramePad(nextEntries, framedGroups, memberCounts);
+  if (currentPad === 0 && nextPad === 0) return DEFAULTS.layerGap;
+  return Math.max(DEFAULTS.layerGap, currentPad + nextPad + DEFAULTS.frameGap);
+}
+
 function rowWidth(entries, sceneNodes) {
   return entries.reduce((sum, entry, index) => {
     const width = finite(sceneNodes.get(entry.node.semanticId)?.width, 180);
@@ -135,6 +176,8 @@ function layoutLayeredSystem(spec, sceneNodes) {
   const layers = declaredLayers(spec);
   const focus = focusIds(spec);
   const { byLayer, external } = layerAssignments(spec, layers);
+  const framedGroups = framedGroupIds(spec);
+  const memberCounts = groupMemberCounts(spec);
   const orderedRows = layers.map((layer) => ({
     layer,
     entries: orderLayerEntries(byLayer.get(layer.id) ?? [], focus)
@@ -148,7 +191,8 @@ function layoutLayeredSystem(spec, sceneNodes) {
   const layerRows = [];
   let y = DEFAULTS.originY;
 
-  for (const { layer, entries } of orderedRows) {
+  for (let index = 0; index < orderedRows.length; index += 1) {
+    const { layer, entries } = orderedRows[index];
     const rowHeight = maxNodeHeight(entries, sceneNodes);
     const width = rowWidth(entries, sceneNodes);
     let x = DEFAULTS.originX + (contentWidth - width) / 2;
@@ -168,7 +212,8 @@ function layoutLayeredSystem(spec, sceneNodes) {
       height: rowHeight,
       memberIds: entries.map((entry) => entry.node.semanticId)
     });
-    y += rowHeight + DEFAULTS.layerGap;
+    const nextEntries = orderedRows[index + 1]?.entries;
+    y += rowHeight + gapAfterRow(entries, nextEntries, framedGroups, memberCounts);
   }
 
   if (external.length > 0) {
@@ -205,7 +250,7 @@ function applyPlacements(scene, sceneNodes, labels, result, profile) {
   scene.customData ??= {};
   scene.customData.excalidrawSkill ??= {};
   scene.customData.excalidrawSkill.layout = {
-    engine: 'system-architecture-v0.1',
+    engine: 'system-architecture-v0.2',
     family: 'system-architecture',
     profile,
     placedNodes: result.placements.size,
