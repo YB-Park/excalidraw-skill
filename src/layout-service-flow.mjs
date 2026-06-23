@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 const DEFAULTS = Object.freeze({
   originX: 120,
   originY: 120,
+  centerAxisX: 460,
+  centerAxisY: 280,
   rankGap: 120,
   swimlaneVerticalRankGap: 96,
   laneGap: 110,
@@ -199,16 +201,16 @@ function layoutLayered(spec, sceneNodes) {
 
   primary.forEach((id) => {
     const rank = ranks.get(id) ?? primaryRank.get(id) ?? 0;
-    if (direction === 'top-to-bottom') setPosition(placements, id, 460, DEFAULTS.originY + rank * rankPitch);
-    else setPosition(placements, id, DEFAULTS.originX + rank * rankPitch, 280);
+    if (direction === 'top-to-bottom') setPosition(placements, id, DEFAULTS.centerAxisX, DEFAULTS.originY + rank * rankPitch);
+    else setPosition(placements, id, DEFAULTS.originX + rank * rankPitch, DEFAULTS.centerAxisY);
   });
 
   if (direction === 'top-to-bottom') {
     placeRow(upper, DEFAULTS.originX);
-    placeRow(lower, 460 + 180 + laneGap);
+    placeRow(lower, DEFAULTS.centerAxisX + 180 + laneGap);
   } else {
     placeRow(upper, DEFAULTS.originY);
-    placeRow(lower, 280 + maxHeight + laneGap);
+    placeRow(lower, DEFAULTS.centerAxisY + maxHeight + laneGap);
   }
 
   return placements;
@@ -248,6 +250,44 @@ function placeCenteredVerticalGroup(placements, group, sceneNodes, x, laneCenter
   }
 }
 
+function swimlaneCenterAxis(spec, direction) {
+  return direction === 'top-to-bottom'
+    ? finite(spec.layout?.centerAxisX, DEFAULTS.centerAxisX)
+    : finite(spec.layout?.centerAxisY, DEFAULTS.centerAxisY);
+}
+
+function laneCrossStarts(lanes, laneSizes, direction, laneGap, spec) {
+  const starts = new Map();
+  const centerIndex = lanes.findIndex((lane) => lane.position === 'center');
+  if (centerIndex < 0) {
+    let cross = direction === 'top-to-bottom' ? DEFAULTS.originX : DEFAULTS.originY;
+    for (const lane of lanes) {
+      starts.set(lane.id, cross);
+      cross += laneSizes.get(lane.id) + laneGap;
+    }
+    return starts;
+  }
+
+  const centerLane = lanes[centerIndex];
+  const centerStart = swimlaneCenterAxis(spec, direction) - laneSizes.get(centerLane.id) / 2;
+  starts.set(centerLane.id, centerStart);
+
+  let cursor = centerStart;
+  for (let index = centerIndex - 1; index >= 0; index -= 1) {
+    const lane = lanes[index];
+    cursor -= laneGap + laneSizes.get(lane.id);
+    starts.set(lane.id, cursor);
+  }
+
+  cursor = centerStart + laneSizes.get(centerLane.id) + laneGap;
+  for (let index = centerIndex + 1; index < lanes.length; index += 1) {
+    const lane = lanes[index];
+    starts.set(lane.id, cursor);
+    cursor += laneSizes.get(lane.id) + laneGap;
+  }
+  return starts;
+}
+
 function layoutSwimlanes(spec, sceneNodes) {
   const index = nodeIndex(spec);
   const lanes = normalizedLanes(spec);
@@ -284,7 +324,7 @@ function layoutSwimlanes(spec, sceneNodes) {
       : maxSlots * maxHeight + (maxSlots - 1) * DEFAULTS.slotGap);
   }
 
-  let cross = direction === 'top-to-bottom' ? DEFAULTS.originX : DEFAULTS.originY;
+  const laneStarts = laneCrossStarts(lanes, laneSizes, direction, laneGap, spec);
   for (const lane of lanes) {
     const entries = laneEntries.get(lane.id);
     const groups = new Map();
@@ -295,6 +335,7 @@ function layoutSwimlanes(spec, sceneNodes) {
       groups.set(rank, group);
     }
 
+    const cross = laneStarts.get(lane.id);
     const laneCenter = cross + laneSizes.get(lane.id) / 2;
     for (const [rank, group] of groups) {
       group.sort((a, b) => {
@@ -308,7 +349,6 @@ function layoutSwimlanes(spec, sceneNodes) {
         placeCenteredVerticalGroup(placements, group, sceneNodes, DEFAULTS.originX + rank * swimlaneRankPitch, laneCenter);
       }
     }
-    cross += laneSizes.get(lane.id) + laneGap;
   }
 
   return placements;
@@ -385,7 +425,7 @@ function applyPlacements(scene, sceneNodes, labels, placements, spec, profile) {
   scene.customData ??= {};
   scene.customData.excalidrawSkill ??= {};
   scene.customData.excalidrawSkill.layout = {
-    engine: 'flow-v0.4.1',
+    engine: 'flow-v0.4.2',
     family: 'flow',
     subtype: spec.diagramType,
     profile,
