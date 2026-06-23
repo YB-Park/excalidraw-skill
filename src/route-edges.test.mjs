@@ -100,9 +100,11 @@ test('does not share endpoint segments accidentally', () => {
   assert.equal(collinearOverlapLength(firstA, firstB), 0);
 });
 
-test('prefers down-to-up ports for layered-system edges across vertical layers', () => {
-  const app = node('app', 80, 0);
-  const runtime = node('runtime', 260, 260);
+test('locks same-column layered-system edges to down-to-up ports even with different node widths', () => {
+  const app = node('app', 100, 0);
+  app.width = 240;
+  const runtime = node('runtime', 160, 260);
+  runtime.width = 120;
   const e = edge('app-runtime', 'app', 'runtime');
   routeEdges({ elements: [app, runtime, e] }, {
     diagramType: 'system-architecture',
@@ -122,13 +124,31 @@ test('prefers down-to-up ports for layered-system edges across vertical layers',
   const points = absolutePoints(e);
   assert.equal(e.customData.excalidrawSkill.route.sourceSide, 'down');
   assert.equal(e.customData.excalidrawSkill.route.targetSide, 'up');
-  assert.equal(points[0].y, app.y + app.height);
-  assert.equal(points.at(-1).y, runtime.y);
+  assert.equal(e.customData.excalidrawSkill.route.axisLock, 'vertical');
+  assert.equal(points[0].x, points.at(-1).x);
 });
 
-test('explicit direction overrides layered-system vertical port preference', () => {
-  const app = node('app', 80, 0);
-  const runtime = node('runtime', 260, 260);
+test('locks same-row edges to right-to-left ports with matching horizontal policy', () => {
+  const left = node('left', 0, 100);
+  left.height = 90;
+  const right = node('right', 360, 105);
+  right.height = 80;
+  const e = edge('left-right', 'left', 'right');
+  routeEdges({ elements: [left, right, e] }, {
+    edges: [{ semanticId: 'left-right', from: 'left', to: 'right' }]
+  });
+  const points = absolutePoints(e);
+  assert.equal(e.customData.excalidrawSkill.route.sourceSide, 'right');
+  assert.equal(e.customData.excalidrawSkill.route.targetSide, 'left');
+  assert.equal(e.customData.excalidrawSkill.route.axisLock, 'horizontal');
+  assert.equal(points[0].y, points.at(-1).y);
+});
+
+test('explicit direction overrides layered-system axis lock', () => {
+  const app = node('app', 100, 0);
+  app.width = 240;
+  const runtime = node('runtime', 160, 260);
+  runtime.width = 120;
   const e = edge('app-runtime', 'app', 'runtime');
   routeEdges({ elements: [app, runtime, e] }, {
     diagramType: 'system-architecture',
@@ -141,4 +161,5 @@ test('explicit direction overrides layered-system vertical port preference', () 
   });
   assert.equal(e.customData.excalidrawSkill.route.sourceSide, 'right');
   assert.equal(e.customData.excalidrawSkill.route.targetSide, 'left');
+  assert.equal(e.customData.excalidrawSkill.route.axisLock, null);
 });
