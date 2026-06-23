@@ -8,6 +8,7 @@ const DEFAULTS = Object.freeze({
   originX: 120,
   originY: 120,
   rankGap: 120,
+  swimlaneVerticalRankGap: 96,
   laneGap: 110,
   slotGap: 34
 });
@@ -130,15 +131,28 @@ function normalizedRanks(entries, primaryRank) {
   return ranks;
 }
 
+function rankGapFor(spec) {
+  const ratio = spec.layout?.aspectRatio ?? 'balanced';
+  if (ratio === 'wide') return 160;
+  if (ratio === 'tall') return 90;
+  return DEFAULTS.rankGap;
+}
+
+function swimlaneVerticalRankGapFor(spec) {
+  const ratio = spec.layout?.aspectRatio ?? 'balanced';
+  if (ratio === 'wide') return 108;
+  if (ratio === 'tall') return 78;
+  return DEFAULTS.swimlaneVerticalRankGap;
+}
+
 function placementGeometry(sceneNodes, spec) {
   const widths = [...sceneNodes.values()].map((node) => finite(node.width, 180));
   const heights = [...sceneNodes.values()].map((node) => finite(node.height, 80));
   const maxWidth = Math.max(180, ...widths);
   const maxHeight = Math.max(80, ...heights);
   const ratio = spec.layout?.aspectRatio ?? 'balanced';
-  const rankGap = ratio === 'wide' ? 160 : ratio === 'tall' ? 90 : DEFAULTS.rankGap;
   const laneGap = ratio === 'tall' ? 150 : ratio === 'wide' ? 90 : DEFAULTS.laneGap;
-  return { maxWidth, maxHeight, rankPitch: maxWidth + rankGap, laneGap };
+  return { maxWidth, maxHeight, rankPitch: maxWidth + rankGapFor(spec), laneGap };
 }
 
 function setPosition(placements, id, x, y) {
@@ -200,6 +214,40 @@ function layoutLayered(spec, sceneNodes) {
   return placements;
 }
 
+function groupWidth(group, sceneNodes) {
+  return group.reduce((sum, entry, index) => {
+    const node = sceneNodes.get(entry.node.semanticId);
+    return sum + finite(node?.width, 180) + (index === 0 ? 0 : DEFAULTS.slotGap);
+  }, 0);
+}
+
+function groupHeight(group, sceneNodes) {
+  return group.reduce((sum, entry, index) => {
+    const node = sceneNodes.get(entry.node.semanticId);
+    return sum + finite(node?.height, 80) + (index === 0 ? 0 : DEFAULTS.slotGap);
+  }, 0);
+}
+
+function placeCenteredHorizontalGroup(placements, group, sceneNodes, laneCenterX, y) {
+  let x = laneCenterX - groupWidth(group, sceneNodes) / 2;
+  for (const { node } of group) {
+    const sceneNode = sceneNodes.get(node.semanticId);
+    const width = finite(sceneNode?.width, 180);
+    setPosition(placements, node.semanticId, x, y);
+    x += width + DEFAULTS.slotGap;
+  }
+}
+
+function placeCenteredVerticalGroup(placements, group, sceneNodes, x, laneCenterY) {
+  let y = laneCenterY - groupHeight(group, sceneNodes) / 2;
+  for (const { node } of group) {
+    const sceneNode = sceneNodes.get(node.semanticId);
+    const height = finite(sceneNode?.height, 80);
+    setPosition(placements, node.semanticId, x, y);
+    y += height + DEFAULTS.slotGap;
+  }
+}
+
 function layoutSwimlanes(spec, sceneNodes) {
   const index = nodeIndex(spec);
   const lanes = normalizedLanes(spec);
@@ -211,6 +259,9 @@ function layoutSwimlanes(spec, sceneNodes) {
   const ranks = normalizedRanks([...index.values()], primaryRank);
   const laneEntries = new Map(lanes.map((lane) => [lane.id, []]));
   const defaultLane = lanes.find((lane) => lane.position === 'center')?.id ?? lanes[0].id;
+  const swimlaneRankPitch = direction === 'top-to-bottom'
+    ? maxHeight + swimlaneVerticalRankGapFor(spec)
+    : rankPitch;
 
   for (const entry of index.values()) {
     const laneId = entry.node.layoutHints?.lane ?? (primaryRank.has(entry.node.semanticId) ? defaultLane : lanes.at(-1).id);
@@ -244,19 +295,18 @@ function layoutSwimlanes(spec, sceneNodes) {
       groups.set(rank, group);
     }
 
+    const laneCenter = cross + laneSizes.get(lane.id) / 2;
     for (const [rank, group] of groups) {
       group.sort((a, b) => {
         const ai = a.node.layoutHints?.importance === 'primary' ? 0 : a.node.layoutHints?.importance === 'secondary' ? 1 : 2;
         const bi = b.node.layoutHints?.importance === 'primary' ? 0 : b.node.layoutHints?.importance === 'secondary' ? 1 : 2;
         return ai - bi || a.index - b.index;
       });
-      group.forEach(({ node }, slot) => {
-        if (direction === 'top-to-bottom') {
-          setPosition(placements, node.semanticId, cross + slot * (maxWidth + DEFAULTS.slotGap), DEFAULTS.originY + rank * rankPitch);
-        } else {
-          setPosition(placements, node.semanticId, DEFAULTS.originX + rank * rankPitch, cross + slot * (maxHeight + DEFAULTS.slotGap));
-        }
-      });
+      if (direction === 'top-to-bottom') {
+        placeCenteredHorizontalGroup(placements, group, sceneNodes, laneCenter, DEFAULTS.originY + rank * swimlaneRankPitch);
+      } else {
+        placeCenteredVerticalGroup(placements, group, sceneNodes, DEFAULTS.originX + rank * swimlaneRankPitch, laneCenter);
+      }
     }
     cross += laneSizes.get(lane.id) + laneGap;
   }
@@ -335,7 +385,7 @@ function applyPlacements(scene, sceneNodes, labels, placements, spec, profile) {
   scene.customData ??= {};
   scene.customData.excalidrawSkill ??= {};
   scene.customData.excalidrawSkill.layout = {
-    engine: 'flow-v0.4',
+    engine: 'flow-v0.4.1',
     family: 'flow',
     subtype: spec.diagramType,
     profile,
