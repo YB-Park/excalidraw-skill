@@ -48,6 +48,8 @@
         },
         "direction": {"enum": ["left-to-right", "top-to-bottom"]},
         "aspectRatio": {"enum": ["balanced", "wide", "tall"]},
+        "centerAxisX": {"type": "number"},
+        "centerAxisY": {"type": "number"},
         "primaryFlow": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
         "lanes": {"type": "array", "items": {"$ref": "#/$defs/lane"}}
       },
@@ -199,9 +201,19 @@
           ]
         },
         "fontRole": {"enum": ["default", "mono", "sketch"]},
+        "visual": {"$ref": "#/$defs/edgeVisual"},
         "routeHints": {"$ref": "#/$defs/routeHints"}
       },
       "additionalProperties": true
+    },
+    "edgeVisual": {
+      "type": "object",
+      "properties": {
+        "role": {"enum": ["default", "data-plane", "control-plane", "event-stream", "error-path", "dependency", "muted"]},
+        "emphasis": {"enum": ["normal", "strong", "critical", "muted"]},
+        "stroke": {"enum": ["solid", "dashed", "dotted"]}
+      },
+      "additionalProperties": false
     },
     "routeHints": {
       "type": "object",
