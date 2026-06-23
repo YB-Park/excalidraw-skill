@@ -128,6 +128,34 @@ test('locks same-column layered-system edges to down-to-up ports even with diffe
   assert.equal(points[0].x, points.at(-1).x);
 });
 
+test('ignores unrelated blockers outside the source-target corridor for vertical target entry', () => {
+  const app = node('app', 100, 100);
+  const unrelated = node('unrelated', 100, -180);
+  const runtime = node('runtime', 100, 420);
+  const e = edge('app-runtime', 'app', 'runtime');
+  routeEdges({ elements: [app, unrelated, runtime, e] }, {
+    diagramType: 'system-architecture',
+    layout: { profile: 'layered-system' },
+    architecture: {
+      layers: [
+        { id: 'application', order: 0 },
+        { id: 'runtime', order: 1 }
+      ]
+    },
+    nodes: [
+      { semanticId: 'app', layer: 'application' },
+      { semanticId: 'unrelated', layer: 'application' },
+      { semanticId: 'runtime', layer: 'runtime' }
+    ],
+    edges: [{ semanticId: 'app-runtime', from: 'app', to: 'runtime' }]
+  });
+  const points = absolutePoints(e);
+  assert.equal(e.customData.excalidrawSkill.route.sourceSide, 'down');
+  assert.equal(e.customData.excalidrawSkill.route.targetSide, 'up');
+  assert.equal(e.customData.excalidrawSkill.route.axisLock, 'vertical');
+  assert.equal(points[0].x, points.at(-1).x);
+});
+
 test('locks same-row edges to right-to-left ports with matching horizontal policy', () => {
   const left = node('left', 0, 100);
   left.height = 90;
