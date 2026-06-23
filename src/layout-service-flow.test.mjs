@@ -53,6 +53,10 @@ function centerX(position) {
   return position.x + position.width / 2;
 }
 
+function centerY(position) {
+  return position.y + position.height / 2;
+}
+
 test('swimlane-flow separates support nodes and preserves ranks', () => {
   const nodes = [
     { semanticId: 'web', layoutHints: { lane: 'main', rank: 1, importance: 'primary' } },
@@ -86,6 +90,7 @@ test('swimlane-flow separates support nodes and preserves ranks', () => {
   assert.ok(placed.get('fraud').y > placed.get('pay').y);
   assert.equal(placed.get('fraud').x, placed.get('pay').x);
   assert.notEqual(placed.get('fraud').y, placed.get('db').y);
+  assert.equal(centerY(placed.get('web')), 280);
   assert.equal(scene.customData.excalidrawSkill.layout.profile, 'swimlane-flow');
   assert.equal(scene.customData.excalidrawSkill.layout.family, 'flow');
   assert.equal(scene.customData.excalidrawSkill.layout.subtype, 'service-flow');
@@ -121,6 +126,7 @@ test('top-to-bottom swimlane stacks same-lane nodes on a shared vertical spine',
   const placed = positions(scene);
   assert.equal(centerX(placed.get('ingress')), centerX(placed.get('api')));
   assert.equal(centerX(placed.get('api')), centerX(placed.get('worker')));
+  assert.equal(centerX(placed.get('api')), 460);
   assert.equal(placed.get('api').y - placed.get('ingress').y, 176);
   const first = scene.elements.find((element) => element.id === 'edge_ingress-api');
   const second = scene.elements.find((element) => element.id === 'edge_api-worker');
@@ -131,6 +137,34 @@ test('top-to-bottom swimlane stacks same-lane nodes on a shared vertical spine',
     assert.equal(routed.customData.excalidrawSkill.route.axisLock, 'vertical');
     assert.equal(points[0].x, points.at(-1).x);
   }
+});
+
+test('top-to-bottom swimlane keeps the center lane anchored when a left lane is present', () => {
+  const nodes = [
+    { semanticId: 'caller', width: 160, layoutHints: { lane: 'actors', rank: 0, importance: 'secondary' } },
+    { semanticId: 'ingress', width: 220, layoutHints: { lane: 'main', rank: 0, importance: 'primary' } },
+    { semanticId: 'api', width: 150, layoutHints: { lane: 'main', rank: 1, importance: 'primary' } }
+  ];
+  const spec = {
+    diagramType: 'service-flow',
+    version: '2.0',
+    nodes,
+    edges: [],
+    layout: {
+      profile: 'swimlane-flow',
+      direction: 'top-to-bottom',
+      primaryFlow: ['ingress', 'api'],
+      lanes: [
+        { id: 'actors', position: 'left', order: 0 },
+        { id: 'main', position: 'center', order: 1 }
+      ]
+    }
+  };
+  const placed = positions(layoutServiceFlow(sceneFor(nodes), spec));
+
+  assert.equal(centerX(placed.get('ingress')), 460);
+  assert.equal(centerX(placed.get('api')), 460);
+  assert.ok(centerX(placed.get('caller')) < centerX(placed.get('ingress')));
 });
 
 test('layered-flow keeps primary path together and support away from it', () => {
