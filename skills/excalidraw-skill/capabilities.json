@@ -1,0 +1,54 @@
+{
+  "version": "1.0",
+  "skill": "excalidraw-skill",
+  "agentRules": [
+    "Use build for new graph-like diagrams.",
+    "Use inspect then patch for existing .excalidraw edits.",
+    "Do not hand-author raw Excalidraw JSON.",
+    "Use capabilities, schema, examples, and explain commands for normal discovery.",
+    "Use quality-report for structural and family quality evidence.",
+    "Sequence rendering is contract-only until a dedicated renderer is implemented."
+  ],
+  "commands": {
+    "agentFacing": ["build", "inspect", "patch", "validate", "quality-report", "capabilities", "schema", "examples", "explain", "doctor"],
+    "developerDebug": ["render", "style-by-kind", "layout-service-flow", "layout-system-architecture", "layout-module-architecture", "route-edges", "style-edges", "frame-groups", "label-edges", "place-edge-labels", "apply-fonts"]
+  },
+  "families": {
+    "flow": {
+      "diagramTypes": ["flow", "service-flow", "event-flow", "data-flow"],
+      "profiles": {"layered-flow": "runnable", "swimlane-flow": "runnable", "hub-and-spoke": "runnable"},
+      "supports": ["primaryFlow", "lanes", "centerAxisX", "centerAxisY", "edge.visual", "routeHints", "logicalGroups", "explicitFrames"]
+    },
+    "system-architecture": {
+      "diagramTypes": ["system-architecture"],
+      "profiles": {"layered-system": "runnable", "deployment-view": "contract-only", "context-view": "contract-only"},
+      "supports": ["architecture.layers", "architecture.focus", "externalPlacement", "edge.visual", "routeHints", "explicitFrames", "frameTitleReserve"]
+    },
+    "module-architecture": {
+      "diagramTypes": ["module-architecture"],
+      "profiles": {"component-view": "runnable", "internal-block": "contract-only", "port-interface-view": "contract-only"},
+      "supports": ["module.focusModule", "module.boundaryLabel", "internalExternalScope", "edge.visual", "explicitFrames"]
+    },
+    "sequence": {
+      "diagramTypes": ["sequence"],
+      "profiles": {"synchronous-sequence": "contract-only", "asynchronous-sequence": "contract-only", "initialization-sequence": "contract-only"},
+      "supports": ["SequenceSpec"]
+    }
+  },
+  "edgeVisual": {
+    "role": ["default", "data-plane", "control-plane", "event-stream", "error-path", "dependency", "muted"],
+    "emphasis": ["normal", "strong", "critical", "muted"],
+    "stroke": ["solid", "dashed", "dotted"],
+    "precedence": "edge.visual overrides kind-based defaults in final style-edges output. kind remains the semantic relation and fallback preset."
+  },
+  "frames": {
+    "defaultPolicy": "Groups and lanes are invisible unless a meaningful boundary is explicit.",
+    "explicitSignals": ["groups[].visualBoundary", "groups[].forceFrame", "framePolicy.include"],
+    "suppression": ["small automatic groups", "unspecified groups when explicit mode is active", "implicit whole-scene frames", "frames over budget"],
+    "collisionPolicy": "Explicit frame collisions are avoided by reducing facing padding when member-node spacing allows it. Native frame title reserve is estimated at 100% export scale."
+  },
+  "quality": {
+    "passMeaning": "structuralPass && familyPass; not aesthetic approval",
+    "checks": ["node overlaps", "edge-node crossings", "edge crossings", "endpoint approach", "label overlaps", "text overflow", "family invariants", "frame policy", "edge visual preservation", "center axis preservation"]
+  }
+}
