@@ -185,26 +185,50 @@ function candidates(start, end, sourceSide, targetSide, bounds, laneOffset) {
   return result;
 }
 
-function approachProbeEnd(end, side, source, bounds) {
+function approachProbeEnd(end, side, source) {
   const sourceCenter = center(source);
+  const fallback = 120;
   if (side === 'up') {
-    return { x: end.x, y: Math.min(sourceCenter.y, bounds.top - 70) };
+    return { x: end.x, y: Math.min(sourceCenter.y, end.y - fallback) };
   }
   if (side === 'down') {
-    return { x: end.x, y: Math.max(sourceCenter.y, bounds.bottom + 70) };
+    return { x: end.x, y: Math.max(sourceCenter.y, end.y + fallback) };
   }
   if (side === 'left') {
-    return { x: Math.min(sourceCenter.x, bounds.left - 70), y: end.y };
+    return { x: Math.min(sourceCenter.x, end.x - fallback), y: end.y };
   }
-  return { x: Math.max(sourceCenter.x, bounds.right + 70), y: end.y };
+  return { x: Math.max(sourceCenter.x, end.x + fallback), y: end.y };
 }
 
-function approachBlocked(end, side, source, obstacles, bounds) {
+function rectsOverlap(first, second) {
+  return first.x <= second.x + second.width
+    && first.x + first.width >= second.x
+    && first.y <= second.y + second.height
+    && first.y + first.height >= second.y;
+}
+
+function localRouteCorridor(source, target, margin = 64) {
+  const left = Math.min(source.x, target.x) - margin;
+  const top = Math.min(source.y, target.y) - margin;
+  const right = Math.max(source.x + source.width, target.x + target.width) + margin;
+  const bottom = Math.max(source.y + source.height, target.y + target.height) + margin;
+  return {
+    x: left,
+    y: top,
+    width: right - left,
+    height: bottom - top
+  };
+}
+
+function approachBlocked(end, side, source, target, obstacles) {
   const probe = {
     a: end,
-    b: approachProbeEnd(end, side, source, bounds)
+    b: approachProbeEnd(end, side, source)
   };
-  return obstacles.some((rect) => segmentIntersectsRect(probe, rect));
+  const corridor = localRouteCorridor(source, target);
+  return obstacles
+    .filter((rect) => rectsOverlap(rect, corridor))
+    .some((rect) => segmentIntersectsRect(probe, rect));
 }
 
 function scoreRoute(points, obstacles, existingSegments, sidePenalty = 0, approachPenalty = 0) {
@@ -492,8 +516,8 @@ export function routeEdges(scene, spec = null) {
       preferredEnd,
       sides.targetSide,
       from,
-      obstacles,
-      bounds
+      to,
+      obstacles
     );
     const targetSides = preferredBlocked
       ? [sides.targetSide, ...perpendicularSides(sides.targetSide)]
@@ -509,8 +533,8 @@ export function routeEdges(scene, spec = null) {
         end,
         targetSide,
         from,
-        obstacles,
-        bounds
+        to,
+        obstacles
       ) ? 1 : 0;
       const sidePenalty = sides.preferTargetSide && targetSide !== sides.targetSide ? 1 : 0;
       for (const points of candidates(
@@ -544,7 +568,7 @@ export function routeEdges(scene, spec = null) {
     edge.width = last[0];
     edge.height = last[1];
     meta.route = {
-      engine: 'graph-aware-v0.3.4',
+      engine: 'graph-aware-v0.3.5',
       sourceSide: sides.sourceSide,
       targetSide: chosen.targetSide,
       axisLock: sides.axisLock,
