@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { layoutServiceFlow } from './layout-service-flow.mjs';
+import { routeEdges } from './route-edges.mjs';
+import { absolutePoints } from './geometry.mjs';
 
 function sceneFor(nodes) {
   const elements = [];
@@ -10,8 +12,8 @@ function sceneFor(nodes) {
       type: 'rectangle',
       x: 100 + index * 260,
       y: 120,
-      width: 180,
-      height: 80,
+      width: node.width ?? 180,
+      height: node.height ?? 80,
       customData: { excalidrawSkill: { role: 'node', semanticId: node.semanticId } }
     });
     elements.push({
@@ -27,10 +29,28 @@ function sceneFor(nodes) {
   return { type: 'excalidraw', elements };
 }
 
+function edgeElement(edge) {
+  const semanticId = edge.semanticId ?? `${edge.from}-${edge.to}`;
+  return {
+    id: `edge_${semanticId}`,
+    type: 'arrow',
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    points: [[0, 0], [0, 0]],
+    customData: { excalidrawSkill: { role: 'edge', semanticId, from: edge.from, to: edge.to, kind: 'sync' } }
+  };
+}
+
 function positions(scene) {
   return new Map(scene.elements
     .filter((element) => element.customData?.excalidrawSkill?.role === 'node')
-    .map((element) => [element.customData.excalidrawSkill.semanticId, { x: element.x, y: element.y }]));
+    .map((element) => [element.customData.excalidrawSkill.semanticId, { x: element.x, y: element.y, width: element.width, height: element.height }]));
+}
+
+function centerX(position) {
+  return position.x + position.width / 2;
 }
 
 test('swimlane-flow separates support nodes and preserves ranks', () => {
@@ -69,6 +89,48 @@ test('swimlane-flow separates support nodes and preserves ranks', () => {
   assert.equal(scene.customData.excalidrawSkill.layout.profile, 'swimlane-flow');
   assert.equal(scene.customData.excalidrawSkill.layout.family, 'flow');
   assert.equal(scene.customData.excalidrawSkill.layout.subtype, 'service-flow');
+});
+
+test('top-to-bottom swimlane stacks same-lane nodes on a shared vertical spine', () => {
+  const nodes = [
+    { semanticId: 'ingress', width: 220, layoutHints: { lane: 'main', rank: 0, importance: 'primary' } },
+    { semanticId: 'api', width: 150, layoutHints: { lane: 'main', rank: 1, importance: 'primary' } },
+    { semanticId: 'worker', width: 260, layoutHints: { lane: 'main', rank: 2, importance: 'primary' } }
+  ];
+  const edges = [
+    { semanticId: 'ingress-api', from: 'ingress', to: 'api' },
+    { semanticId: 'api-worker', from: 'api', to: 'worker' }
+  ];
+  const spec = {
+    diagramType: 'service-flow',
+    version: '2.0',
+    nodes,
+    edges,
+    layout: {
+      profile: 'swimlane-flow',
+      direction: 'top-to-bottom',
+      primaryFlow: ['ingress', 'api', 'worker'],
+      lanes: [{ id: 'main', position: 'center', order: 0 }]
+    }
+  };
+  const scene = sceneFor(nodes);
+  scene.elements.push(...edges.map(edgeElement));
+  layoutServiceFlow(scene, spec);
+  routeEdges(scene, spec);
+
+  const placed = positions(scene);
+  assert.equal(centerX(placed.get('ingress')), centerX(placed.get('api')));
+  assert.equal(centerX(placed.get('api')), centerX(placed.get('worker')));
+  assert.equal(placed.get('api').y - placed.get('ingress').y, 176);
+  const first = scene.elements.find((element) => element.id === 'edge_ingress-api');
+  const second = scene.elements.find((element) => element.id === 'edge_api-worker');
+  for (const routed of [first, second]) {
+    const points = absolutePoints(routed);
+    assert.equal(routed.customData.excalidrawSkill.route.sourceSide, 'down');
+    assert.equal(routed.customData.excalidrawSkill.route.targetSide, 'up');
+    assert.equal(routed.customData.excalidrawSkill.route.axisLock, 'vertical');
+    assert.equal(points[0].x, points.at(-1).x);
+  }
 });
 
 test('layered-flow keeps primary path together and support away from it', () => {
