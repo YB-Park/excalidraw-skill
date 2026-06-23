@@ -144,7 +144,9 @@ export function frameSceneGroups(scene, spec) {
       suppressedSmallGroups += 1;
       continue;
     }
-    if (!allowFullScene && boxes.length >= sceneNodes.length && !definition?.force) {
+
+    const meaningfulFullSceneBoundary = allowFullScene || explicit || definition?.force === true;
+    if (boxes.length >= sceneNodes.length && !meaningfulFullSceneBoundary) {
       suppressedFullScene += 1;
       continue;
     }
