@@ -1,0 +1,26 @@
+{
+  "version": "2.0",
+  "diagramType": "system-architecture",
+  "title": "Frame Title Boundary Spacing",
+  "stylePreset": "default-software",
+  "outputPath": "examples/evaluation/output/frame-title-boundary-spacing.excalidraw",
+  "layout": {"profile": "layered-system"},
+  "framePolicy": {"allowSingletons": true, "include": ["upper-frame", "lower-frame"]},
+  "groups": [
+    {"id": "upper-frame", "label": "Upper Frame", "visualBoundary": true},
+    {"id": "lower-frame", "label": "Lower Frame", "visualBoundary": true}
+  ],
+  "architecture": {
+    "layers": [
+      {"id": "upper", "label": "Upper", "order": 0},
+      {"id": "lower", "label": "Lower", "order": 1}
+    ]
+  },
+  "nodes": [
+    {"semanticId": "upper-node", "label": "Upper Node", "shapeRef": "service.backend", "layer": "upper", "group": "upper-frame", "layoutHints": {"rank": 0}},
+    {"semanticId": "lower-node", "label": "Lower Node", "shapeRef": "service.backend", "layer": "lower", "group": "lower-frame", "layoutHints": {"rank": 0}}
+  ],
+  "edges": [
+    {"semanticId": "upper-lower", "from": "upper-node", "to": "lower-node", "kind": "calls"}
+  ]
+}
