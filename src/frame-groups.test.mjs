@@ -26,6 +26,10 @@ function rightOf(frame) {
   return frame.x + frame.width;
 }
 
+function bottomOf(frame) {
+  return frame.y + frame.height;
+}
+
 test('does not auto-frame groups with one or two nodes', () => {
   const scene = { elements: [node('a'), node('b', 300), node('c', 600), node('d', 900), node('e', 1200)] };
   const spec = { nodes: [
@@ -181,6 +185,29 @@ test('separates overlapping explicit frame padding without moving member nodes',
   assert.ok(rendered[1].x <= 310);
   assert.equal(framePolicy(result).adjustedFrameCollisions, 1);
   assert.equal(framePolicy(result).unresolvedFrameCollisions, 0);
+});
+
+test('reserves native title band between vertically adjacent explicit frames', () => {
+  const scene = { elements: [node('upper', 100, 120), node('lower', 100, 360)] };
+  const spec = {
+    framePolicy: { allowSingletons: true },
+    groups: [
+      { id: 'upper-frame', label: 'Upper Control Plane', visualBoundary: true },
+      { id: 'lower-frame', label: 'Lower Data Plane', visualBoundary: true }
+    ],
+    nodes: [
+      { semanticId: 'upper', group: 'upper-frame' },
+      { semanticId: 'lower', group: 'lower-frame' }
+    ]
+  };
+  const result = frameSceneGroups(scene, spec);
+  const rendered = frames(result).sort((a, b) => a.y - b.y);
+
+  assert.equal(rendered.length, 2);
+  assert.ok(bottomOf(rendered[0]) + 48 <= rendered[1].y);
+  assert.equal(rendered[1].customData.excalidrawSkill.titleReserve.height, 32);
+  assert.equal(framePolicy(result).titleReserveMode, 'native-100pct-estimate');
+  assert.equal(framePolicy(result).titleReserveHeight, 32);
 });
 
 test('respects explicit maxFrames override', () => {
