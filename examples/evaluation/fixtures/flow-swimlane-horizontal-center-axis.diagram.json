@@ -1,0 +1,30 @@
+{
+  "version": "2.0",
+  "diagramType": "service-flow",
+  "title": "Horizontal Center Axis Flow",
+  "stylePreset": "default-software",
+  "outputPath": "examples/evaluation/output/flow-swimlane-horizontal-center-axis.excalidraw",
+  "layout": {
+    "profile": "swimlane-flow",
+    "direction": "left-to-right",
+    "centerAxisY": 280,
+    "primaryFlow": ["entry", "gateway", "service", "store"],
+    "lanes": [
+      {"id": "main", "label": "Main", "position": "center", "order": 1},
+      {"id": "support", "label": "Support", "position": "bottom", "order": 2}
+    ]
+  },
+  "nodes": [
+    {"semanticId": "entry", "label": "Entry", "shapeRef": "service.gateway", "layoutHints": {"lane": "main", "rank": 0, "importance": "primary"}},
+    {"semanticId": "gateway", "label": "Gateway", "shapeRef": "service.gateway", "layoutHints": {"lane": "main", "rank": 1, "importance": "primary"}},
+    {"semanticId": "service", "label": "Service", "shapeRef": "service.backend", "layoutHints": {"lane": "main", "rank": 2, "importance": "primary"}},
+    {"semanticId": "store", "label": "Store", "shapeRef": "database.relational", "layoutHints": {"lane": "main", "rank": 3, "importance": "primary"}},
+    {"semanticId": "audit", "label": "Audit", "shapeRef": "service.backend", "layoutHints": {"lane": "support", "rank": 2, "importance": "support"}}
+  ],
+  "edges": [
+    {"semanticId": "entry-gateway", "from": "entry", "to": "gateway", "kind": "calls"},
+    {"semanticId": "gateway-service", "from": "gateway", "to": "service", "kind": "calls"},
+    {"semanticId": "service-store", "from": "service", "to": "store", "kind": "writes"},
+    {"semanticId": "service-audit", "from": "service", "to": "audit", "kind": "publishes"}
+  ]
+}
