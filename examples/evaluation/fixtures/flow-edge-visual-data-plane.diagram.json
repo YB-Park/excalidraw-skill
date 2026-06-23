@@ -1,0 +1,21 @@
+{
+  "version": "2.0",
+  "diagramType": "data-flow",
+  "title": "Data Plane Visual Intent",
+  "stylePreset": "default-software",
+  "outputPath": "examples/evaluation/output/flow-edge-visual-data-plane.excalidraw",
+  "layout": {
+    "profile": "layered-flow",
+    "direction": "left-to-right",
+    "primaryFlow": ["collector", "pipeline", "storage"]
+  },
+  "nodes": [
+    {"semanticId": "collector", "label": "Collector", "shapeRef": "service.backend", "layoutHints": {"rank": 0, "importance": "primary"}},
+    {"semanticId": "pipeline", "label": "Pipeline", "shapeRef": "service.backend", "layoutHints": {"rank": 1, "importance": "primary"}},
+    {"semanticId": "storage", "label": "Storage", "shapeRef": "database.relational", "layoutHints": {"rank": 2, "importance": "primary"}}
+  ],
+  "edges": [
+    {"semanticId": "collector-pipeline", "from": "collector", "to": "pipeline", "kind": "transfers", "visual": {"role": "data-plane", "emphasis": "critical", "stroke": "solid"}},
+    {"semanticId": "pipeline-storage", "from": "pipeline", "to": "storage", "kind": "writes", "visual": {"role": "data-plane", "emphasis": "strong", "stroke": "solid"}}
+  ]
+}
