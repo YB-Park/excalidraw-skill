@@ -22,6 +22,10 @@ function framePolicy(scene) {
   return scene.customData?.excalidrawSkill?.framePolicy;
 }
 
+function rightOf(frame) {
+  return frame.x + frame.width;
+}
+
 test('does not auto-frame groups with one or two nodes', () => {
   const scene = { elements: [node('a'), node('b', 300), node('c', 600), node('d', 900), node('e', 1200)] };
   const spec = { nodes: [
@@ -152,6 +156,31 @@ test('multi-node frames keep standard padding', () => {
   assert.equal(frame.customData.excalidrawSkill.padding, 48);
   assert.equal(frame.x, 52);
   assert.equal(frame.y, 72);
+});
+
+test('separates overlapping explicit frame padding without moving member nodes', () => {
+  const scene = { elements: [node('left', 100, 120), node('right', 310, 120)] };
+  const spec = {
+    framePolicy: { allowSingletons: true },
+    groups: [
+      { id: 'left-frame', label: 'Left Frame', visualBoundary: true },
+      { id: 'right-frame', label: 'Right Frame', visualBoundary: true }
+    ],
+    nodes: [
+      { semanticId: 'left', group: 'left-frame' },
+      { semanticId: 'right', group: 'right-frame' }
+    ]
+  };
+  const result = frameSceneGroups(scene, spec);
+  const rendered = frames(result).sort((a, b) => a.x - b.x);
+
+  assert.equal(rendered.length, 2);
+  assert.ok(rightOf(rendered[0]) + 16 <= rendered[1].x);
+  assert.ok(rendered[0].x <= 100);
+  assert.ok(rightOf(rendered[0]) >= 280);
+  assert.ok(rendered[1].x <= 310);
+  assert.equal(framePolicy(result).adjustedFrameCollisions, 1);
+  assert.equal(framePolicy(result).unresolvedFrameCollisions, 0);
 });
 
 test('respects explicit maxFrames override', () => {
