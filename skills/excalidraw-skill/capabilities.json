@@ -17,17 +17,17 @@
     "flow": {
       "diagramTypes": ["flow", "service-flow", "event-flow", "data-flow"],
       "profiles": {"layered-flow": "runnable", "swimlane-flow": "runnable", "hub-and-spoke": "runnable"},
-      "supports": ["primaryFlow", "lanes", "centerAxisX", "centerAxisY", "edge.visual", "routeHints", "logicalGroups", "explicitFrames"]
+      "supports": ["primaryFlow", "lanes", "centerAxisX", "centerAxisY", "edge.visual", "routeHints", "logicalGroups", "explicitFrames", "singletonBoundary"]
     },
     "system-architecture": {
       "diagramTypes": ["system-architecture"],
       "profiles": {"layered-system": "runnable", "deployment-view": "contract-only", "context-view": "contract-only"},
-      "supports": ["architecture.layers", "architecture.focus", "externalPlacement", "edge.visual", "routeHints", "explicitFrames", "frameTitleReserve"]
+      "supports": ["architecture.layers", "architecture.focus", "externalPlacement", "edge.visual", "routeHints", "explicitFrames", "singletonBoundary", "frameTitleReserve"]
     },
     "module-architecture": {
       "diagramTypes": ["module-architecture"],
       "profiles": {"component-view": "runnable", "internal-block": "contract-only", "port-interface-view": "contract-only"},
-      "supports": ["module.focusModule", "module.boundaryLabel", "internalExternalScope", "edge.visual", "explicitFrames"]
+      "supports": ["module.focusModule", "module.boundaryLabel", "internalExternalScope", "edge.visual", "explicitFrames", "singletonBoundary"]
     },
     "sequence": {
       "diagramTypes": ["sequence"],
@@ -44,11 +44,13 @@
   "frames": {
     "defaultPolicy": "Groups and lanes are invisible unless a meaningful boundary is explicit.",
     "explicitSignals": ["groups[].visualBoundary", "groups[].forceFrame", "framePolicy.include"],
+    "singletonPolicy": "Automatic singleton frames are suppressed. Intentional singleton frames use groups[].singletonBoundary=true with boundaryIntent.",
+    "boundaryIntent": ["trust-boundary", "ownership-boundary", "deployment-boundary", "external-boundary", "hardware-boundary", "compliance-boundary", "placeholder-boundary"],
     "suppression": ["small automatic groups", "unspecified groups when explicit mode is active", "implicit whole-scene frames", "frames over budget"],
     "collisionPolicy": "Explicit frame collisions are avoided by reducing facing padding when member-node spacing allows it. Native frame title reserve is estimated at 100% export scale."
   },
   "quality": {
     "passMeaning": "structuralPass && familyPass; not aesthetic approval",
-    "checks": ["node overlaps", "edge-node crossings", "edge crossings", "endpoint approach", "label overlaps", "text overflow", "family invariants", "frame policy", "edge visual preservation", "center axis preservation"]
+    "checks": ["node overlaps", "edge-node crossings", "edge crossings", "endpoint approach", "label overlaps", "text overflow", "family invariants", "frame policy", "singleton boundary policy", "edge visual preservation", "center axis preservation"]
   }
 }
