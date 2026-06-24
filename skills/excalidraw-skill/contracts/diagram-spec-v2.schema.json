@@ -74,7 +74,9 @@
         "label": {"type": "string"},
         "visualBoundary": {"type": "boolean"},
         "frame": {"type": "boolean"},
-        "forceFrame": {"type": "boolean"}
+        "forceFrame": {"type": "boolean"},
+        "singletonBoundary": {"type": "boolean"},
+        "boundaryIntent": {"enum": ["trust-boundary", "ownership-boundary", "deployment-boundary", "external-boundary", "hardware-boundary", "compliance-boundary", "placeholder-boundary"]}
       },
       "additionalProperties": true
     },
@@ -179,27 +181,7 @@
         "from": {"type": "string", "minLength": 1},
         "to": {"type": "string", "minLength": 1},
         "label": {"type": "string"},
-        "kind": {
-          "enum": [
-            "calls",
-            "returns",
-            "depends-on",
-            "references",
-            "contains",
-            "publishes",
-            "subscribes",
-            "reads",
-            "writes",
-            "transfers",
-            "interrupts",
-            "controls",
-            "retries",
-            "fails-to",
-            "sync",
-            "async",
-            "optional"
-          ]
-        },
+        "kind": {"enum": ["calls", "returns", "depends-on", "references", "contains", "publishes", "subscribes", "reads", "writes", "transfers", "interrupts", "controls", "retries", "fails-to", "sync", "async", "optional"]},
         "fontRole": {"enum": ["default", "mono", "sketch"]},
         "visual": {"$ref": "#/$defs/edgeVisual"},
         "routeHints": {"$ref": "#/$defs/routeHints"}
