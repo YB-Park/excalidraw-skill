@@ -29,8 +29,8 @@ test('subcommand help is intercepted before runner execution', () => {
   const result = runCli(['render', '--help']);
 
   assert.equal(result.status, 0);
-  assert.match(result.stdout, /Low-level renderer step/);
-  assert.match(result.stdout, /For new diagrams, use:/);
+  assert.match(result.stdout, /Developer renderer step/);
+  assert.match(result.stdout, /use build instead/i);
   assert.doesNotMatch(result.stderr, /ENOENT|no such file/i);
 });
 
@@ -39,7 +39,7 @@ test('bare patch fails with edit-only guidance', () => {
 
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /Patch is only for editing an existing \.excalidraw scene/);
-  assert.match(result.stderr, /For a new diagram, do not call patch/);
+  assert.match(result.stderr, /Usage: excalidraw-skill patch <scene\.excalidraw> <patch\.json>/);
 });
 
 test('pluralized CLI filename remains a compatibility alias', () => {
