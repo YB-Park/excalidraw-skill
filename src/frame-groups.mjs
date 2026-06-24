@@ -43,7 +43,9 @@ function groupDefinitions(spec) {
       label: group.label ?? group.id,
       visualBoundary: group.visualBoundary === true || group.frame === true,
       disabled: group.visualBoundary === false || group.frame === false,
-      force: group.forceFrame === true
+      force: group.forceFrame === true,
+      singletonBoundary: group.singletonBoundary === true,
+      boundaryIntent: typeof group.boundaryIntent === 'string' ? group.boundaryIntent : null
     });
   }
   return definitions;
@@ -186,7 +188,7 @@ function resolveFrameCollisions(items) {
   return { adjusted, unresolved };
 }
 
-function makeFrame(groupName, label, boxes, mode) {
+function makeFrame(groupName, label, boxes, mode, definition = {}) {
   const pad = paddingForFrame(boxes);
   const bounds = memberBounds(boxes);
   const left = bounds.left - pad;
@@ -229,6 +231,8 @@ function makeFrame(groupName, label, boxes, mode) {
         memberCount: boxes.length,
         frameMode: mode,
         padding: pad,
+        singletonBoundary: definition?.singletonBoundary === true,
+        boundaryIntent: definition?.boundaryIntent ?? null,
         titleReserve: label ? {
           mode: 'native-100pct-estimate',
           height: FRAME_TITLE_HEIGHT,
@@ -288,12 +292,12 @@ export function frameSceneGroups(scene, spec) {
     const definition = definitions.get(groupName);
     if (definition?.disabled) continue;
 
-    const explicit = preferredGroups.has(groupName) || definition?.visualBoundary === true;
+    const explicit = preferredGroups.has(groupName) || definition?.visualBoundary === true || definition?.singletonBoundary === true;
     if (explicitMode && !explicit) {
       suppressedUnspecifiedGroups += 1;
       continue;
     }
-    if (boxes.length < minimumMembers && !definition?.force) {
+    if (boxes.length < minimumMembers && !definition?.force && !(boxes.length === 1 && definition?.singletonBoundary === true)) {
       suppressedSmallGroups += 1;
       continue;
     }
@@ -308,6 +312,7 @@ export function frameSceneGroups(scene, spec) {
       groupName,
       label: definition?.label ?? groupName,
       boxes,
+      definition,
       mode: explicit ? 'explicit' : 'auto'
     });
   }
@@ -318,8 +323,8 @@ export function frameSceneGroups(scene, spec) {
   });
 
   const selected = candidates.slice(0, budget);
-  const frameItems = selected.map(({ groupName, label, boxes, mode }) => ({
-    frame: makeFrame(groupName, label, boxes, mode),
+  const frameItems = selected.map(({ groupName, label, boxes, mode, definition }) => ({
+    frame: makeFrame(groupName, label, boxes, mode, definition),
     member: memberBounds(boxes),
     mode
   }));
