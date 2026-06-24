@@ -35,17 +35,27 @@ function isExternalSpecNode(node) {
   return shape.includes('external') || shape.includes('provider') || shape.includes('client') || group.includes('external') || role === 'external';
 }
 
+function frameId(frame) {
+  return metaOf(frame).semanticId ?? frame.id;
+}
+
 function frameChecks(scene, spec, nodeCount) {
   const frames = sceneFrames(scene);
   const allowSingletons = spec?.framePolicy?.allowSingletons === true || spec?.layout?.framePolicy?.allowSingletons === true;
-  const singletonFrames = allowSingletons
-    ? []
-    : frames
-      .filter((frame) => Number(metaOf(frame).memberCount ?? 0) <= 1)
-      .map((frame) => metaOf(frame).semanticId ?? frame.id);
+  const singletonFramesAll = frames.filter((frame) => Number(metaOf(frame).memberCount ?? 0) <= 1);
+  const allowedSingletonFrames = singletonFramesAll
+    .filter((frame) => metaOf(frame).singletonBoundary === true && typeof metaOf(frame).boundaryIntent === 'string')
+    .map(frameId);
+  const policySingletonFrames = singletonFramesAll
+    .filter((frame) => !allowedSingletonFrames.includes(frameId(frame)) && allowSingletons)
+    .map(frameId);
+  const suspiciousSingletonFrames = singletonFramesAll
+    .filter((frame) => !allowedSingletonFrames.includes(frameId(frame)) && !allowSingletons)
+    .map(frameId);
+  const excessiveSingletonFrames = singletonFramesAll.length > 2 ? singletonFramesAll.map(frameId) : [];
   const fullSceneFrames = frames
     .filter((frame) => Number(metaOf(frame).memberCount ?? 0) >= nodeCount && nodeCount > 0)
-    .map((frame) => metaOf(frame).semanticId ?? frame.id);
+    .map(frameId);
   const budget = Number.isInteger(scene.customData?.excalidrawSkill?.framePolicy?.budget)
     ? scene.customData.excalidrawSkill.framePolicy.budget
     : Number.isInteger(spec?.framePolicy?.maxFrames)
@@ -58,25 +68,34 @@ function frameChecks(scene, spec, nodeCount) {
   return {
     metrics: {
       visibleFrames: frames.length,
-      singletonFrames: singletonFrames.length,
+      singletonFrames: singletonFramesAll.length,
+      allowedSingletonFrames: allowedSingletonFrames.length,
+      policySingletonFrames: policySingletonFrames.length,
+      suspiciousSingletonFrames: suspiciousSingletonFrames.length,
+      excessiveSingletonFrames: excessiveSingletonFrames.length,
       fullSceneFrames: allowFullScene ? 0 : fullSceneFrames.length,
       frameBudgetExceeded,
       unresolvedFrameCollisions
     },
     details: {
-      singletonFrames,
+      allowedSingletonFrames,
+      policySingletonFrames,
+      suspiciousSingletonFrames,
+      excessiveSingletonFrames,
       fullSceneFrames: allowFullScene ? [] : fullSceneFrames,
       frameBudget: budget,
       allowSingletons,
       unresolvedFrameCollisions
     },
     suggestions: [
-      ...singletonFrames.map((frame) => ({ operation: 'remove-singleton-frame', frame })),
+      ...suspiciousSingletonFrames.map((frame) => ({ operation: 'justify-singleton-frame', frame })),
+      ...excessiveSingletonFrames.map((frame) => ({ operation: 'reduce-singleton-frames', frame })),
       ...(allowFullScene ? [] : fullSceneFrames.map((frame) => ({ operation: 'remove-full-scene-frame', frame }))),
       ...(frameBudgetExceeded > 0 ? [{ operation: 'reduce-visible-frames', maxFrames: budget }] : []),
       ...(unresolvedFrameCollisions > 0 ? [{ operation: 'increase-frame-spacing', unresolvedFrameCollisions }] : [])
     ],
-    pass: singletonFrames.length === 0
+    pass: suspiciousSingletonFrames.length === 0
+      && excessiveSingletonFrames.length === 0
       && (allowFullScene || fullSceneFrames.length === 0)
       && frameBudgetExceeded === 0
       && unresolvedFrameCollisions === 0
@@ -119,12 +138,7 @@ function checkLayeredSystem(scene, spec, nodes) {
     const upperBottom = Math.max(...upper.members.map((node) => Number(node.y ?? 0) + Number(node.height ?? 0)));
     const lowerTop = Math.min(...lower.members.map((node) => Number(node.y ?? 0)));
     if (upperBottom >= lowerTop) {
-      layerOrderViolations.push({
-        upperLayer: upper.layer.id,
-        lowerLayer: lower.layer.id,
-        upperBottom,
-        lowerTop
-      });
+      layerOrderViolations.push({ upperLayer: upper.layer.id, lowerLayer: lower.layer.id, upperBottom, lowerTop });
     }
   }
 
@@ -132,27 +146,17 @@ function checkLayeredSystem(scene, spec, nodes) {
   const focusMissing = focus.filter((id) => !nodes.has(id));
   const focusNotMarked = focus.filter((id) => nodes.has(id) && metaOf(nodes.get(id)).architectureFocus !== true);
 
-  const internalNodes = [...nodes.entries()]
-    .filter(([id]) => !externalIds.includes(id))
-    .map(([, node]) => node);
+  const internalNodes = [...nodes.entries()].filter(([id]) => !externalIds.includes(id)).map(([, node]) => node);
   const externalPlacementViolations = [];
   if (internalNodes.length > 0) {
     const internalRight = Math.max(...internalNodes.map((node) => Number(node.x ?? 0) + Number(node.width ?? 0)));
     for (const id of externalIds) {
       const node = nodes.get(id);
-      if (node && Number(node.x ?? 0) <= internalRight) {
-        externalPlacementViolations.push({ node: id, x: Number(node.x ?? 0), internalRight });
-      }
+      if (node && Number(node.x ?? 0) <= internalRight) externalPlacementViolations.push({ node: id, x: Number(node.x ?? 0), internalRight });
     }
   }
 
-  const metrics = {
-    missingLayerAssignments: missingLayerAssignments.length,
-    layerOrderViolations: layerOrderViolations.length,
-    focusMissing: focusMissing.length,
-    focusNotMarked: focusNotMarked.length,
-    externalPlacementViolations: externalPlacementViolations.length
-  };
+  const metrics = { missingLayerAssignments: missingLayerAssignments.length, layerOrderViolations: layerOrderViolations.length, focusMissing: focusMissing.length, focusNotMarked: focusNotMarked.length, externalPlacementViolations: externalPlacementViolations.length };
   const suggestions = [
     ...missingLayerAssignments.map((node) => ({ operation: 'assign-architecture-layer', node })),
     ...layerOrderViolations.map((violation) => ({ operation: 'restore-layer-order', ...violation })),
@@ -160,13 +164,7 @@ function checkLayeredSystem(scene, spec, nodes) {
     ...focusNotMarked.map((node) => ({ operation: 'mark-architecture-focus', node })),
     ...externalPlacementViolations.map((violation) => ({ operation: 'move-external-outside-stack', ...violation }))
   ];
-
-  return {
-    metrics,
-    details: { missingLayerAssignments, layerOrderViolations, focusMissing, focusNotMarked, externalPlacementViolations },
-    suggestions,
-    pass: Object.values(metrics).every((value) => value === 0)
-  };
+  return { metrics, details: { missingLayerAssignments, layerOrderViolations, focusMissing, focusNotMarked, externalPlacementViolations }, suggestions, pass: Object.values(metrics).every((value) => value === 0) };
 }
 
 function primaryFlowIds(spec) {
@@ -188,9 +186,7 @@ function centerLaneAxisViolations(spec, nodes) {
   const direction = spec.layout?.direction ?? 'left-to-right';
   const centerLane = (spec.layout?.lanes ?? []).find((lane) => lane.position === 'center')?.id;
   if (!centerLane) return [];
-  const axis = direction === 'top-to-bottom'
-    ? Number(spec.layout?.centerAxisX ?? 460)
-    : Number(spec.layout?.centerAxisY ?? 280);
+  const axis = direction === 'top-to-bottom' ? Number(spec.layout?.centerAxisX ?? 460) : Number(spec.layout?.centerAxisY ?? 280);
   const grouped = new Map();
   for (const node of spec.nodes ?? []) {
     if (node.layoutHints?.lane !== centerLane) continue;
@@ -206,9 +202,7 @@ function centerLaneAxisViolations(spec, nodes) {
     const sceneNode = nodes.get(specNode.semanticId);
     if (!sceneNode) continue;
     const value = direction === 'top-to-bottom' ? centerX(sceneNode) : centerY(sceneNode);
-    if (Math.abs(value - axis) > 1) {
-      violations.push({ node: specNode.semanticId, direction, axis, value: Number(value.toFixed(1)) });
-    }
+    if (Math.abs(value - axis) > 1) violations.push({ node: specNode.semanticId, direction, axis, value: Number(value.toFixed(1)) });
   }
   return violations;
 }
@@ -219,48 +213,25 @@ function checkFlow(spec, nodes) {
   const present = primary.filter((id) => nodes.has(id));
   const direction = spec.layout?.direction ?? 'left-to-right';
   const primaryFlowOrderViolations = [];
-
   for (let index = 0; index < present.length - 1; index += 1) {
     const from = nodes.get(present[index]);
     const to = nodes.get(present[index + 1]);
     const fromValue = direction === 'top-to-bottom' ? centerY(from) : centerX(from);
     const toValue = direction === 'top-to-bottom' ? centerY(to) : centerX(to);
-    if (fromValue >= toValue) {
-      primaryFlowOrderViolations.push({ from: present[index], to: present[index + 1], direction, fromValue, toValue });
-    }
+    if (fromValue >= toValue) primaryFlowOrderViolations.push({ from: present[index], to: present[index + 1], direction, fromValue, toValue });
   }
-
   const centerAxisViolations = centerLaneAxisViolations(spec, nodes);
-  const metrics = {
-    primaryFlowMissing: primaryFlowMissing.length,
-    primaryFlowOrderViolations: primaryFlowOrderViolations.length,
-    centerAxisViolations: centerAxisViolations.length
-  };
-  return {
-    metrics,
-    details: { primaryFlowMissing, primaryFlowOrderViolations, centerAxisViolations, primaryFlow: primary },
-    suggestions: [
-      ...primaryFlowMissing.map((node) => ({ operation: 'add-primary-flow-node', node })),
-      ...primaryFlowOrderViolations.map((violation) => ({ operation: 'restore-primary-flow-order', ...violation })),
-      ...centerAxisViolations.map((violation) => ({ operation: 'restore-center-axis', ...violation }))
-    ],
-    pass: Object.values(metrics).every((value) => value === 0)
-  };
+  const metrics = { primaryFlowMissing: primaryFlowMissing.length, primaryFlowOrderViolations: primaryFlowOrderViolations.length, centerAxisViolations: centerAxisViolations.length };
+  return { metrics, details: { primaryFlowMissing, primaryFlowOrderViolations, centerAxisViolations, primaryFlow: primary }, suggestions: [...primaryFlowMissing.map((node) => ({ operation: 'add-primary-flow-node', node })), ...primaryFlowOrderViolations.map((violation) => ({ operation: 'restore-primary-flow-order', ...violation })), ...centerAxisViolations.map((violation) => ({ operation: 'restore-center-axis', ...violation }))], pass: Object.values(metrics).every((value) => value === 0) };
 }
 
 function checkComponentView(scene, spec, nodes) {
   const focusModule = spec.module?.focusModule ?? null;
-  const expectedInternal = (spec.nodes ?? [])
-    .filter((node) => !isExternalSpecNode(node))
-    .map((node) => node.semanticId);
-  const expectedExternal = (spec.nodes ?? [])
-    .filter((node) => isExternalSpecNode(node))
-    .map((node) => node.semanticId);
-
+  const expectedInternal = (spec.nodes ?? []).filter((node) => !isExternalSpecNode(node)).map((node) => node.semanticId);
+  const expectedExternal = (spec.nodes ?? []).filter((node) => isExternalSpecNode(node)).map((node) => node.semanticId);
   const missingInternal = expectedInternal.filter((id) => !nodes.has(id));
   const scopeViolations = expectedInternal.filter((id) => nodes.has(id) && metaOf(nodes.get(id)).moduleScope !== 'internal');
   const externalScopeViolations = expectedExternal.filter((id) => nodes.has(id) && metaOf(nodes.get(id)).moduleScope !== 'external');
-
   const frames = sceneFrames(scene);
   const moduleFrames = frames.filter((frame) => metaOf(frame).semanticId === focusModule);
   const moduleBoundaryViolations = moduleFrames.length === 1 ? 0 : 1;
@@ -278,30 +249,11 @@ function checkComponentView(scene, spec, nodes) {
       const nodeRight = nodeLeft + Number(node.width ?? 0);
       const nodeTop = Number(node.y ?? 0);
       const nodeBottom = nodeTop + Number(node.height ?? 0);
-      const overlapsBoundary = nodeRight > left && nodeLeft < right && nodeBottom > top && nodeTop < bottom;
-      if (overlapsBoundary) externalPlacementViolations.push(id);
+      if (nodeRight > left && nodeLeft < right && nodeBottom > top && nodeTop < bottom) externalPlacementViolations.push(id);
     }
   }
-
-  const metrics = {
-    missingInternal: missingInternal.length,
-    scopeViolations: scopeViolations.length,
-    externalScopeViolations: externalScopeViolations.length,
-    moduleBoundaryViolations,
-    externalPlacementViolations: externalPlacementViolations.length
-  };
-  return {
-    metrics,
-    details: { focusModule, expectedInternal, expectedExternal, missingInternal, scopeViolations, externalScopeViolations, moduleFrameCount: moduleFrames.length, externalPlacementViolations },
-    suggestions: [
-      ...missingInternal.map((node) => ({ operation: 'add-module-component', node })),
-      ...scopeViolations.map((node) => ({ operation: 'mark-module-internal', node, module: focusModule })),
-      ...externalScopeViolations.map((node) => ({ operation: 'mark-module-external', node })),
-      ...(moduleBoundaryViolations ? [{ operation: 'restore-single-module-boundary', module: focusModule }] : []),
-      ...externalPlacementViolations.map((node) => ({ operation: 'move-external-outside-module', node, module: focusModule }))
-    ],
-    pass: Object.values(metrics).every((value) => value === 0)
-  };
+  const metrics = { missingInternal: missingInternal.length, scopeViolations: scopeViolations.length, externalScopeViolations: externalScopeViolations.length, moduleBoundaryViolations, externalPlacementViolations: externalPlacementViolations.length };
+  return { metrics, details: { focusModule, expectedInternal, expectedExternal, missingInternal, scopeViolations, externalScopeViolations, moduleFrameCount: moduleFrames.length, externalPlacementViolations }, suggestions: [...missingInternal.map((node) => ({ operation: 'add-module-component', node })), ...scopeViolations.map((node) => ({ operation: 'mark-module-internal', node, module: focusModule })), ...externalScopeViolations.map((node) => ({ operation: 'mark-module-external', node })), ...(moduleBoundaryViolations ? [{ operation: 'restore-single-module-boundary', module: focusModule }] : []), ...externalPlacementViolations.map((node) => ({ operation: 'move-external-outside-module', node, module: focusModule }))], pass: Object.values(metrics).every((value) => value === 0) };
 }
 
 export function createFamilyQualityReport(scene, spec = null) {
@@ -313,51 +265,18 @@ export function createFamilyQualityReport(scene, spec = null) {
   let supported = true;
   let reason = null;
   let familyResult = { metrics: {}, details: {}, suggestions: [], pass: true };
-
   if (family === 'flow') {
-    if (!FLOW_PROFILES.has(profile)) {
-      supported = false;
-      reason = `Unsupported flow profile: ${profile ?? 'none'}`;
-    } else {
-      familyResult = checkFlow(spec, nodes);
-    }
+    if (!FLOW_PROFILES.has(profile)) { supported = false; reason = `Unsupported flow profile: ${profile ?? 'none'}`; } else { familyResult = checkFlow(spec, nodes); }
   } else if (family === 'system-architecture') {
-    if (profile !== 'layered-system') {
-      supported = false;
-      reason = `Unsupported system-architecture profile: ${profile ?? 'none'}`;
-    } else {
-      familyResult = checkLayeredSystem(scene, spec, nodes);
-    }
+    if (profile !== 'layered-system') { supported = false; reason = `Unsupported system-architecture profile: ${profile ?? 'none'}`; } else { familyResult = checkLayeredSystem(scene, spec, nodes); }
   } else if (family === 'module-architecture') {
-    if (profile !== 'component-view') {
-      supported = false;
-      reason = `Unsupported module-architecture profile: ${profile ?? 'none'}`;
-    } else {
-      familyResult = checkComponentView(scene, spec, nodes);
-    }
+    if (profile !== 'component-view') { supported = false; reason = `Unsupported module-architecture profile: ${profile ?? 'none'}`; } else { familyResult = checkComponentView(scene, spec, nodes); }
   } else if (family === 'sequence') {
     supported = false;
     reason = 'Renderer quality checks are not implemented for sequence';
   }
-
   const metrics = { ...frames.metrics, ...familyResult.metrics };
   const details = { frames: frames.details, ...familyResult.details };
-  const suggestedPatches = [
-    ...frames.suggestions,
-    ...familyResult.suggestions,
-    ...(supported ? [] : [{ operation: 'implement-family-renderer', family, profile }])
-  ];
-
-  return {
-    version: '0.2.1',
-    family,
-    diagramType,
-    profile,
-    supported,
-    reason,
-    pass: supported && frames.pass && familyResult.pass,
-    metrics,
-    details,
-    suggestedPatches
-  };
+  const suggestedPatches = [...frames.suggestions, ...familyResult.suggestions, ...(supported ? [] : [{ operation: 'implement-family-renderer', family, profile }])];
+  return { version: '0.2.2', family, diagramType, profile, supported, reason, pass: supported && frames.pass && familyResult.pass, metrics, details, suggestedPatches };
 }
