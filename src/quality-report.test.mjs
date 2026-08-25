@@ -99,6 +99,20 @@ test('reports target-boundary following instead of perpendicular entry', () => {
   assert.ok(report.metrics.endpointApproachViolations > 0);
 });
 
+test('fails when an edge approaches a target through its interior', () => {
+  const a = node('a', 0, 0);
+  const b = node('b', 300, 0);
+  const e = edge('a-b', 'a', 'b', 100, 30, [
+    [0, 0],
+    [250, 0],
+    [300, 0]
+  ]);
+  const report = createQualityReport({ elements: [a, b, e] });
+  assert.equal(report.metrics.endpointNodePenetrations, 1);
+  assert.equal(report.structuralPass, false);
+  assert.ok(report.suggestedPatches.some((patch) => patch.operation === 'reroute-endpoint-outside-node'));
+});
+
 test('fails family quality when layered-system order is inverted', () => {
   const scene = {
     elements: [
