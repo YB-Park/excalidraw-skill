@@ -85,7 +85,7 @@ function absolutePoints(element) {
 function renderPolyline(element) {
   const points = absolutePoints(element).map((point) => `${point.x},${point.y}`).join(' ');
   const marker = element.type === 'arrow' && element.endArrowhead ? ' marker-end="url(#arrowhead)"' : '';
-  return `<polyline points="${points}" ${commonStyle({ ...element, backgroundColor: 'transparent' })} fill="none"${marker} />`;
+  return `<polyline points="${points}" ${commonStyle({ ...element, backgroundColor: 'transparent' })}${marker} />`;
 }
 
 function renderText(element) {
