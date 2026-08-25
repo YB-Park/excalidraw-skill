@@ -14,6 +14,7 @@ export function scoreLayoutCandidate(scene, spec, options = {}) {
     edgeNodeCrossings: metrics.edgeNodeCrossings ?? 0,
     endpointOverlaps: metrics.endpointOverlaps ?? 0,
     endpointApproachViolations: metrics.endpointApproachViolations ?? 0,
+    endpointNodePenetrations: metrics.endpointNodePenetrations ?? 0,
     labelNodeOverlaps: metrics.labelNodeOverlaps ?? 0,
     textOverflows: metrics.textOverflows ?? 0,
     edgeVisualMismatches: metrics.edgeVisualMismatches ?? 0,
@@ -27,6 +28,7 @@ export function scoreLayoutCandidate(scene, spec, options = {}) {
     + hardViolations.edgeNodeCrossings * 1_000_000
     + hardViolations.endpointOverlaps * 750_000
     + hardViolations.endpointApproachViolations * 750_000
+    + hardViolations.endpointNodePenetrations * 1_000_000
     + hardViolations.labelNodeOverlaps * 250_000
     + hardViolations.textOverflows * 250_000
     + hardViolations.edgeVisualMismatches * 200_000
