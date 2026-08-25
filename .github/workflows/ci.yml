@@ -30,7 +30,7 @@ jobs:
         run: npm run research:layouts
       - name: Export deterministic visual review previews
         run: |
-          mkdir -p artifacts/visual-review
+          mkdir -p artifacts/visual-review artifacts/stress-scenes
           node ./src/export-preview-svg.mjs examples/service-flow/payment-flow.visual-plan.excalidraw -o artifacts/visual-review/payment-flow.svg
           node ./src/export-preview-svg.mjs examples/system-architecture/layered-middleware.excalidraw -o artifacts/visual-review/system-layered.svg
           node ./src/export-preview-svg.mjs examples/module-architecture/connection-manager.excalidraw -o artifacts/visual-review/module-component.svg
@@ -44,6 +44,13 @@ jobs:
           cp examples/module-architecture/connection-manager.excalidraw.quality.json artifacts/visual-review/module-component.quality.json
           cp examples/module-architecture/connection-manager.excalidraw.perceptual.json artifacts/visual-review/module-component.perceptual.json
           cp examples/evaluation/results/layout-candidates.latest.json artifacts/visual-review/layout-candidates.latest.json
+          for id in flow-branch-merge flow-fanout-fanin; do
+            cp "examples/evaluation/outputs/${id}.excalidraw" "artifacts/stress-scenes/${id}.excalidraw"
+            cp "examples/evaluation/outputs/${id}.excalidraw.quality.json" "artifacts/stress-scenes/${id}.quality.json"
+            cp "examples/evaluation/outputs/${id}.excalidraw.perceptual.json" "artifacts/stress-scenes/${id}.perceptual.json"
+            cp "examples/evaluation/outputs/${id}.excalidraw.editability.json" "artifacts/stress-scenes/${id}.editability.json"
+            cp "examples/evaluation/outputs/${id}.excalidraw.route-integrity.json" "artifacts/stress-scenes/${id}.route-integrity.json"
+          done
       - name: Install Chromium for actual-render review
         run: npx playwright install --with-deps chromium
       - name: Export actual Excalidraw renderer previews
