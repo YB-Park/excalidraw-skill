@@ -20,6 +20,9 @@ test('exports a deterministic SVG preview for visual review', () => {
   assert.match(first, /API Gateway/);
   assert.match(first, /marker-end="url\(#arrowhead\)"/);
   assert.ok(!first.includes('undefined'));
+  for (const line of first.split('\n').filter((value) => value.includes('<polyline '))) {
+    assert.equal((line.match(/\sfill=/g) ?? []).length, 1);
+  }
 });
 
 test('escapes labels in preview output', () => {
