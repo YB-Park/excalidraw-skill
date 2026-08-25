@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { routeEdges } from './route-edges.mjs';
+import { repairRoutes } from './repair-routes.mjs';
+import { simplifyRoutes } from './simplify-routes.mjs';
 import { createQualityReport } from './quality-report.mjs';
 import { createPerceptualQuality } from './perceptual-quality.mjs';
 
@@ -37,6 +39,10 @@ function candidateDirections(direction) {
   if (direction === 'up' || direction === 'down') return [direction, null, 'left', 'right'];
   if (direction === 'left' || direction === 'right') return [direction, null, 'up', 'down'];
   return [null];
+}
+
+function finalizeRouting(scene, spec) {
+  return simplifyRoutes(repairRoutes(routeEdges(clone(scene), spec)));
 }
 
 function score(scene, spec) {
@@ -86,7 +92,7 @@ export function optimizeEdgeRouting(scene, spec) {
   if (eligible.length === 0) return scene;
 
   let workingSpec = clone(spec);
-  let workingScene = routeEdges(clone(scene), workingSpec);
+  let workingScene = finalizeRouting(scene, workingSpec);
   let workingScore = score(workingScene, workingSpec);
   const baselineCost = workingScore.cost;
   const decisions = [];
@@ -102,7 +108,7 @@ export function optimizeEdgeRouting(scene, spec) {
     for (const direction of candidateDirections(originalDirection)) {
       if (direction === originalDirection) continue;
       const candidateSpec = withDirection(workingSpec, id, direction);
-      const candidateScene = routeEdges(clone(workingScene), candidateSpec);
+      const candidateScene = finalizeRouting(workingScene, candidateSpec);
       const candidateScore = score(candidateScene, candidateSpec);
       const hardSafe = candidateScore.hardPenalty <= workingScore.hardPenalty;
       if (hardSafe && candidateScore.cost + 0.01 < bestScore.cost) {
@@ -134,8 +140,9 @@ export function optimizeEdgeRouting(scene, spec) {
   workingScene.customData ??= {};
   workingScene.customData.excalidrawSkill ??= {};
   workingScene.customData.excalidrawSkill.routeOptimization = {
-    version: '0.1.0',
+    version: '0.2.0',
     strategy: 'soft-secondary-direction-search',
+    scoring: 'post-route-repair-and-simplification',
     edgesConsidered: eligible.length,
     edgesChanged: decisions.filter((decision) => decision.accepted).length,
     baselineCost,
