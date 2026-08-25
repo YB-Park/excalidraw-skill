@@ -109,11 +109,16 @@ function relation(values, pivot, extent = 0) {
   return 0;
 }
 
-function distributedFractions(items, coordinate) {
-  const sorted = [...items].sort((a, b) => coordinate(a) - coordinate(b) || a.id.localeCompare(b.id));
+function nestedFractions(items, commonCenter, vertical, horizontal) {
+  const sorted = [...items].sort((a, b) => {
+    const ad = vertical * (center(a.peer).y - commonCenter.y);
+    const bd = vertical * (center(b.peer).y - commonCenter.y);
+    return ad - bd || a.id.localeCompare(b.id);
+  });
   const result = new Map();
   sorted.forEach((item, index) => {
-    const fraction = sorted.length === 1 ? 0.5 : 0.2 + (0.6 * index) / (sorted.length - 1);
+    const t = sorted.length === 1 ? 0.5 : index / (sorted.length - 1);
+    const fraction = horizontal > 0 ? 0.8 - 0.6 * t : 0.2 + 0.6 * t;
     result.set(item.id, fraction);
   });
   return result;
@@ -144,7 +149,7 @@ function buildFanOutCandidate(scene, bundle) {
 
   const sourceSide = vertical > 0 ? 'down' : 'up';
   const targetSide = horizontal > 0 ? 'left' : 'right';
-  const fractions = distributedFractions(items, (item) => center(item.peer).y);
+  const fractions = nestedFractions(items, commonCenter, vertical, horizontal);
   for (const item of items) {
     const start = anchorFraction(common, sourceSide, fractions.get(item.id));
     const end = anchorFraction(item.peer, targetSide, 0.5);
@@ -185,7 +190,7 @@ function buildFanInCandidate(scene, bundle) {
 
   const sourceSide = horizontal < 0 ? 'right' : 'left';
   const targetSide = vertical > 0 ? 'down' : 'up';
-  const fractions = distributedFractions(items, (item) => center(item.peer).y);
+  const fractions = nestedFractions(items, commonCenter, vertical, horizontal);
   for (const item of items) {
     const start = anchorFraction(item.peer, sourceSide, 0.5);
     const end = anchorFraction(common, targetSide, fractions.get(item.id));
