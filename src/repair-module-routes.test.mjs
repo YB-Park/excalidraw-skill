@@ -37,6 +37,8 @@ const spec = {
     { semanticId: 'controller', group: 'manager' },
     { semanticId: 'registry', group: 'manager' },
     { semanticId: 'scheduler', group: 'manager' },
+    { semanticId: 'adapter', group: 'manager' },
+    { semanticId: 'events', group: 'manager' },
     { semanticId: 'external', shapeRef: 'external.system' }
   ]
 };
@@ -59,6 +61,37 @@ test('reroutes an internal edge that escapes above the predicted module boundary
   const points = absolutePoints(routed);
   assert.ok(points.every((point) => point.y >= 60));
   assert.equal(scene.customData.excalidrawSkill.moduleRouteRepair.repaired, 1);
+});
+
+test('uses a distinct distributed hub port to reduce a diagonal hub spoke from three bends to two', () => {
+  const controller = node('controller', 100, 200);
+  const adapter = node('adapter', 380, 200);
+  const events = node('events', 380, 20);
+  const direct = edge('controller-adapter', 'controller', 'adapter', [
+    { x: 280, y: 240 },
+    { x: 380, y: 240 }
+  ], { sourceSide: 'right', targetSide: 'left', axisLock: 'horizontal' });
+  const routed = edge('controller-events', 'controller', 'events', [
+    { x: 280, y: 240 },
+    { x: 300, y: 240 },
+    { x: 300, y: 60 },
+    { x: 470, y: 60 },
+    { x: 470, y: 20 }
+  ], { sourceSide: 'right', targetSide: 'up', axisLock: null });
+  const scene = {
+    customData: { excalidrawSkill: { layout: { strategy: 'hub-grid', hubId: 'controller' } } },
+    elements: [controller, adapter, events, direct, routed]
+  };
+
+  repairModuleRoutes(scene, spec);
+
+  const points = absolutePoints(routed);
+  assert.equal(points.length, 4);
+  assert.notEqual(points[0].y, 240);
+  assert.equal(routed.customData.excalidrawSkill.route.sourceSide, 'right');
+  assert.equal(routed.customData.excalidrawSkill.route.targetSide, 'left');
+  assert.equal(scene.customData.excalidrawSkill.moduleRouteRepair.hubSpokesRepaired, 1);
+  assert.equal(routed.customData.excalidrawSkill.moduleHubSpoke.hubPortFraction, 0.25);
 });
 
 test('leaves external-crossing edges outside the containment rule', () => {
