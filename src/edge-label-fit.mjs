@@ -3,10 +3,10 @@ import { estimateTextWidth } from './text-fit.mjs';
 
 const DEFAULT_FONT_SIZE = 13;
 const DEFAULT_LINE_HEIGHT = 1.25;
-const DEFAULT_MIN_WIDTH = 36;
+const DEFAULT_MIN_WIDTH = 32;
 const DEFAULT_MAX_WIDTH = 180;
-const DEFAULT_HORIZONTAL_PADDING = 14;
-const DEFAULT_ROUTE_MARGIN = 16;
+const DEFAULT_HORIZONTAL_PADDING = 10;
+const DEFAULT_ROUTE_MARGIN = 8;
 
 function isCjk(char) {
   return /[\u1100-\u11ff\u2e80-\u9fff\uac00-\ud7af\uf900-\ufaff]/u.test(char);
