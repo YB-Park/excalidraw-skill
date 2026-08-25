@@ -38,12 +38,17 @@ function main() {
   runStep('src/layout-system-architecture.mjs', [outputPath, specPath]);
   runStep('src/layout-module-architecture.mjs', [outputPath, specPath]);
   runStep('src/apply-components.mjs', [outputPath]);
+  runStep('src/group-component-details.mjs', [outputPath]);
   runStep('src/route-edges.mjs', [outputPath, specPath]);
+  runStep('src/repair-routes.mjs', [outputPath]);
+  runStep('src/simplify-routes.mjs', [outputPath]);
   runStep('src/style-edges.mjs', [outputPath]);
   runStep('src/frame-groups.mjs', [outputPath, specPath]);
+  runStep('src/assign-frame-membership.mjs', [outputPath]);
   runStep('src/label-edges.mjs', [outputPath]);
   runStep('src/place-edge-labels.mjs', [outputPath, specPath]);
   runStep('src/apply-fonts.mjs', [outputPath]);
+  runStep('src/editability-report.mjs', [outputPath]);
   runStep('src/validate.mjs', [outputPath]);
   runStep('src/quality-report.mjs', [outputPath, specPath]);
 

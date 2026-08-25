@@ -114,7 +114,21 @@ function evaluateCase(entry, build) {
   }
 
   const outputPath = path.resolve(rootDir, spec.outputPath);
+  const editabilityPath = `${outputPath}.editability.json`;
   const qualityPath = `${outputPath}.quality.json`;
+  if (!fs.existsSync(editabilityPath)) {
+    return {
+      id: entry.id,
+      family: entry.family,
+      view: entry.view,
+      status: 'failed',
+      fixture: entry.fixture,
+      phase: 'editability-report',
+      reason: `Editability report not found: ${path.relative(rootDir, editabilityPath)}`,
+      stdout: buildResult?.stdout ?? '',
+      stderr: buildResult?.stderr ?? ''
+    };
+  }
   if (!fs.existsSync(qualityPath)) {
     return {
       id: entry.id,
@@ -129,19 +143,24 @@ function evaluateCase(entry, build) {
     };
   }
 
+  const editability = readJson(editabilityPath);
   const quality = readJson(qualityPath);
+  const pass = editability.pass === true && quality.pass === true;
   return {
     id: entry.id,
     family: entry.family,
     view: entry.view,
-    status: quality.pass ? 'passed' : 'failed',
+    status: pass ? 'passed' : 'failed',
     fixture: entry.fixture,
     outputPath: spec.outputPath,
+    editabilityPath: path.relative(rootDir, editabilityPath),
     qualityPath: path.relative(rootDir, qualityPath),
+    editabilityPass: editability.pass === true,
     structuralPass: quality.structuralPass,
     familyPass: quality.familyPass,
     supported: quality.familyQuality?.supported ?? true,
     reason: quality.familyQuality?.reason ?? null,
+    editabilityMetrics: editability.metrics,
     metrics: quality.metrics,
     suggestedPatches: quality.suggestedPatches
   };
@@ -151,7 +170,7 @@ export function evaluateSuite(suite, options = {}) {
   const selected = selectCases(suite, options);
   const results = selected.map((entry) => evaluateCase(entry, options.build !== false));
   return {
-    version: '1.0',
+    version: '1.1',
     suiteVersion: suite.version ?? null,
     generatedAt: new Date().toISOString(),
     filters: {
@@ -164,15 +183,35 @@ export function evaluateSuite(suite, options = {}) {
   };
 }
 
+function compactFailure(result) {
+  return {
+    id: result.id,
+    family: result.family,
+    view: result.view,
+    phase: result.phase ?? 'quality',
+    editabilityPass: result.editabilityPass ?? null,
+    structuralPass: result.structuralPass ?? null,
+    familyPass: result.familyPass ?? null,
+    reason: result.reason ?? null,
+    editabilityMetrics: result.editabilityMetrics ?? null,
+    metrics: result.metrics ?? null,
+    suggestedPatches: result.suggestedPatches ?? null
+  };
+}
+
 function main() {
   const options = parseArgs(process.argv.slice(2));
   const suitePath = path.resolve(rootDir, options.suitePath);
   const outputPath = path.resolve(rootDir, options.outputPath);
   const report = evaluateSuite(readJson(suitePath), options);
   writeJson(outputPath, report);
+  const failedCases = report.results
+    .filter((result) => result.status === 'failed' || result.status === 'missing-fixture')
+    .map(compactFailure);
   console.log(JSON.stringify({
     outputPath: path.relative(rootDir, outputPath),
-    summary: report.summary
+    summary: report.summary,
+    failedCases
   }, null, 2));
   process.exit(report.summary.pass ? 0 : 1);
 }

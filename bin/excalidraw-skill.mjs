@@ -31,7 +31,8 @@ const runners = {
   'layout-service-flow': 'src/layout-service-flow.mjs',
   'layout-system-architecture': 'src/layout-system-architecture.mjs',
   'layout-module-architecture': 'src/layout-module-architecture.mjs',
-  'quality-report': 'src/quality-report.mjs'
+  'quality-report': 'src/quality-report.mjs',
+  'editability-report': 'src/editability-report.mjs'
 };
 
 const ARG_REQUIRED_COMMANDS = new Set([
@@ -45,7 +46,8 @@ const ARG_REQUIRED_COMMANDS = new Set([
   'layout-service-flow',
   'layout-system-architecture',
   'layout-module-architecture',
-  'quality-report'
+  'quality-report',
+  'editability-report'
 ]);
 
 function fromRoot(relativePath) {
@@ -89,20 +91,22 @@ New diagram, no existing .excalidraw path:
   2. Set spec.outputPath to the desired .excalidraw path.
   3. Run: node <runtimeEntry> build <spec.json>
   4. Run: node <runtimeEntry> inspect <output.excalidraw>
-  5. Run: node <runtimeEntry> quality-report <output.excalidraw> <spec.json>
+  5. Read the generated editability and quality reports.
   6. Return the output path and quality summary.
 
 Existing diagram edit, existing .excalidraw path provided:
   1. Run: node <runtimeEntry> inspect <scene.excalidraw>
   2. Write a DiagramPatch JSON file using the inspected semantic ids.
   3. Run: node <runtimeEntry> patch <scene.excalidraw> <patch.json> [-o output.excalidraw]
-  4. Run: node <runtimeEntry> validate <output.excalidraw>
-  5. Run: node <runtimeEntry> quality-report <output.excalidraw> [spec.json]
+  4. Run: node <runtimeEntry> editability-report <output.excalidraw>
+  5. Run: node <runtimeEntry> validate <output.excalidraw>
+  6. Run: node <runtimeEntry> quality-report <output.excalidraw> [spec.json]
 
 Primary commands:
   build <spec.json>                         Build a new diagram from DiagramSpec.
-  inspect <scene.excalidraw>                Summarize semantic nodes and edges.
+  inspect <scene.excalidraw>                Summarize semantic nodes, edges, frames, and edit warnings.
   validate <scene.excalidraw>               Check basic Excalidraw file validity.
+  editability-report <scene.excalidraw>     Check native text, arrow, frame, and group editability.
   quality-report <scene.excalidraw> [spec]  Check structural and family quality.
   patch <scene.excalidraw> <patch.json>     Apply a semantic patch to an existing scene.
   capabilities                              Print supported families/profiles/features.
@@ -120,6 +124,7 @@ Rules for LLM agents:
   - For normal discovery, use capabilities, schema, examples, and explain.
   - For new diagrams, prefer build. Do not call patch.
   - Use patch only after inspecting an existing .excalidraw file.
+  - Treat editability failures as release blockers.
   - Do not call render directly unless debugging the renderer pipeline.
   - Do not repeatedly probe --help during normal diagram generation; follow the recipes above.
   - PATH installation is optional. The installed skill should use node <runtimeEntry> ... directly.
@@ -131,11 +136,12 @@ Use: excalidraw-skill help debug for developer helper commands.`;
 function commandHelp(name) {
   const commonFooter = '\n\nLLM rule: follow the router recipes instead of probing multiple --help commands.';
   const help = {
-    build: `Usage: excalidraw-skill build <spec.json>\n\nBuild a new diagram from a DiagramSpec file. This is the default command for new diagram requests.`,
+    build: `Usage: excalidraw-skill build <spec.json>\n\nBuild a new diagram from a DiagramSpec file. Build now gates native editability before validation and quality reporting.`,
     render: `Usage: excalidraw-skill render <spec.json> [-o output.excalidraw]\n\nDeveloper renderer step. For new diagrams, use build instead.`,
-    inspect: `Usage: excalidraw-skill inspect <scene.excalidraw>\n\nRead an existing generated scene and print semantic nodes and edges.`,
-    validate: `Usage: excalidraw-skill validate <scene.excalidraw>\n\nChecks basic Excalidraw file validity only. Use quality-report for diagram quality.`,
+    inspect: `Usage: excalidraw-skill inspect <scene.excalidraw>\n\nRead an existing generated scene and print semantic nodes, edges, frames, layout hints, and editability warnings.`,
+    validate: `Usage: excalidraw-skill validate <scene.excalidraw>\n\nChecks basic Excalidraw file validity only. Use editability-report and quality-report for usable diagram quality.`,
     patch: `Usage: excalidraw-skill patch <scene.excalidraw> <patch.json> [-o output.excalidraw]\n\nPatch is only for editing an existing .excalidraw scene.`,
+    'editability-report': `Usage: excalidraw-skill editability-report <scene.excalidraw> [-o report.json]\n\nChecks native Excalidraw container bindings, arrow bindings, frame membership, and generated component grouping.`,
     'quality-report': `Usage: excalidraw-skill quality-report <scene.excalidraw> [spec.json] [-o report.json]\n\nChecks structural quality, family invariants, and intent preservation.`,
     capabilities: `Usage: excalidraw-skill capabilities\n\nPrint a compact JSON capability map for supported families, profiles, visual intent, frame policy, and quality checks.`,
     schema: `Usage: excalidraw-skill schema\n\nPrint the DiagramSpec v2 JSON schema.`,
@@ -147,7 +153,7 @@ function commandHelp(name) {
     uninstall: `Usage: excalidraw-skill uninstall --global [--force]\n\nRemove the managed global skill bundle and managed runtime.`,
     evaluate: `Usage: excalidraw-skill evaluate [--family <family>] [--case <id>] [--no-build]\n\nRun the evaluation suite.`,
     'list-shapes': `Usage: excalidraw-skill list-shapes\n\nPrint the shape catalog index for selecting semantic shapeRef values.`,
-    debug: `Developer helper commands:\n  render\n  style-by-kind\n  layout-service-flow\n  layout-system-architecture\n  layout-module-architecture\n  check-refs\n  label-edges\n\nNormal agents should prefer build, inspect, patch, quality-report, capabilities, schema, examples, and explain.`
+    debug: `Developer helper commands:\n  render\n  style-by-kind\n  layout-service-flow\n  layout-system-architecture\n  layout-module-architecture\n  check-refs\n  label-edges\n\nNormal agents should prefer build, inspect, patch, editability-report, quality-report, capabilities, schema, examples, and explain.`
   };
   return (help[name] ?? `Unknown command: ${name}\n\n${generalHelp()}`) + commonFooter;
 }
