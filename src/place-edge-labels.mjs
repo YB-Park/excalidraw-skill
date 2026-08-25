@@ -131,10 +131,7 @@ export function placeEdgeLabels(scene, spec = null) {
 
   const specs = specIndex(spec);
   const primary = primaryPairs(spec);
-  const obstacles = [
-    ...nodes.map((node) => rectOf(node, 8)),
-    ...frames.flatMap(frameBorderObstacles)
-  ];
+  const frameObstacles = frames.flatMap(frameBorderObstacles);
   const segments = [...edges.entries()].flatMap(([edgeId, edge]) => segmentsFromEdge(edge).map((segment) => ({ edgeId, segment })));
   const placed = [];
 
@@ -159,6 +156,11 @@ export function placeEdgeLabels(scene, spec = null) {
 
     const sourceNode = nodesBySemanticId.get(edgeMeta.from);
     const targetNode = nodesBySemanticId.get(edgeMeta.to);
+    const endpointIds = new Set([edgeMeta.from, edgeMeta.to]);
+    const obstacles = [
+      ...nodes.map((node) => rectOf(node, endpointIds.has(meta(node).semanticId) ? 0 : 8)),
+      ...frameObstacles
+    ];
     const sharedFrameId = sourceNode?.frameId && sourceNode.frameId === targetNode?.frameId
       ? sourceNode.frameId
       : null;
@@ -174,7 +176,7 @@ export function placeEdgeLabels(scene, spec = null) {
     const association = associationMetrics(next, own, others);
     label.x = Math.round(next.x); label.y = Math.round(next.y); label.backgroundColor = '#ffffff';
     labelMeta.placement = {
-      engine: 'collision-aware-v0.6',
+      engine: 'collision-aware-v0.7',
       side: next.side,
       preferred,
       ownDistance: Number(association.ownDistance.toFixed(1)),
@@ -182,7 +184,8 @@ export function placeEdgeLabels(scene, spec = null) {
         ? Number(association.nearestOtherDistance.toFixed(1))
         : null,
       sharedFrameId,
-      frameContained: sharedFrame ? fullyInsideFrame(next, sharedFrame) : null
+      frameContained: sharedFrame ? fullyInsideFrame(next, sharedFrame) : null,
+      endpointCorridorRelaxed: true
     };
     placed.push(rectOf(label));
   }
