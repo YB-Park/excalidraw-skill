@@ -90,6 +90,13 @@ function frameBorderObstacles(frame) {
   ];
 }
 
+function fullyInsideFrame(candidate, frame, margin = 10) {
+  return candidate.x >= frame.x + margin
+    && candidate.y >= frame.y + margin
+    && candidate.x + candidate.width <= frame.x + frame.width - margin
+    && candidate.y + candidate.height <= frame.y + frame.height - margin;
+}
+
 function score(candidate, obstacles, placed, ownSegments, otherSegments, preferred, origin) {
   const obstacleHits = obstacles.filter((item) => boxesOverlap(candidate, item)).length;
   const labelHits = placed.filter((item) => boxesOverlap(candidate, item)).length;
@@ -103,13 +110,21 @@ function score(candidate, obstacles, placed, ownSegments, otherSegments, preferr
 
 export function placeEdgeLabels(scene, spec = null) {
   const nodes = [];
+  const nodesBySemanticId = new Map();
   const frames = [];
+  const framesById = new Map();
   const edges = new Map();
   const labels = [];
   for (const element of scene.elements ?? []) {
     const data = meta(element);
-    if (data.role === 'node') nodes.push(element);
-    if (element.type === 'frame' || data.role === 'group-frame') frames.push(element);
+    if (data.role === 'node') {
+      nodes.push(element);
+      if (typeof data.semanticId === 'string') nodesBySemanticId.set(data.semanticId, element);
+    }
+    if (element.type === 'frame' || data.role === 'group-frame' || data.role === 'frame') {
+      frames.push(element);
+      if (element.id) framesById.set(element.id, element);
+    }
     if (data.role === 'edge') edges.set(data.semanticId, element);
     if (data.role === 'edge-label') labels.push(element);
   }
@@ -140,20 +155,34 @@ export function placeEdgeLabels(scene, spec = null) {
     const own = segments.filter((entry) => entry.edgeId === edgeMeta.semanticId).map((entry) => entry.segment);
     const others = segments.filter((entry) => entry.edgeId !== edgeMeta.semanticId).map((entry) => entry.segment);
     const origin = { x: label.x, y: label.y };
-    const options = candidates(edge, label, preferred);
+    let options = candidates(edge, label, preferred);
+
+    const sourceNode = nodesBySemanticId.get(edgeMeta.from);
+    const targetNode = nodesBySemanticId.get(edgeMeta.to);
+    const sharedFrameId = sourceNode?.frameId && sourceNode.frameId === targetNode?.frameId
+      ? sourceNode.frameId
+      : null;
+    const sharedFrame = sharedFrameId ? framesById.get(sharedFrameId) : null;
+    if (sharedFrame) {
+      const contained = options.filter((candidate) => fullyInsideFrame(candidate, sharedFrame));
+      if (contained.length > 0) options = contained;
+    }
+
     options.sort((a, b) => score(a, obstacles, placed, own, others, preferred, origin) - score(b, obstacles, placed, own, others, preferred, origin));
     const next = options[0];
     if (!next) continue;
     const association = associationMetrics(next, own, others);
     label.x = Math.round(next.x); label.y = Math.round(next.y); label.backgroundColor = '#ffffff';
     labelMeta.placement = {
-      engine: 'collision-aware-v0.5',
+      engine: 'collision-aware-v0.6',
       side: next.side,
       preferred,
       ownDistance: Number(association.ownDistance.toFixed(1)),
       nearestOtherDistance: Number.isFinite(association.nearestOtherDistance)
         ? Number(association.nearestOtherDistance.toFixed(1))
-        : null
+        : null,
+      sharedFrameId,
+      frameContained: sharedFrame ? fullyInsideFrame(next, sharedFrame) : null
     };
     placed.push(rectOf(label));
   }
