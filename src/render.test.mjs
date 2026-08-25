@@ -12,6 +12,50 @@ test('sizes and wraps node labels before layout', () => {
   assert.equal(label.originalText, label.text);
 });
 
+test('binds node labels to native Excalidraw containers', () => {
+  const scene = renderSpec({ nodes: [{ semanticId: 'api', label: 'API Gateway', shapeRef: 'gateway.api' }], edges: [] });
+  const node = scene.elements.find((element) => element.customData.excalidrawSkill.role === 'node');
+  const label = scene.elements.find((element) => element.customData.excalidrawSkill.role === 'label');
+
+  assert.equal(label.containerId, node.id);
+  assert.ok(node.boundElements.some((item) => item.id === label.id && item.type === 'text'));
+});
+
+test('binds arrows to source and target nodes', () => {
+  const scene = renderSpec({
+    nodes: [
+      { semanticId: 'source', label: 'Source', shapeRef: 'service.backend' },
+      { semanticId: 'target', label: 'Target', shapeRef: 'service.backend' }
+    ],
+    edges: [{ semanticId: 'source-target', from: 'source', to: 'target', kind: 'calls' }]
+  });
+  const nodes = new Map(scene.elements
+    .filter((element) => element.customData.excalidrawSkill.role === 'node')
+    .map((element) => [element.customData.excalidrawSkill.semanticId, element]));
+  const edge = scene.elements.find((element) => element.customData.excalidrawSkill.role === 'edge');
+
+  assert.equal(edge.startBinding.elementId, nodes.get('source').id);
+  assert.equal(edge.endBinding.elementId, nodes.get('target').id);
+  assert.ok(nodes.get('source').boundElements.some((item) => item.id === edge.id && item.type === 'arrow'));
+  assert.ok(nodes.get('target').boundElements.some((item) => item.id === edge.id && item.type === 'arrow'));
+});
+
+test('stores inspectable scene metadata', () => {
+  const scene = renderSpec({
+    diagramType: 'service-flow',
+    title: 'Checkout',
+    stylePreset: 'professional-software',
+    nodes: [{ semanticId: 'api', label: 'API', shapeRef: 'gateway.api' }],
+    edges: []
+  });
+
+  assert.deepEqual(scene.customData.excalidrawSkill, {
+    diagramType: 'service-flow',
+    title: 'Checkout',
+    stylePreset: 'professional-software'
+  });
+});
+
 test('renders semantic data-plane critical edge visual intent', () => {
   const scene = renderSpec({
     nodes: [
