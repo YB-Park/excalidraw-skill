@@ -26,6 +26,20 @@ test('avoids nodes and previously placed labels', () => {
   assert.ok(!boxesOverlap(rectOf(l1), rectOf(l2)));
 });
 
+test('uses the clear source-target corridor for a short-gap label', () => {
+  const a = node('a', 0, 0);
+  const b = node('b', 300, 0);
+  const e = edge('a-b', 'a', 'b', 180, 40, [[0, 0], [120, 0]]);
+  const l = label('a-b');
+
+  placeEdgeLabels({ elements: [a, b, e, l] }, { edges: [{ semanticId: 'a-b' }] });
+
+  assert.ok(!boxesOverlap(rectOf(l), rectOf(a)));
+  assert.ok(!boxesOverlap(rectOf(l), rectOf(b)));
+  assert.ok(l.customData.excalidrawSkill.placement.ownDistance <= 30);
+  assert.equal(l.customData.excalidrawSkill.placement.endpointCorridorRelaxed, true);
+});
+
 test('keeps parallel-edge labels associated with their own edge', () => {
   const e1 = edge('top', 'a', 'b', 0, 100, [[0, 0], [400, 0]]);
   const e2 = edge('bottom', 'c', 'd', 0, 160, [[0, 0], [400, 0]]);
