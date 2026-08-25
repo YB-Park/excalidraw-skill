@@ -1,4 +1,4 @@
-import { absolutePoints, polylineLength } from './geometry.mjs';
+import { absolutePoints, polylineLength, segmentsFromEdge, segmentsIntersect } from './geometry.mjs';
 
 function metaOf(element) {
   return element.customData?.excalidrawSkill ?? {};
@@ -41,6 +41,49 @@ function routeMetrics(edge) {
     extraLength,
     detourRatio
   };
+}
+
+function acuteCrossingAngle(first, second) {
+  const ax = first.b.x - first.a.x;
+  const ay = first.b.y - first.a.y;
+  const bx = second.b.x - second.a.x;
+  const by = second.b.y - second.a.y;
+  const aLength = Math.hypot(ax, ay);
+  const bLength = Math.hypot(bx, by);
+  if (aLength < 1e-9 || bLength < 1e-9) return 0;
+  const cosine = Math.max(-1, Math.min(1, Math.abs((ax * bx + ay * by) / (aLength * bLength))));
+  return Math.acos(cosine) * 180 / Math.PI;
+}
+
+function crossingMetrics(edges) {
+  const details = [];
+  for (let firstIndex = 0; firstIndex < edges.length; firstIndex += 1) {
+    for (let secondIndex = firstIndex + 1; secondIndex < edges.length; secondIndex += 1) {
+      const firstEdge = edges[firstIndex];
+      const secondEdge = edges[secondIndex];
+      const firstMeta = metaOf(firstEdge);
+      const secondMeta = metaOf(secondEdge);
+      for (const first of segmentsFromEdge(firstEdge)) {
+        for (const second of segmentsFromEdge(secondEdge)) {
+          if (!segmentsIntersect(first, second, { includeEndpoints: false })) continue;
+          const angle = acuteCrossingAngle(first, second);
+          details.push({
+            firstEdge: firstMeta.semanticId,
+            secondEdge: secondMeta.semanticId,
+            angle
+          });
+        }
+      }
+    }
+  }
+  const minAngle = details.length ? Math.min(...details.map((item) => item.angle)) : 90;
+  const lowAngle = details.filter((item) => item.angle < 45).length;
+  const crossingCost = details.reduce((sum, item) => {
+    // Right-angle crossings are much less disruptive than shallow crossings in path-tracing tasks.
+    const shallowPenalty = Math.max(0, 60 - item.angle) / 2.5;
+    return sum + 8 + shallowPenalty;
+  }, 0);
+  return { details, minAngle, lowAngle, crossingCost };
 }
 
 function sceneComposition(nodes) {
@@ -138,11 +181,12 @@ export function createPerceptualQuality(scene, spec = null) {
     ? primaryEdges.reduce((sum, edge) => sum + edge.detourRatio, 0) / primaryEdges.length
     : 1;
   const averageBendsPerEdge = edgeDetails.length ? totalBends / edgeDetails.length : 0;
+  const crossings = crossingMetrics(edges);
   const composition = sceneComposition(nodes);
 
-  // This is a project-specific comparison score, not a scientific time estimate.
-  // It intentionally weights path continuity and primary-flow readability heavily.
-  const readabilityCost = edgeDetails.reduce((cost, edge) => {
+  // Project-relative score for comparing layouts of the same semantic graph.
+  // Crossing count, crossing angle, bend complexity, continuity, and detours are all represented.
+  const edgeCost = edgeDetails.reduce((cost, edge) => {
     const primaryMultiplier = edge.primary ? 1.8 : 1;
     return cost
       + edge.bends * 8 * primaryMultiplier
@@ -151,6 +195,7 @@ export function createPerceptualQuality(scene, spec = null) {
       + (edge.moderateDetour ? 6 * primaryMultiplier : 0)
       + (edge.highBendComplexity ? 6 * primaryMultiplier : 0);
   }, 0);
+  const readabilityCost = edgeCost + crossings.crossingCost;
 
   const warnings = [];
   for (const edge of severeDetours) {
@@ -174,6 +219,13 @@ export function createPerceptualQuality(scene, spec = null) {
       kind: 'scene-bend-complexity',
       averageBendsPerEdge: rounded(averageBendsPerEdge, 2),
       totalBends
+    });
+  }
+  if (crossings.lowAngle > 0) {
+    warnings.push({
+      kind: 'low-angle-crossings',
+      count: crossings.lowAngle,
+      minAngle: rounded(crossings.minAngle, 1)
     });
   }
   if (composition.balanceOffset > 0.18 && nodes.length >= 5) {
@@ -201,18 +253,22 @@ export function createPerceptualQuality(scene, spec = null) {
     suggestedPatches.push({
       operation: edge.primary ? 'straighten-primary-flow' : 'reduce-edge-bends',
       edge: edge.edge,
-      maxBends: edge.primary ? 2 : 2
+      maxBends: 2
     });
   }
 
   return {
-    version: '0.2.0',
+    version: '0.3.0',
     mode: 'advisory',
     metrics: {
       readabilityCost: rounded(readabilityCost, 2),
       totalBends,
       averageBendsPerEdge: rounded(averageBendsPerEdge, 2),
       highBendEdges: highBendEdges.length,
+      edgeCrossings: crossings.details.length,
+      minCrossingAngle: rounded(crossings.minAngle, 1),
+      lowAngleCrossings: crossings.lowAngle,
+      crossingCost: rounded(crossings.crossingCost, 2),
       primaryFlowBends: primaryBends,
       primaryFlowAverageBends: primaryEdges.length ? rounded(primaryBends / primaryEdges.length, 2) : 0,
       averageDetourRatio: rounded(averageDetourRatio, 2),
@@ -225,6 +281,7 @@ export function createPerceptualQuality(scene, spec = null) {
     },
     details: {
       edges: edgeDetails,
+      crossings: crossings.details.map((item) => ({ ...item, angle: rounded(item.angle, 1) })),
       composition: {
         width: rounded(composition.width, 1),
         height: rounded(composition.height, 1)
