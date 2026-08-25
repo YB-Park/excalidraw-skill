@@ -164,15 +164,33 @@ export function evaluateSuite(suite, options = {}) {
   };
 }
 
+function compactFailure(result) {
+  return {
+    id: result.id,
+    family: result.family,
+    view: result.view,
+    phase: result.phase ?? 'quality',
+    structuralPass: result.structuralPass ?? null,
+    familyPass: result.familyPass ?? null,
+    reason: result.reason ?? null,
+    metrics: result.metrics ?? null,
+    suggestedPatches: result.suggestedPatches ?? null
+  };
+}
+
 function main() {
   const options = parseArgs(process.argv.slice(2));
   const suitePath = path.resolve(rootDir, options.suitePath);
   const outputPath = path.resolve(rootDir, options.outputPath);
   const report = evaluateSuite(readJson(suitePath), options);
   writeJson(outputPath, report);
+  const failedCases = report.results
+    .filter((result) => result.status === 'failed' || result.status === 'missing-fixture')
+    .map(compactFailure);
   console.log(JSON.stringify({
     outputPath: path.relative(rootDir, outputPath),
-    summary: report.summary
+    summary: report.summary,
+    failedCases
   }, null, 2));
   process.exit(report.summary.pass ? 0 : 1);
 }
