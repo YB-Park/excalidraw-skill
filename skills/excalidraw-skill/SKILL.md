@@ -55,21 +55,24 @@ Use this for `system-architecture`, `module-architecture`, `flow`, `service-flow
 node <runtimeEntry> build <spec.json>
 ```
 
+`build` now gates native Excalidraw editability before it reports success. It writes an editability report beside the scene.
+
 4. Inspect the generated semantic summary:
 
 ```text
 node <runtimeEntry> inspect <output.excalidraw>
 ```
 
-5. Read the generated quality report, or regenerate it explicitly:
+5. Read the generated editability and quality reports, or regenerate them explicitly:
 
 ```text
+node <runtimeEntry> editability-report <output.excalidraw>
 node <runtimeEntry> quality-report <output.excalidraw> <spec.json>
 ```
 
-6. Return the output path and summarize `pass`, `structuralPass`, `familyPass`, and any important `suggestedPatches`.
+6. Return the output path and summarize `editabilityPass`, `pass`, `structuralPass`, `familyPass`, and any important `suggestedPatches`.
 
-Do not use `render` directly for normal new-diagram work. `build` runs render plus style, family layout, routing, validation, and quality reporting.
+Do not use `render` directly for normal new-diagram work. `build` runs render plus style, family layout, routing, route repair, native grouping/frame membership, validation, editability checking, and quality reporting.
 
 ### Existing diagram edit
 
@@ -86,9 +89,10 @@ node <runtimeEntry> inspect <scene.excalidraw>
 node <runtimeEntry> patch <scene.excalidraw> <patch.json> [-o output.excalidraw]
 ```
 
-4. Validate and review quality:
+4. Validate native editability and structural quality:
 
 ```text
+node <runtimeEntry> editability-report <output.excalidraw>
 node <runtimeEntry> validate <output.excalidraw>
 node <runtimeEntry> quality-report <output.excalidraw> [spec.json]
 ```
@@ -131,6 +135,7 @@ Legacy helpers:
 - New sequence scene: `SequenceSpec`
 - Existing scene summary: `SceneSummary`
 - Existing scene update: `DiagramPatch`
+- Rendered native-editability review: `EditabilityReport`
 - Rendered structural review: `QualityReport`
 
 ## Hard rules
@@ -142,6 +147,7 @@ Legacy helpers:
 - Preserve manual layout unless the user asks for a full relayout.
 - Use team style presets instead of arbitrary visual choices.
 - Express layout intent with semantic hints instead of raw coordinates.
+- Treat an editability failure as a release blocker: node labels, arrows, frame membership, and generated component details must remain natively editable in Excalidraw.
 - Treat a passing `QualityReport` as structural evidence, not aesthetic approval.
 - When quality checks fail, make a small semantic patch instead of rewriting the full scene.
 - Use Mermaid only as a temporary helper for simple flow-like reasoning.
