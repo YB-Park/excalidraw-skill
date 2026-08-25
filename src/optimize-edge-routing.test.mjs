@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { optimizeEdgeRouting } from './optimize-edge-routing.mjs';
+import { optimizeEdgeRouting, routingBundles } from './optimize-edge-routing.mjs';
 
 function node(id, x, y) {
   return {
@@ -55,6 +55,19 @@ test('keeps primary directions out of secondary route search', () => {
   assert.equal(result.customData?.excalidrawSkill?.routeOptimization, undefined);
 });
 
+test('detects deterministic fan-out and fan-in secondary bundles', () => {
+  const edges = [
+    { semanticId: 'router-a', from: 'router', to: 'a' },
+    { semanticId: 'router-b', from: 'router', to: 'b' },
+    { semanticId: 'a-aggregate', from: 'a', to: 'aggregate' },
+    { semanticId: 'b-aggregate', from: 'b', to: 'aggregate' }
+  ];
+  assert.deepEqual(routingBundles(edges), [
+    { kind: 'fan-in', node: 'aggregate', edgeIds: ['a-aggregate', 'b-aggregate'] },
+    { kind: 'fan-out', node: 'router', edgeIds: ['router-a', 'router-b'] }
+  ]);
+});
+
 test('secondary route search is deterministic and never increases selected cost', () => {
   const makeScene = () => ({
     elements: [
@@ -86,5 +99,6 @@ test('secondary route search is deterministic and never increases selected cost'
   );
   const meta = first.customData.excalidrawSkill.routeOptimization;
   assert.equal(meta.edgesConsidered, 1);
+  assert.equal(meta.bundlesConsidered, 0);
   assert.ok(meta.selectedCost <= meta.baselineCost);
 });
