@@ -9,6 +9,7 @@ const FLOW_TYPES = new Set(['flow', 'service-flow', 'event-flow', 'data-flow']);
 const MIN_BUNDLE = 3;
 const MIN_SEPARATION = 28;
 const MIN_IMPROVEMENT = 4;
+const BUNDLE_KIND_ORDER = Object.freeze({ 'fan-out': 0, 'fan-in': 1 });
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -98,7 +99,10 @@ function bundles(spec) {
       result.push({ kind, node, edges: [...edges].sort((a, b) => edgeId(a).localeCompare(edgeId(b))) });
     }
   }
-  return result.sort((a, b) => a.node.localeCompare(b.node) || a.kind.localeCompare(b.kind));
+  return result.sort((a, b) => {
+    return (BUNDLE_KIND_ORDER[a.kind] ?? 99) - (BUNDLE_KIND_ORDER[b.kind] ?? 99)
+      || a.node.localeCompare(b.node);
+  });
 }
 
 function relation(values, pivot, extent = 0) {
@@ -254,8 +258,8 @@ export function repairFlowBundles(scene, spec) {
   working.customData ??= {};
   working.customData.excalidrawSkill ??= {};
   working.customData.excalidrawSkill.flowBundleRepair = {
-    version: '0.2.0',
-    strategy: 'diagonal-stack-bundle-geometry',
+    version: '0.3.0',
+    strategy: 'topology-ordered-diagonal-stack-bundle-geometry',
     considered: decisions.filter((decision) => decision.considered).length,
     accepted: decisions.filter((decision) => decision.accepted).length,
     finalCost: workingScore.cost,
