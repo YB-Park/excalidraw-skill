@@ -51,6 +51,7 @@ function main() {
   runStep('src/editability-report.mjs', [outputPath]);
   runStep('src/validate.mjs', [outputPath]);
   runStep('src/quality-report.mjs', [outputPath, specPath]);
+  runStep('src/perceptual-quality-report.mjs', [outputPath, specPath]);
 
   console.log(outputPath);
 }
