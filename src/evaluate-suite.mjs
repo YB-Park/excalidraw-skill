@@ -53,6 +53,7 @@ export function summarizeResults(results) {
   const failed = runnable.filter((result) => result.status === 'failed').length;
   const contractOnly = results.filter((result) => result.status === 'contract-only').length;
   const missingFixture = results.filter((result) => result.status === 'missing-fixture').length;
+  const perceptualWarnings = runnable.reduce((sum, result) => sum + (result.perceptualWarnings?.length ?? 0), 0);
   return {
     total: results.length,
     runnable: runnable.length,
@@ -60,6 +61,7 @@ export function summarizeResults(results) {
     failed,
     contractOnly,
     missingFixture,
+    perceptualWarnings,
     pass: failed === 0 && missingFixture === 0
   };
 }
@@ -69,6 +71,20 @@ function runBuild(fixturePath) {
     cwd: rootDir,
     encoding: 'utf8'
   });
+}
+
+function missingReport(entry, fixture, phase, reportPath, buildResult) {
+  return {
+    id: entry.id,
+    family: entry.family,
+    view: entry.view,
+    status: 'failed',
+    fixture,
+    phase,
+    reason: `${phase} not found: ${path.relative(rootDir, reportPath)}`,
+    stdout: buildResult?.stdout ?? '',
+    stderr: buildResult?.stderr ?? ''
+  };
 }
 
 function evaluateCase(entry, build) {
@@ -116,35 +132,20 @@ function evaluateCase(entry, build) {
   const outputPath = path.resolve(rootDir, spec.outputPath);
   const editabilityPath = `${outputPath}.editability.json`;
   const qualityPath = `${outputPath}.quality.json`;
+  const perceptualPath = `${outputPath}.perceptual.json`;
   if (!fs.existsSync(editabilityPath)) {
-    return {
-      id: entry.id,
-      family: entry.family,
-      view: entry.view,
-      status: 'failed',
-      fixture: entry.fixture,
-      phase: 'editability-report',
-      reason: `Editability report not found: ${path.relative(rootDir, editabilityPath)}`,
-      stdout: buildResult?.stdout ?? '',
-      stderr: buildResult?.stderr ?? ''
-    };
+    return missingReport(entry, entry.fixture, 'editability-report', editabilityPath, buildResult);
   }
   if (!fs.existsSync(qualityPath)) {
-    return {
-      id: entry.id,
-      family: entry.family,
-      view: entry.view,
-      status: 'failed',
-      fixture: entry.fixture,
-      phase: 'quality-report',
-      reason: `Quality report not found: ${path.relative(rootDir, qualityPath)}`,
-      stdout: buildResult?.stdout ?? '',
-      stderr: buildResult?.stderr ?? ''
-    };
+    return missingReport(entry, entry.fixture, 'quality-report', qualityPath, buildResult);
+  }
+  if (!fs.existsSync(perceptualPath)) {
+    return missingReport(entry, entry.fixture, 'perceptual-quality-report', perceptualPath, buildResult);
   }
 
   const editability = readJson(editabilityPath);
   const quality = readJson(qualityPath);
+  const perceptual = readJson(perceptualPath);
   const pass = editability.pass === true && quality.pass === true;
   return {
     id: entry.id,
@@ -155,14 +156,21 @@ function evaluateCase(entry, build) {
     outputPath: spec.outputPath,
     editabilityPath: path.relative(rootDir, editabilityPath),
     qualityPath: path.relative(rootDir, qualityPath),
+    perceptualPath: path.relative(rootDir, perceptualPath),
     editabilityPass: editability.pass === true,
     structuralPass: quality.structuralPass,
     familyPass: quality.familyPass,
+    perceptualMode: perceptual.mode,
     supported: quality.familyQuality?.supported ?? true,
     reason: quality.familyQuality?.reason ?? null,
     editabilityMetrics: editability.metrics,
     metrics: quality.metrics,
-    suggestedPatches: quality.suggestedPatches
+    perceptualMetrics: perceptual.metrics,
+    perceptualWarnings: perceptual.details?.warnings ?? [],
+    suggestedPatches: [
+      ...(quality.suggestedPatches ?? []),
+      ...(perceptual.suggestedPatches ?? [])
+    ]
   };
 }
 
@@ -170,7 +178,7 @@ export function evaluateSuite(suite, options = {}) {
   const selected = selectCases(suite, options);
   const results = selected.map((entry) => evaluateCase(entry, options.build !== false));
   return {
-    version: '1.1',
+    version: '1.2',
     suiteVersion: suite.version ?? null,
     generatedAt: new Date().toISOString(),
     filters: {
@@ -195,6 +203,8 @@ function compactFailure(result) {
     reason: result.reason ?? null,
     editabilityMetrics: result.editabilityMetrics ?? null,
     metrics: result.metrics ?? null,
+    perceptualMetrics: result.perceptualMetrics ?? null,
+    perceptualWarnings: result.perceptualWarnings ?? null,
     suggestedPatches: result.suggestedPatches ?? null
   };
 }
@@ -208,10 +218,20 @@ function main() {
   const failedCases = report.results
     .filter((result) => result.status === 'failed' || result.status === 'missing-fixture')
     .map(compactFailure);
+  const perceptualReview = report.results
+    .filter((result) => result.status === 'passed' && (result.perceptualWarnings?.length ?? 0) > 0)
+    .map((result) => ({
+      id: result.id,
+      family: result.family,
+      view: result.view,
+      perceptualMetrics: result.perceptualMetrics,
+      warnings: result.perceptualWarnings
+    }));
   console.log(JSON.stringify({
     outputPath: path.relative(rootDir, outputPath),
     summary: report.summary,
-    failedCases
+    failedCases,
+    perceptualReview
   }, null, 2));
   process.exit(report.summary.pass ? 0 : 1);
 }
