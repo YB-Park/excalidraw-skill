@@ -28,6 +28,18 @@ function edge(id, from, to, points) {
   };
 }
 
+function edgeLabel(edgeId, x, y, width = 80, height = 20) {
+  return {
+    id: `label_${edgeId}`,
+    type: 'text',
+    x,
+    y,
+    width,
+    height,
+    customData: { excalidrawSkill: { role: 'edge-label', edge: edgeId } }
+  };
+}
+
 test('reports low detour and bend cost for a direct primary flow', () => {
   const a = node('a', 0, 0);
   const b = node('b', 360, 0);
@@ -79,4 +91,20 @@ test('reports composition balance without turning it into a hard pass/fail gate'
   assert.equal(report.mode, 'advisory');
   assert.ok(report.metrics.compositionBalanceOffset >= 0);
   assert.ok(report.metrics.compositionDensity > 0);
+});
+
+test('flags an edge label that is visually closer to another edge', () => {
+  const a = node('a', 0, 0);
+  const b = node('b', 400, 0);
+  const c = node('c', 0, 180);
+  const d = node('d', 400, 180);
+  const top = edge('top', 'a', 'b', [{ x: 180, y: 40 }, { x: 400, y: 40 }]);
+  const bottom = edge('bottom', 'c', 'd', [{ x: 180, y: 220 }, { x: 400, y: 220 }]);
+  const misplaced = edgeLabel('top', 250, 190, 60, 20);
+
+  const report = createPerceptualQuality({ elements: [a, b, c, d, top, bottom, misplaced] });
+
+  assert.equal(report.metrics.ambiguousEdgeLabels, 1);
+  assert.ok(report.metrics.edgeLabelAssociationCost > 0);
+  assert.ok(report.details.warnings.some((warning) => warning.kind === 'ambiguous-edge-label-association'));
 });
