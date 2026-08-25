@@ -6,8 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { routeEdges } from './route-edges.mjs';
 import { repairRoutes } from './repair-routes.mjs';
 import { simplifyRoutes } from './simplify-routes.mjs';
-import { createQualityReport } from './quality-report.mjs';
-import { createPerceptualQuality } from './perceptual-quality.mjs';
+import { scoreLayoutCandidate } from './layout-score.mjs';
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -59,26 +58,7 @@ function finalizedRouting(scene, spec) {
 
 function score(scene, spec) {
   const routed = finalizedRouting(scene, spec);
-  const quality = createQualityReport(routed, spec);
-  const perceptual = createPerceptualQuality(routed, spec);
-  const metrics = quality.metrics;
-  const hardPenalty = metrics.nodeOverlaps * 1_000_000
-    + metrics.edgeNodeCrossings * 1_000_000
-    + metrics.endpointOverlaps * 500_000
-    + metrics.endpointApproachViolations * 500_000
-    + metrics.labelNodeOverlaps * 100_000
-    + metrics.textOverflows * 100_000
-    + (quality.familyPass ? 0 : 1_000_000);
-  const crossingPenalty = metrics.edgeCrossings * 120;
-  const aspectPenalty = Math.max(0, (metrics.aspectRatio ?? 1) - 6) * 15;
-  const displacementPenalty = 0;
-  return {
-    cost: Number((hardPenalty + crossingPenalty + aspectPenalty + displacementPenalty + (perceptual.metrics.readabilityCost ?? 0)).toFixed(2)),
-    hardPenalty,
-    routed,
-    quality,
-    perceptual
-  };
+  return { ...scoreLayoutCandidate(routed, spec, { aspectSoftLimit: 6 }), routed };
 }
 
 function edgeAdjacency(spec) {
@@ -180,6 +160,7 @@ export function refineFlowPositions(scene, spec) {
       }
       const improvement = workingScore.cost - bestScore.cost;
       if ((bestMove.dx !== 0 || bestMove.dy !== 0) && improvement >= 3) {
+        const costBefore = workingScore.cost;
         workingScene = bestScene;
         workingScore = bestScore;
         changedInPass += 1;
@@ -194,7 +175,7 @@ export function refineFlowPositions(scene, spec) {
           node: semanticId,
           dx: bestMove.dx,
           dy: bestMove.dy,
-          costBefore: Number((workingScore.cost + improvement).toFixed(2)),
+          costBefore,
           costAfter: workingScore.cost,
           improvement: Number(improvement.toFixed(2))
         });
@@ -206,8 +187,9 @@ export function refineFlowPositions(scene, spec) {
   workingScene.customData ??= {};
   workingScene.customData.excalidrawSkill ??= {};
   workingScene.customData.excalidrawSkill.positionRefinement = {
-    version: '0.1.0',
+    version: '0.2.0',
     strategy: 'bounded-cross-axis-local-search',
+    scoring: 'shared-post-route-quality-score',
     candidates: candidates.length,
     nodesChanged: acceptedMoves.size,
     baselineCost,
