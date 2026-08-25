@@ -50,15 +50,16 @@ test('replaces a long global detour with a shorter collision-free local route', 
   assert.ok(routed.customData.excalidrawSkill.routeSimplification);
 });
 
-test('keeps a detour when the short local route would hit a blocker', () => {
+test('keeps a detour when every short local route would hit a blocker', () => {
   const source = node('source', 0, 0);
-  const blocker = node('blocker', 210, 120);
+  const blocker = node('blocker', 210, 60);
+  blocker.height = 240;
   const target = node('target', 420, 260);
   const points = [
     { x: 90, y: 80 },
-    { x: 90, y: 100 },
-    { x: -80, y: 100 },
-    { x: -80, y: 240 },
+    { x: 90, y: 320 },
+    { x: 600, y: 320 },
+    { x: 600, y: 240 },
     { x: 510, y: 240 },
     { x: 510, y: 260 }
   ];
