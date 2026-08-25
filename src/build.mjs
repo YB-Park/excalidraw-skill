@@ -47,6 +47,7 @@ function main() {
   runStep('src/label-edges.mjs', [outputPath]);
   runStep('src/place-edge-labels.mjs', [outputPath, specPath]);
   runStep('src/apply-fonts.mjs', [outputPath]);
+  runStep('src/editability-report.mjs', [outputPath]);
   runStep('src/validate.mjs', [outputPath]);
   runStep('src/quality-report.mjs', [outputPath, specPath]);
 
