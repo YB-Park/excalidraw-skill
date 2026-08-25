@@ -40,6 +40,7 @@ function main() {
   runStep('src/layout-module-architecture.mjs', [outputPath, specPath]);
   runStep('src/optimize-flow-layout.mjs', [outputPath, specPath]);
   runStep('src/refine-flow-positions.mjs', [outputPath, specPath]);
+  runStep('src/refine-flow-primary-spine.mjs', [outputPath, specPath]);
   runStep('src/apply-components.mjs', [outputPath]);
   runStep('src/group-component-details.mjs', [outputPath]);
   runStep('src/route-edges.mjs', [outputPath, specPath]);
