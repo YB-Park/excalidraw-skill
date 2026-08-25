@@ -5,10 +5,12 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { mergeEvaluationSuites } from './evaluate-suite.mjs';
 
 const srcDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(srcDir, '..');
 const suitePath = path.join(rootDir, 'examples/evaluation/suite.json');
+const qualityCorpusPath = path.join(rootDir, 'examples/evaluation/quality-corpus.json');
 const defaultOutputPath = path.join(rootDir, 'examples/evaluation/results/layout-candidates.latest.json');
 
 function readJson(filePath) {
@@ -69,10 +71,7 @@ function buildCurrent(fixture) {
 function buildElkCandidate(fixture, tempDir) {
   const original = readJson(path.join(rootDir, fixture));
   const outputPath = path.join(tempDir, `${path.basename(fixture, '.diagram.json')}.elk.excalidraw`);
-  const spec = {
-    ...original,
-    outputPath
-  };
+  const spec = { ...original, outputPath };
   const specPath = path.join(tempDir, `${path.basename(fixture, '.diagram.json')}.elk.diagram.json`);
   writeJson(specPath, spec);
 
@@ -102,12 +101,8 @@ function chooseWinner(current, elk) {
   if (!current.pass && !elk.pass) return { winner: 'none', reason: 'Neither candidate passes hard quality gates' };
   const currentCost = current.perceptualMetrics.readabilityCost ?? Number.POSITIVE_INFINITY;
   const elkCost = elk.perceptualMetrics.readabilityCost ?? Number.POSITIVE_INFINITY;
-  if (elkCost + 0.5 < currentCost) {
-    return { winner: 'elk', reason: `lower readability cost (${elkCost} < ${currentCost})` };
-  }
-  if (currentCost + 0.5 < elkCost) {
-    return { winner: 'current', reason: `lower readability cost (${currentCost} < ${elkCost})` };
-  }
+  if (elkCost + 0.5 < currentCost) return { winner: 'elk', reason: `lower readability cost (${elkCost} < ${currentCost})` };
+  if (currentCost + 0.5 < elkCost) return { winner: 'current', reason: `lower readability cost (${currentCost} < ${elkCost})` };
   const currentWarnings = current.perceptualWarnings.length;
   const elkWarnings = elk.perceptualWarnings.length;
   if (elkWarnings < currentWarnings) return { winner: 'elk', reason: 'fewer perceptual warnings' };
@@ -129,7 +124,9 @@ export function summarizeComparisons(results) {
 }
 
 function main() {
-  const suite = readJson(suitePath);
+  const baseSuite = readJson(suitePath);
+  const qualityCorpus = fs.existsSync(qualityCorpusPath) ? readJson(qualityCorpusPath) : null;
+  const suite = mergeEvaluationSuites(baseSuite, qualityCorpus);
   const cases = (suite.cases ?? []).filter((entry) => {
     return entry.family === 'flow'
       && entry.implementationStatus !== 'contract-only'
@@ -151,9 +148,10 @@ function main() {
       });
     }
     const report = {
-      version: '0.1.0',
+      version: '0.2.0',
       generatedAt: new Date().toISOString(),
       mode: 'research-only',
+      qualityCorpusVersion: suite.qualityCorpusVersion ?? null,
       summary: summarizeComparisons(results),
       results
     };
