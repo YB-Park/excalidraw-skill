@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { simplifyRoutes } from './simplify-routes.mjs';
-import { polylineLength, segmentsFromEdge } from './geometry.mjs';
+import { polylineLength, rectOf, segmentIntersectsRect, segmentsFromEdge } from './geometry.mjs';
 
 function node(id, x, y) {
   return {
@@ -83,4 +83,22 @@ test('does not change an axis-locked route', () => {
   simplifyRoutes({ elements: [source, target, routed] });
 
   assert.equal(JSON.stringify(routed.points), before);
+});
+
+test('never simplifies through the interior of its target node', () => {
+  const source = node('source', 0, 0);
+  const target = node('target', 420, 180);
+  const routed = edge('source-target', 'source', 'target', [
+    { x: 180, y: 40 },
+    { x: 220, y: 40 },
+    { x: 640, y: 40 },
+    { x: 640, y: 220 },
+    { x: 620, y: 220 },
+    { x: 600, y: 220 }
+  ], { sourceSide: 'right', targetSide: 'right', axisLock: null });
+
+  simplifyRoutes({ elements: [source, target, routed] });
+
+  const last = segmentsFromEdge(routed).at(-1);
+  assert.equal(segmentIntersectsRect(last, rectOf(target, -3), { includeBoundary: false }), false);
 });
