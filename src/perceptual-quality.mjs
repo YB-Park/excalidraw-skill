@@ -79,11 +79,71 @@ function crossingMetrics(edges) {
   const minAngle = details.length ? Math.min(...details.map((item) => item.angle)) : 90;
   const lowAngle = details.filter((item) => item.angle < 45).length;
   const crossingCost = details.reduce((sum, item) => {
-    // Right-angle crossings are much less disruptive than shallow crossings in path-tracing tasks.
     const shallowPenalty = Math.max(0, 60 - item.angle) / 2.5;
     return sum + 8 + shallowPenalty;
   }, 0);
   return { details, minAngle, lowAngle, crossingCost };
+}
+
+function pointToSegmentDistance(point, segment) {
+  const dx = segment.b.x - segment.a.x;
+  const dy = segment.b.y - segment.a.y;
+  const lengthSquared = dx * dx + dy * dy;
+  if (lengthSquared < 1e-9) return Math.hypot(point.x - segment.a.x, point.y - segment.a.y);
+  const projection = Math.max(0, Math.min(1,
+    ((point.x - segment.a.x) * dx + (point.y - segment.a.y) * dy) / lengthSquared));
+  const x = segment.a.x + projection * dx;
+  const y = segment.a.y + projection * dy;
+  return Math.hypot(point.x - x, point.y - y);
+}
+
+function distanceToEdge(point, edge) {
+  const segments = segmentsFromEdge(edge);
+  return segments.length ? Math.min(...segments.map((segment) => pointToSegmentDistance(point, segment))) : Number.POSITIVE_INFINITY;
+}
+
+function edgeLabelAssociation(edgeLabels, edges) {
+  const edgesById = new Map(edges.map((edge) => [metaOf(edge).semanticId, edge]));
+  const details = [];
+  for (const label of edgeLabels) {
+    const edgeId = metaOf(label).edge;
+    const ownEdge = edgesById.get(edgeId);
+    if (!ownEdge) continue;
+    const center = {
+      x: Number(label.x ?? 0) + Number(label.width ?? 0) / 2,
+      y: Number(label.y ?? 0) + Number(label.height ?? 0) / 2
+    };
+    const ownDistance = distanceToEdge(center, ownEdge);
+    let nearestOtherEdge = null;
+    let nearestOtherDistance = Number.POSITIVE_INFINITY;
+    for (const edge of edges) {
+      if (edge === ownEdge) continue;
+      const distance = distanceToEdge(center, edge);
+      if (distance < nearestOtherDistance) {
+        nearestOtherDistance = distance;
+        nearestOtherEdge = metaOf(edge).semanticId;
+      }
+    }
+    const ambiguous = nearestOtherEdge !== null && nearestOtherDistance + 12 < ownDistance;
+    const distant = ownDistance > 56;
+    details.push({
+      edge: edgeId,
+      ownDistance,
+      nearestOtherEdge,
+      nearestOtherDistance,
+      ambiguous,
+      distant
+    });
+  }
+  const ambiguous = details.filter((item) => item.ambiguous);
+  const distant = details.filter((item) => item.distant);
+  const averageDistance = details.length
+    ? details.reduce((sum, item) => sum + item.ownDistance, 0) / details.length
+    : 0;
+  const cost = details.reduce((sum, item) => sum
+    + (item.ambiguous ? 14 : 0)
+    + Math.max(0, item.ownDistance - 36) / 8, 0);
+  return { details, ambiguous, distant, averageDistance, cost };
 }
 
 function sceneComposition(nodes) {
@@ -131,10 +191,12 @@ function rounded(value, digits = 2) {
 export function createPerceptualQuality(scene, spec = null) {
   const nodes = [];
   const edges = [];
+  const edgeLabels = [];
   for (const element of scene?.elements ?? []) {
     const role = metaOf(element).role;
     if (role === 'node') nodes.push(element);
     if (role === 'edge') edges.push(element);
+    if (role === 'edge-label') edgeLabels.push(element);
   }
 
   const primaryPairs = primaryPairSet(spec);
@@ -182,10 +244,9 @@ export function createPerceptualQuality(scene, spec = null) {
     : 1;
   const averageBendsPerEdge = edgeDetails.length ? totalBends / edgeDetails.length : 0;
   const crossings = crossingMetrics(edges);
+  const labelAssociation = edgeLabelAssociation(edgeLabels, edges);
   const composition = sceneComposition(nodes);
 
-  // Project-relative score for comparing layouts of the same semantic graph.
-  // Crossing count, crossing angle, bend complexity, continuity, and detours are all represented.
   const edgeCost = edgeDetails.reduce((cost, edge) => {
     const primaryMultiplier = edge.primary ? 1.8 : 1;
     return cost
@@ -195,7 +256,7 @@ export function createPerceptualQuality(scene, spec = null) {
       + (edge.moderateDetour ? 6 * primaryMultiplier : 0)
       + (edge.highBendComplexity ? 6 * primaryMultiplier : 0);
   }, 0);
-  const readabilityCost = edgeCost + crossings.crossingCost;
+  const readabilityCost = edgeCost + crossings.crossingCost + labelAssociation.cost;
 
   const warnings = [];
   for (const edge of severeDetours) {
@@ -228,6 +289,22 @@ export function createPerceptualQuality(scene, spec = null) {
       minAngle: rounded(crossings.minAngle, 1)
     });
   }
+  for (const item of labelAssociation.ambiguous) {
+    warnings.push({
+      kind: 'ambiguous-edge-label-association',
+      edge: item.edge,
+      ownDistance: rounded(item.ownDistance, 1),
+      nearerEdge: item.nearestOtherEdge,
+      nearerDistance: rounded(item.nearestOtherDistance, 1)
+    });
+  }
+  for (const item of labelAssociation.distant.filter((candidate) => !candidate.ambiguous)) {
+    warnings.push({
+      kind: 'distant-edge-label',
+      edge: item.edge,
+      ownDistance: rounded(item.ownDistance, 1)
+    });
+  }
   if (composition.balanceOffset > 0.18 && nodes.length >= 5) {
     warnings.push({
       kind: 'composition-imbalance',
@@ -256,9 +333,16 @@ export function createPerceptualQuality(scene, spec = null) {
       maxBends: 2
     });
   }
+  for (const item of [...labelAssociation.ambiguous, ...labelAssociation.distant]) {
+    suggestedPatches.push({
+      operation: 'reassociate-edge-label',
+      edge: item.edge,
+      targetDistance: 36
+    });
+  }
 
   return {
-    version: '0.3.0',
+    version: '0.4.0',
     mode: 'advisory',
     metrics: {
       readabilityCost: rounded(readabilityCost, 2),
@@ -269,6 +353,11 @@ export function createPerceptualQuality(scene, spec = null) {
       minCrossingAngle: rounded(crossings.minAngle, 1),
       lowAngleCrossings: crossings.lowAngle,
       crossingCost: rounded(crossings.crossingCost, 2),
+      edgeLabelCount: labelAssociation.details.length,
+      ambiguousEdgeLabels: labelAssociation.ambiguous.length,
+      distantEdgeLabels: labelAssociation.distant.length,
+      averageEdgeLabelDistance: rounded(labelAssociation.averageDistance, 1),
+      edgeLabelAssociationCost: rounded(labelAssociation.cost, 2),
       primaryFlowBends: primaryBends,
       primaryFlowAverageBends: primaryEdges.length ? rounded(primaryBends / primaryEdges.length, 2) : 0,
       averageDetourRatio: rounded(averageDetourRatio, 2),
@@ -282,6 +371,11 @@ export function createPerceptualQuality(scene, spec = null) {
     details: {
       edges: edgeDetails,
       crossings: crossings.details.map((item) => ({ ...item, angle: rounded(item.angle, 1) })),
+      edgeLabels: labelAssociation.details.map((item) => ({
+        ...item,
+        ownDistance: rounded(item.ownDistance, 1),
+        nearestOtherDistance: Number.isFinite(item.nearestOtherDistance) ? rounded(item.nearestOtherDistance, 1) : null
+      })),
       composition: {
         width: rounded(composition.width, 1),
         height: rounded(composition.height, 1)
