@@ -1,4 +1,4 @@
-import { absolutePoints, polylineLength, segmentsFromEdge, segmentsIntersect } from './geometry.mjs';
+import { absolutePoints, polylineLength, rectOf, rectToSegmentsDistance, segmentsFromEdge, segmentsIntersect } from './geometry.mjs';
 
 function metaOf(element) {
   return element.customData?.excalidrawSkill ?? {};
@@ -85,23 +85,6 @@ function crossingMetrics(edges) {
   return { details, minAngle, lowAngle, crossingCost };
 }
 
-function pointToSegmentDistance(point, segment) {
-  const dx = segment.b.x - segment.a.x;
-  const dy = segment.b.y - segment.a.y;
-  const lengthSquared = dx * dx + dy * dy;
-  if (lengthSquared < 1e-9) return Math.hypot(point.x - segment.a.x, point.y - segment.a.y);
-  const projection = Math.max(0, Math.min(1,
-    ((point.x - segment.a.x) * dx + (point.y - segment.a.y) * dy) / lengthSquared));
-  const x = segment.a.x + projection * dx;
-  const y = segment.a.y + projection * dy;
-  return Math.hypot(point.x - x, point.y - y);
-}
-
-function distanceToEdge(point, edge) {
-  const segments = segmentsFromEdge(edge);
-  return segments.length ? Math.min(...segments.map((segment) => pointToSegmentDistance(point, segment))) : Number.POSITIVE_INFINITY;
-}
-
 function edgeLabelAssociation(edgeLabels, edges) {
   const edgesById = new Map(edges.map((edge) => [metaOf(edge).semanticId, edge]));
   const details = [];
@@ -109,16 +92,13 @@ function edgeLabelAssociation(edgeLabels, edges) {
     const edgeId = metaOf(label).edge;
     const ownEdge = edgesById.get(edgeId);
     if (!ownEdge) continue;
-    const center = {
-      x: Number(label.x ?? 0) + Number(label.width ?? 0) / 2,
-      y: Number(label.y ?? 0) + Number(label.height ?? 0) / 2
-    };
-    const ownDistance = distanceToEdge(center, ownEdge);
+    const labelRect = rectOf(label);
+    const ownDistance = rectToSegmentsDistance(labelRect, segmentsFromEdge(ownEdge));
     let nearestOtherEdge = null;
     let nearestOtherDistance = Number.POSITIVE_INFINITY;
     for (const edge of edges) {
       if (edge === ownEdge) continue;
-      const distance = distanceToEdge(center, edge);
+      const distance = rectToSegmentsDistance(labelRect, segmentsFromEdge(edge));
       if (distance < nearestOtherDistance) {
         nearestOtherDistance = distance;
         nearestOtherEdge = metaOf(edge).semanticId;
@@ -342,7 +322,7 @@ export function createPerceptualQuality(scene, spec = null) {
   }
 
   return {
-    version: '0.4.0',
+    version: '0.5.0',
     mode: 'advisory',
     metrics: {
       readabilityCost: rounded(readabilityCost, 2),
@@ -369,6 +349,7 @@ export function createPerceptualQuality(scene, spec = null) {
       compositionBalanceOffset: rounded(composition.balanceOffset, 3)
     },
     details: {
+      edgeLabelDistanceModel: 'label-box-to-edge',
       edges: edgeDetails,
       crossings: crossings.details.map((item) => ({ ...item, angle: rounded(item.angle, 1) })),
       edgeLabels: labelAssociation.details.map((item) => ({
