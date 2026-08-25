@@ -5,6 +5,7 @@ const DEFAULT_FONT_SIZE = 13;
 const DEFAULT_LINE_HEIGHT = 1.25;
 const DEFAULT_MIN_WIDTH = 32;
 const DEFAULT_MAX_WIDTH = 180;
+const DEFAULT_VERTICAL_MAX_WIDTH = 96;
 const DEFAULT_HORIZONTAL_PADDING = 10;
 const DEFAULT_ROUTE_MARGIN = 8;
 
@@ -38,7 +39,7 @@ function routeConstrainedMaxWidth(edge, options = {}) {
   const longest = segments[0];
   if (!longest) return maxWidth;
   const horizontal = Math.abs(longest.b.x - longest.a.x) >= Math.abs(longest.b.y - longest.a.y);
-  if (!horizontal) return maxWidth;
+  if (!horizontal) return Math.min(maxWidth, Number(options.verticalMaxWidth ?? DEFAULT_VERTICAL_MAX_WIDTH));
   const routeMargin = Number(options.routeMargin ?? DEFAULT_ROUTE_MARGIN);
   const minWidth = Number(options.minWidth ?? DEFAULT_MIN_WIDTH);
   return Math.max(minWidth, Math.min(maxWidth, segmentLength(longest) - routeMargin));
