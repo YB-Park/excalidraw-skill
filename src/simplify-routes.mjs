@@ -99,6 +99,19 @@ function edgeNodeHits(points, edgeMeta, nodes) {
   return hits;
 }
 
+function endpointNodePenetrations(points, edgeMeta, nodes) {
+  const segments = segmentsFromPoints(points);
+  if (segments.length === 0) return 0;
+  let penetrations = 0;
+  const source = nodes.get(edgeMeta.from);
+  const target = nodes.get(edgeMeta.to);
+  const first = segments[0];
+  const last = segments.at(-1);
+  if (source && segmentIntersectsRect(first, rectOf(source, -3), { includeBoundary: false })) penetrations += 1;
+  if (target && segmentIntersectsRect(last, rectOf(target, -3), { includeBoundary: false })) penetrations += 1;
+  return penetrations;
+}
+
 function crossingCount(points, edge, edges) {
   const segments = segmentsFromPoints(points);
   let crossings = 0;
@@ -139,8 +152,10 @@ function endpointOverlapCount(points, edge, edges) {
 }
 
 function score(points, edge, nodes, edges) {
+  const edgeMeta = metaOf(edge);
   return {
-    nodeHits: edgeNodeHits(points, metaOf(edge), nodes),
+    nodeHits: edgeNodeHits(points, edgeMeta, nodes),
+    endpointNodePenetrations: endpointNodePenetrations(points, edgeMeta, nodes),
     endpointOverlaps: endpointOverlapCount(points, edge, edges),
     crossings: crossingCount(points, edge, edges),
     bends: Math.max(0, points.length - 2),
@@ -150,9 +165,11 @@ function score(points, edge, nodes, edges) {
 
 function shouldReplace(current, candidate) {
   if (candidate.nodeHits > current.nodeHits) return false;
+  if (candidate.endpointNodePenetrations > current.endpointNodePenetrations) return false;
   if (candidate.endpointOverlaps > current.endpointOverlaps) return false;
   if (candidate.crossings > current.crossings) return false;
   if (candidate.nodeHits < current.nodeHits) return true;
+  if (candidate.endpointNodePenetrations < current.endpointNodePenetrations) return true;
   if (candidate.endpointOverlaps < current.endpointOverlaps) return true;
   if (candidate.crossings < current.crossings) return true;
   if (candidate.bends < current.bends && candidate.length <= current.length + 40) return true;
@@ -175,7 +192,9 @@ export function simplifyRoutes(scene) {
     const currentScore = score(currentPoints, edge, nodes, edges);
     const candidates = localCandidates(edge)
       .map((points) => ({ points, score: score(points, edge, nodes, edges) }))
-      .filter((candidate) => candidate.score.nodeHits === 0 && candidate.score.endpointOverlaps === 0)
+      .filter((candidate) => candidate.score.nodeHits === 0
+        && candidate.score.endpointNodePenetrations === 0
+        && candidate.score.endpointOverlaps === 0)
       .sort((a, b) => {
         return a.score.crossings - b.score.crossings
           || a.score.bends - b.score.bends
@@ -189,7 +208,8 @@ export function simplifyRoutes(scene) {
       previousLength: Number(currentScore.length.toFixed(1)),
       length: Number(chosen.score.length.toFixed(1)),
       previousBends: currentScore.bends,
-      bends: chosen.score.bends
+      bends: chosen.score.bends,
+      endpointNodePenetrations: chosen.score.endpointNodePenetrations
     };
     simplified += 1;
   }
@@ -197,7 +217,7 @@ export function simplifyRoutes(scene) {
   scene.customData ??= {};
   scene.customData.excalidrawSkill ??= {};
   scene.customData.excalidrawSkill.routeSimplification = {
-    engine: 'route-simplify-v0.1',
+    engine: 'route-simplify-v0.2',
     simplified
   };
   return scene;
