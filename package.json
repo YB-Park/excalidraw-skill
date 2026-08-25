@@ -18,6 +18,7 @@
     "evaluate:flow": "node ./src/evaluate-suite.mjs --family flow",
     "evaluate:system": "node ./src/evaluate-suite.mjs --family system-architecture",
     "evaluate:module": "node ./src/evaluate-suite.mjs --family module-architecture",
+    "editability-report": "node ./src/editability-report.mjs",
     "skill:install:global": "node ./bin/excalidraw-skill.mjs install --global",
     "skill:doctor:global": "node ./bin/excalidraw-skill.mjs doctor --global",
     "skill:uninstall:global": "node ./bin/excalidraw-skill.mjs uninstall --global"
