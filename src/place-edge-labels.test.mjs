@@ -4,7 +4,7 @@ import { placeEdgeLabels } from './place-edge-labels.mjs';
 import { createPerceptualQuality } from './perceptual-quality.mjs';
 import { boxesOverlap, rectOf } from './geometry.mjs';
 
-function node(id, x, y) { return { id: `node_${id}`, type: 'rectangle', x, y, width: 180, height: 80, customData: { excalidrawSkill: { role: 'node', semanticId: id } } }; }
+function node(id, x, y) { return { id: `node_${id}`, type: 'rectangle', x, y, width: 180, height: 80, frameId: null, customData: { excalidrawSkill: { role: 'node', semanticId: id } } }; }
 function edge(id, from, to, x, y, points) { const last = points.at(-1); return { id: `edge_${id}`, type: 'arrow', x, y, width: last[0], height: last[1], points, customData: { excalidrawSkill: { role: 'edge', semanticId: id, from, to } } }; }
 function label(edgeId, x = 0, y = 0) { return { id: `label_${edgeId}`, type: 'text', x, y, width: 112, height: 22, customData: { excalidrawSkill: { role: 'edge-label', edge: edgeId } } }; }
 function frame(id, x, y, width, height) { return { id: `frame_${id}`, type: 'frame', name: id, x, y, width, height, customData: { excalidrawSkill: { role: 'frame', semanticId: id } } }; }
@@ -41,21 +41,26 @@ test('keeps parallel-edge labels associated with their own edge', () => {
   assert.ok(l2.customData.excalidrawSkill.placement.ownDistance <= l2.customData.excalidrawSkill.placement.nearestOtherDistance);
 });
 
-test('keeps an internal edge label inside a module frame instead of treating the whole frame as blocked', () => {
-  const boundary = frame('module-a', 100, 80, 560, 260);
-  const a = node('a', 150, 170);
-  const b = node('b', 530, 170);
-  const e = edge('a-b', 'a', 'b', 330, 210, [[0, 0], [200, 0]]);
+test('keeps a shared-frame edge label inside the native frame even when the nearest outside position avoids the border', () => {
+  const boundary = frame('module-a', 100, 80, 600, 300);
+  const a = node('a', 170, 210);
+  const b = node('b', 500, 110);
+  a.frameId = boundary.id;
+  b.frameId = boundary.id;
+  const e = edge('a-b', 'a', 'b', 350, 250, [
+    [0, 0],
+    [0, -140],
+    [150, -140]
+  ]);
   const l = label('a-b');
   const scene = { elements: [boundary, a, b, e, l] };
 
   placeEdgeLabels(scene, { edges: [{ semanticId: 'a-b' }] });
 
-  assert.ok(l.x >= boundary.x + 8);
-  assert.ok(l.x + l.width <= boundary.x + boundary.width - 8);
-  assert.ok(l.y >= boundary.y + 8);
-  assert.ok(l.y + l.height <= boundary.y + boundary.height - 8);
-  assert.ok(!boxesOverlap(rectOf(l), rectOf(a)));
-  assert.ok(!boxesOverlap(rectOf(l), rectOf(b)));
-  assert.ok(l.customData.excalidrawSkill.placement.ownDistance <= 52);
+  assert.ok(l.x >= boundary.x + 10);
+  assert.ok(l.x + l.width <= boundary.x + boundary.width - 10);
+  assert.ok(l.y >= boundary.y + 10);
+  assert.ok(l.y + l.height <= boundary.y + boundary.height - 10);
+  assert.equal(l.customData.excalidrawSkill.placement.sharedFrameId, boundary.id);
+  assert.equal(l.customData.excalidrawSkill.placement.frameContained, true);
 });
