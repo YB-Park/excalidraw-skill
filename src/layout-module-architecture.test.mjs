@@ -36,7 +36,7 @@ function positions(scene) {
     .map((element) => [element.customData.excalidrawSkill.semanticId, { x: element.x, y: element.y }]));
 }
 
-test('places internal components in a compact module grid', () => {
+test('places internal components in a compact module grid when there is no dominant hub', () => {
   const ids = ['controller', 'registry', 'worker', 'adapter'];
   const spec = {
     diagramType: 'module-architecture',
@@ -48,7 +48,41 @@ test('places internal components in a compact module grid', () => {
   const p = positions(scene);
   assert.equal(new Set([...p.values()].map((value) => value.x)).size, 2);
   assert.equal(new Set([...p.values()].map((value) => value.y)).size, 2);
+  assert.equal(scene.customData.excalidrawSkill.layout.strategy, 'compact-grid');
   assert.deepEqual(scene.customData.excalidrawSkill.layout.internalIds, ids);
+});
+
+test('uses a two-column hub grid for a controller-dominated component view', () => {
+  const internal = ['controller', 'registry', 'retry', 'adapter', 'events', 'metrics'];
+  const ids = [...internal, 'provider'];
+  const spec = {
+    diagramType: 'module-architecture',
+    layout: { profile: 'component-view' },
+    module: { focusModule: 'connection-manager' },
+    nodes: [
+      ...internal.map((semanticId) => ({ semanticId, group: 'connection-manager' })),
+      { semanticId: 'provider', shapeRef: 'external.system', layoutHints: { lane: 'right' } }
+    ],
+    edges: [
+      ...internal.slice(1).map((semanticId) => ({ from: 'controller', to: semanticId })),
+      { from: 'adapter', to: 'provider' }
+    ]
+  };
+  const scene = layoutModuleArchitecture(sceneFor(ids), spec);
+  const p = positions(scene);
+  const internalPositions = internal.map((id) => p.get(id));
+  const xValues = [...new Set(internalPositions.map((value) => value.x))].sort((a, b) => a - b);
+  const yValues = [...new Set(internalPositions.map((value) => value.y))].sort((a, b) => a - b);
+
+  assert.equal(scene.customData.excalidrawSkill.layout.strategy, 'hub-grid');
+  assert.equal(scene.customData.excalidrawSkill.layout.hubId, 'controller');
+  assert.equal(xValues.length, 2);
+  assert.equal(yValues.length, 3);
+  assert.equal(p.get('controller').x, xValues[0]);
+  assert.equal(p.get('controller').y, yValues[1]);
+  assert.equal(p.get('adapter').x, xValues[1]);
+  assert.equal(p.get('adapter').y, p.get('controller').y);
+  assert.equal(p.get('provider').y, p.get('adapter').y);
 });
 
 test('keeps external collaborators outside the module boundary', () => {
