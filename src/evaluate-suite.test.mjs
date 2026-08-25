@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { selectCases, summarizeResults } from './evaluate-suite.mjs';
+import { mergeEvaluationSuites, selectCases, summarizeResults } from './evaluate-suite.mjs';
 
 const suite = {
   cases: [
@@ -13,6 +13,18 @@ const suite = {
 test('selectCases filters by family and case id', () => {
   assert.deepEqual(selectCases(suite, { family: 'flow' }).map((entry) => entry.id), ['flow-a', 'flow-b']);
   assert.deepEqual(selectCases(suite, { caseId: 'system-a' }).map((entry) => entry.id), ['system-a']);
+});
+
+test('mergeEvaluationSuites adds quality cases without duplicate ids', () => {
+  const merged = mergeEvaluationSuites(suite, {
+    version: '0.1',
+    cases: [
+      { id: 'flow-a', family: 'flow' },
+      { id: 'quality-flow-c', family: 'flow' }
+    ]
+  });
+  assert.deepEqual(merged.cases.map((entry) => entry.id), ['flow-a', 'flow-b', 'system-a', 'quality-flow-c']);
+  assert.equal(merged.qualityCorpusVersion, '0.1');
 });
 
 test('summarizeResults distinguishes runnable and contract-only cases', () => {
