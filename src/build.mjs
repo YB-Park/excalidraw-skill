@@ -41,6 +41,7 @@ function main() {
   runStep('src/apply-components.mjs', [outputPath]);
   runStep('src/group-component-details.mjs', [outputPath]);
   runStep('src/route-edges.mjs', [outputPath, specPath]);
+  runStep('src/optimize-edge-routing.mjs', [outputPath, specPath]);
   runStep('src/repair-routes.mjs', [outputPath]);
   runStep('src/simplify-routes.mjs', [outputPath]);
   runStep('src/style-edges.mjs', [outputPath]);
