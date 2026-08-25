@@ -6,8 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { routeEdges } from './route-edges.mjs';
 import { repairRoutes } from './repair-routes.mjs';
 import { simplifyRoutes } from './simplify-routes.mjs';
-import { createQualityReport } from './quality-report.mjs';
-import { createPerceptualQuality } from './perceptual-quality.mjs';
+import { scoreLayoutCandidate } from './layout-score.mjs';
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -46,24 +45,7 @@ function finalizeRouting(scene, spec) {
 }
 
 function score(scene, spec) {
-  const quality = createQualityReport(scene, spec);
-  const perceptual = createPerceptualQuality(scene, spec);
-  const metrics = quality.metrics;
-  const hardPenalty = metrics.nodeOverlaps * 1_000_000
-    + metrics.edgeNodeCrossings * 1_000_000
-    + metrics.endpointOverlaps * 500_000
-    + metrics.endpointApproachViolations * 500_000
-    + metrics.labelNodeOverlaps * 100_000
-    + metrics.textOverflows * 100_000
-    + (quality.familyPass ? 0 : 1_000_000);
-  const crossingPenalty = metrics.edgeCrossings * 120;
-  const aspectPenalty = Math.max(0, (metrics.aspectRatio ?? 1) - 6) * 15;
-  return {
-    cost: Number((hardPenalty + crossingPenalty + aspectPenalty + (perceptual.metrics.readabilityCost ?? 0)).toFixed(2)),
-    hardPenalty,
-    quality,
-    perceptual
-  };
+  return scoreLayoutCandidate(scene, spec, { aspectSoftLimit: 6 });
 }
 
 function withDirection(spec, semanticId, direction) {
@@ -140,9 +122,9 @@ export function optimizeEdgeRouting(scene, spec) {
   workingScene.customData ??= {};
   workingScene.customData.excalidrawSkill ??= {};
   workingScene.customData.excalidrawSkill.routeOptimization = {
-    version: '0.2.0',
+    version: '0.3.0',
     strategy: 'soft-secondary-direction-search',
-    scoring: 'post-route-repair-and-simplification',
+    scoring: 'shared-post-route-quality-score',
     edgesConsidered: eligible.length,
     edgesChanged: decisions.filter((decision) => decision.accepted).length,
     baselineCost,
