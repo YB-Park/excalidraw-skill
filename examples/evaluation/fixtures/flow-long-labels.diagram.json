@@ -1,0 +1,26 @@
+{
+  "version":"2.0",
+  "diagramType":"data-flow",
+  "title":"Bilingual Telemetry Processing",
+  "stylePreset":"professional-software",
+  "layout":{"profile":"swimlane-flow","direction":"left-to-right","aspectRatio":"balanced","primaryFlow":["input","normalize","validate","persist","analytics"],"lanes":[{"id":"main","position":"center","order":0},{"id":"support","position":"bottom","order":1}]},
+  "framePolicy":{"mode":"none"},
+  "nodes":[
+    {"semanticId":"input","label":"차량 텔레메트리 입력 / Vehicle Telemetry Input","shapeRef":"client.web","layoutHints":{"lane":"main","rank":0,"importance":"primary"}},
+    {"semanticId":"normalize","label":"프로토콜 정규화 및 단위 변환 / Protocol Normalization","shapeRef":"service.worker","layoutHints":{"lane":"main","rank":1,"importance":"primary"}},
+    {"semanticId":"validate","label":"스키마 검증 및 이상치 필터링 / Schema Validation","shapeRef":"service.backend","layoutHints":{"lane":"main","rank":2,"importance":"primary"}},
+    {"semanticId":"persist","label":"정규화 텔레메트리 저장소 / Normalized Telemetry Store","shapeRef":"database.relational","layoutHints":{"lane":"main","rank":3,"importance":"primary"}},
+    {"semanticId":"analytics","label":"실시간 분석 소비자 / Realtime Analytics Consumer","shapeRef":"service.worker","layoutHints":{"lane":"main","rank":4,"importance":"primary"}},
+    {"semanticId":"schema","label":"스키마 레지스트리 / Schema Registry","shapeRef":"database.relational","layoutHints":{"lane":"support","rank":2,"importance":"support"}},
+    {"semanticId":"alerts","label":"품질 경고 이벤트 / Data Quality Alerts","shapeRef":"queue.topic","layoutHints":{"lane":"support","rank":3,"importance":"support"}}
+  ],
+  "edges":[
+    {"semanticId":"input-normalize","from":"input","to":"normalize","label":"raw telemetry","kind":"transfers","routeHints":{"priority":"primary"}},
+    {"semanticId":"normalize-validate","from":"normalize","to":"validate","label":"normalized records","kind":"transfers","routeHints":{"priority":"primary"}},
+    {"semanticId":"validate-persist","from":"validate","to":"persist","label":"accepted telemetry","kind":"writes","routeHints":{"priority":"primary"}},
+    {"semanticId":"persist-analytics","from":"persist","to":"analytics","label":"stream for analysis","kind":"transfers","routeHints":{"priority":"primary"}},
+    {"semanticId":"schema-validate","from":"schema","to":"validate","label":"read validation schema","kind":"reads","routeHints":{"direction":"up","priority":"secondary"}},
+    {"semanticId":"validate-alerts","from":"validate","to":"alerts","label":"publish invalid-record warning","kind":"async","routeHints":{"direction":"down","priority":"secondary"}}
+  ],
+  "outputPath":"examples/evaluation/outputs/flow-long-labels.excalidraw"
+}
