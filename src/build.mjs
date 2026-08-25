@@ -46,6 +46,7 @@ function main() {
   runStep('src/optimize-edge-routing.mjs', [outputPath, specPath]);
   runStep('src/repair-routes.mjs', [outputPath]);
   runStep('src/simplify-routes.mjs', [outputPath]);
+  runStep('src/repair-flow-bundles.mjs', [outputPath, specPath]);
   runStep('src/repair-module-routes.mjs', [outputPath, specPath]);
   runStep('src/repair-endpoint-routes.mjs', [outputPath]);
   runStep('src/route-integrity.mjs', [outputPath]);
