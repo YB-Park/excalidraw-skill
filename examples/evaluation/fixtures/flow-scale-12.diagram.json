@@ -1,0 +1,37 @@
+{
+  "version":"2.0",
+  "diagramType":"service-flow",
+  "title":"Order Processing Scale Test",
+  "stylePreset":"professional-software",
+  "layout":{"profile":"swimlane-flow","direction":"left-to-right","aspectRatio":"balanced","primaryFlow":["client","gateway","orders","inventory","payment","fulfillment","response"],"lanes":[{"id":"main","position":"center","order":0},{"id":"support","position":"bottom","order":1}]},
+  "framePolicy":{"mode":"none"},
+  "nodes":[
+    {"semanticId":"client","label":"Client","shapeRef":"client.web","layoutHints":{"lane":"main","rank":0,"importance":"primary"}},
+    {"semanticId":"gateway","label":"API Gateway","shapeRef":"gateway.api","layoutHints":{"lane":"main","rank":1,"importance":"primary"}},
+    {"semanticId":"orders","label":"Order Service","shapeRef":"service.backend","layoutHints":{"lane":"main","rank":2,"importance":"primary"}},
+    {"semanticId":"inventory","label":"Inventory Service","shapeRef":"service.backend","layoutHints":{"lane":"main","rank":3,"importance":"primary"}},
+    {"semanticId":"payment","label":"Payment Service","shapeRef":"service.backend","layoutHints":{"lane":"main","rank":4,"importance":"primary"}},
+    {"semanticId":"fulfillment","label":"Fulfillment Service","shapeRef":"service.backend","layoutHints":{"lane":"main","rank":5,"importance":"primary"}},
+    {"semanticId":"response","label":"Order Response","shapeRef":"client.web","layoutHints":{"lane":"main","rank":6,"importance":"primary"}},
+    {"semanticId":"orderdb","label":"Order DB","shapeRef":"database.relational","layoutHints":{"lane":"support","rank":2,"importance":"support"}},
+    {"semanticId":"catalog","label":"Inventory DB","shapeRef":"database.relational","layoutHints":{"lane":"support","rank":3,"importance":"support"}},
+    {"semanticId":"fraud","label":"Fraud Check","shapeRef":"risk.security","layoutHints":{"lane":"support","rank":4,"importance":"secondary"}},
+    {"semanticId":"events","label":"Order Events","shapeRef":"queue.topic","layoutHints":{"lane":"support","rank":5,"importance":"support"}},
+    {"semanticId":"notifier","label":"Notification Worker","shapeRef":"service.worker","layoutHints":{"lane":"support","rank":6,"importance":"support"}}
+  ],
+  "edges":[
+    {"semanticId":"client-gateway","from":"client","to":"gateway","label":"HTTPS","kind":"calls","routeHints":{"priority":"primary"}},
+    {"semanticId":"gateway-orders","from":"gateway","to":"orders","label":"place order","kind":"calls","routeHints":{"priority":"primary"}},
+    {"semanticId":"orders-inventory","from":"orders","to":"inventory","label":"reserve","kind":"calls","routeHints":{"priority":"primary"}},
+    {"semanticId":"inventory-payment","from":"inventory","to":"payment","label":"reserved","kind":"transfers","routeHints":{"priority":"primary"}},
+    {"semanticId":"payment-fulfillment","from":"payment","to":"fulfillment","label":"authorized","kind":"transfers","routeHints":{"priority":"primary"}},
+    {"semanticId":"fulfillment-response","from":"fulfillment","to":"response","label":"accepted","kind":"returns","routeHints":{"priority":"primary"}},
+    {"semanticId":"orders-orderdb","from":"orders","to":"orderdb","label":"persist","kind":"writes","routeHints":{"direction":"down","priority":"secondary"}},
+    {"semanticId":"inventory-catalog","from":"inventory","to":"catalog","label":"update stock","kind":"writes","routeHints":{"direction":"down","priority":"secondary"}},
+    {"semanticId":"payment-fraud","from":"payment","to":"fraud","label":"risk check","kind":"optional","routeHints":{"direction":"down","priority":"secondary"}},
+    {"semanticId":"fulfillment-events","from":"fulfillment","to":"events","label":"publish","kind":"async","routeHints":{"direction":"down","priority":"secondary"}},
+    {"semanticId":"events-notifier","from":"events","to":"notifier","label":"consume","kind":"async","routeHints":{"direction":"right","priority":"secondary"}},
+    {"semanticId":"orderdb-events","from":"orderdb","to":"events","label":"audit event","kind":"async","routeHints":{"direction":"right","priority":"secondary"}}
+  ],
+  "outputPath":"examples/evaluation/outputs/flow-scale-12.excalidraw"
+}
