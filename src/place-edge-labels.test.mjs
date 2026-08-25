@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { placeEdgeLabels } from './place-edge-labels.mjs';
+import { createPerceptualQuality } from './perceptual-quality.mjs';
 import { boxesOverlap, rectOf } from './geometry.mjs';
 
 function node(id, x, y) { return { id: `node_${id}`, type: 'rectangle', x, y, width: 180, height: 80, customData: { excalidrawSkill: { role: 'node', semanticId: id } } }; }
@@ -22,4 +23,19 @@ test('avoids nodes and previously placed labels', () => {
   assert.ok(!boxesOverlap(rectOf(l1), rectOf(blocker)));
   assert.ok(!boxesOverlap(rectOf(l2), rectOf(blocker)));
   assert.ok(!boxesOverlap(rectOf(l1), rectOf(l2)));
+});
+
+test('keeps parallel-edge labels associated with their own edge', () => {
+  const e1 = edge('top', 'a', 'b', 0, 100, [[0, 0], [400, 0]]);
+  const e2 = edge('bottom', 'c', 'd', 0, 160, [[0, 0], [400, 0]]);
+  const l1 = label('top');
+  const l2 = label('bottom');
+  const scene = { elements: [e1, e2, l1, l2] };
+
+  placeEdgeLabels(scene, { edges: [{ semanticId: 'top' }, { semanticId: 'bottom' }] });
+  const quality = createPerceptualQuality(scene);
+
+  assert.equal(quality.metrics.ambiguousEdgeLabels, 0);
+  assert.ok(l1.customData.excalidrawSkill.placement.ownDistance <= l1.customData.excalidrawSkill.placement.nearestOtherDistance);
+  assert.ok(l2.customData.excalidrawSkill.placement.ownDistance <= l2.customData.excalidrawSkill.placement.nearestOtherDistance);
 });
