@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { boxesOverlap, rectOf, segmentIntersectsRect, segmentLength, segmentsFromEdge } from './geometry.mjs';
+import { boxesOverlap, rectOf, rectToSegmentsDistance, segmentIntersectsRect, segmentLength, segmentsFromEdge } from './geometry.mjs';
 
 const read = (file) => JSON.parse(fs.readFileSync(file, 'utf8'));
 const write = (file, data) => { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, `${JSON.stringify(data, null, 2)}\n`); };
@@ -45,28 +45,10 @@ function candidates(edge, label, preferred) {
   });
 }
 
-function pointToSegmentDistance(point, segment) {
-  const dx = segment.b.x - segment.a.x;
-  const dy = segment.b.y - segment.a.y;
-  const lengthSquared = dx * dx + dy * dy;
-  if (lengthSquared < 1e-9) return Math.hypot(point.x - segment.a.x, point.y - segment.a.y);
-  const projection = Math.max(0, Math.min(1,
-    ((point.x - segment.a.x) * dx + (point.y - segment.a.y) * dy) / lengthSquared));
-  const x = segment.a.x + projection * dx;
-  const y = segment.a.y + projection * dy;
-  return Math.hypot(point.x - x, point.y - y);
-}
-
-function nearestDistance(point, segments) {
-  return segments.length
-    ? Math.min(...segments.map((segment) => pointToSegmentDistance(point, segment)))
-    : Number.POSITIVE_INFINITY;
-}
-
 function associationMetrics(candidate, ownSegments, otherSegments) {
-  const center = { x: candidate.x + candidate.width / 2, y: candidate.y + candidate.height / 2 };
-  const ownDistance = nearestDistance(center, ownSegments);
-  const nearestOtherDistance = nearestDistance(center, otherSegments);
+  const rect = { x: candidate.x, y: candidate.y, width: candidate.width, height: candidate.height };
+  const ownDistance = rectToSegmentsDistance(rect, ownSegments);
+  const nearestOtherDistance = rectToSegmentsDistance(rect, otherSegments);
   const ambiguityGap = Number.isFinite(nearestOtherDistance)
     ? Math.max(0, ownDistance + 12 - nearestOtherDistance)
     : 0;
@@ -176,7 +158,8 @@ export function placeEdgeLabels(scene, spec = null) {
     const association = associationMetrics(next, own, others);
     label.x = Math.round(next.x); label.y = Math.round(next.y); label.backgroundColor = '#ffffff';
     labelMeta.placement = {
-      engine: 'collision-aware-v0.7',
+      engine: 'collision-aware-v0.8',
+      distanceModel: 'label-box-to-edge',
       side: next.side,
       preferred,
       ownDistance: Number(association.ownDistance.toFixed(1)),
