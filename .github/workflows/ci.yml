@@ -44,7 +44,7 @@ jobs:
           cp examples/module-architecture/connection-manager.excalidraw.quality.json artifacts/visual-review/module-component.quality.json
           cp examples/module-architecture/connection-manager.excalidraw.perceptual.json artifacts/visual-review/module-component.perceptual.json
           cp examples/evaluation/results/layout-candidates.latest.json artifacts/visual-review/layout-candidates.latest.json
-          for id in flow-branch-merge flow-fanout-fanin; do
+          for id in flow-branch-merge flow-fanout-fanin flow-feedback-loop flow-long-labels; do
             cp "examples/evaluation/outputs/${id}.excalidraw" "artifacts/stress-scenes/${id}.excalidraw"
             cp "examples/evaluation/outputs/${id}.excalidraw.quality.json" "artifacts/stress-scenes/${id}.quality.json"
             cp "examples/evaluation/outputs/${id}.excalidraw.perceptual.json" "artifacts/stress-scenes/${id}.perceptual.json"
@@ -59,6 +59,8 @@ jobs:
           npm run visual:actual -- examples/service-flow/payment-flow.visual-plan.excalidraw -o artifacts/actual-render/payment-flow.png
           npm run visual:actual -- examples/evaluation/outputs/flow-branch-merge.excalidraw -o artifacts/actual-render/branch-merge.png
           npm run visual:actual -- examples/evaluation/outputs/flow-fanout-fanin.excalidraw -o artifacts/actual-render/fanout-fanin.png
+          npm run visual:actual -- examples/evaluation/outputs/flow-feedback-loop.excalidraw -o artifacts/actual-render/feedback-loop.png
+          npm run visual:actual -- examples/evaluation/outputs/flow-long-labels.excalidraw -o artifacts/actual-render/long-labels.png
           npm run visual:actual -- examples/system-architecture/layered-middleware.excalidraw -o artifacts/actual-render/system-layered.png
           npm run visual:actual -- examples/module-architecture/connection-manager.excalidraw -o artifacts/actual-render/module-component.png
       - uses: actions/upload-artifact@v4
