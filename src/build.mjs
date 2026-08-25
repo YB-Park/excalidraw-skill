@@ -38,6 +38,7 @@ function main() {
   runStep('src/layout-system-architecture.mjs', [outputPath, specPath]);
   runStep('src/refine-system-spine.mjs', [outputPath, specPath]);
   runStep('src/layout-module-architecture.mjs', [outputPath, specPath]);
+  runStep('src/refine-module-label-corridors.mjs', [outputPath, specPath]);
   runStep('src/optimize-flow-layout.mjs', [outputPath, specPath]);
   runStep('src/refine-flow-positions.mjs', [outputPath, specPath]);
   runStep('src/refine-flow-primary-spine.mjs', [outputPath, specPath]);
@@ -48,6 +49,7 @@ function main() {
   runStep('src/repair-routes.mjs', [outputPath]);
   runStep('src/simplify-routes.mjs', [outputPath]);
   runStep('src/repair-flow-bundles.mjs', [outputPath, specPath]);
+  runStep('src/repair-flow-support-routes.mjs', [outputPath, specPath]);
   runStep('src/repair-module-routes.mjs', [outputPath, specPath]);
   runStep('src/repair-endpoint-routes.mjs', [outputPath]);
   runStep('src/route-integrity.mjs', [outputPath]);
