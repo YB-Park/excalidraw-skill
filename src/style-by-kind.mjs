@@ -2,17 +2,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-
-const [scenePath, flag, outputPathArg] = process.argv.slice(2);
-
-function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-}
-
-function writeJson(filePath, data) {
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`);
-}
+import { fileURLToPath } from 'node:url';
 
 const roles = {
   actor: { strokeColor: '#475569', backgroundColor: '#f8fafc' },
@@ -29,7 +19,7 @@ const roles = {
   boundary: { strokeColor: '#cbd5e1', backgroundColor: '#f8fafc' }
 };
 
-function roleFor(shapeRef = '') {
+export function roleFor(shapeRef = '') {
   if (shapeRef.includes('actor')) return 'actor';
   if (shapeRef.includes('client')) return 'client';
   if (shapeRef.includes('gateway')) return 'gateway';
@@ -44,17 +34,11 @@ function roleFor(shapeRef = '') {
   return 'service';
 }
 
-function styleFor(shapeRef = '') {
+export function styleFor(shapeRef = '') {
   return roles[roleFor(shapeRef)] ?? roles.service;
 }
 
-function run() {
-  if (!scenePath) {
-    console.error('Usage: node src/style-by-kind.mjs <scene.excalidraw> [-o output.excalidraw]');
-    process.exit(1);
-  }
-
-  const scene = readJson(scenePath);
+export function styleByKind(scene) {
   for (const element of scene.elements ?? []) {
     const meta = element.customData?.excalidrawSkill;
     if (meta?.role !== 'node') continue;
@@ -62,10 +46,30 @@ function run() {
     element.strokeColor = style.strokeColor;
     element.backgroundColor = style.backgroundColor;
   }
+  return scene;
+}
 
+function readJson(filePath) {
+  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
+
+function writeJson(filePath, data) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`);
+}
+
+function main() {
+  const [scenePath, flag, outputPathArg] = process.argv.slice(2);
+  if (!scenePath) {
+    console.error('Usage: node src/style-by-kind.mjs <scene.excalidraw> [-o output.excalidraw]');
+    process.exit(1);
+  }
+
+  const scene = styleByKind(readJson(scenePath));
   const outputPath = flag === '-o' && outputPathArg ? outputPathArg : scenePath;
   writeJson(outputPath, scene);
   console.log(outputPath);
 }
 
-run();
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) main();
