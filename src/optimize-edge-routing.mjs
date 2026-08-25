@@ -58,19 +58,123 @@ function withDirection(spec, semanticId, direction) {
   return next;
 }
 
+function withBundleDirection(spec, semanticIds, direction) {
+  const ids = new Set(semanticIds);
+  const next = clone(spec);
+  for (const edge of next.edges ?? []) {
+    if (!ids.has(edgeId(edge))) continue;
+    edge.routeHints ??= {};
+    if (direction) edge.routeHints.direction = direction;
+    else delete edge.routeHints.direction;
+  }
+  return next;
+}
+
+function flowAxisDirection(spec) {
+  return (spec?.layout?.direction ?? 'left-to-right') === 'top-to-bottom' ? 'down' : 'right';
+}
+
 function isFlow(spec) {
   return ['service-flow', 'event-flow', 'data-flow', 'flow'].includes(spec?.diagramType);
 }
 
-export function optimizeEdgeRouting(scene, spec) {
-  if (!isFlow(spec)) return scene;
-  const primaryPairs = primaryPairSet(spec);
-  const eligible = (spec.edges ?? []).filter((edge) => {
+function secondaryEligibleEdges(spec, primaryPairs) {
+  return (spec.edges ?? []).filter((edge) => {
     const direction = edge.routeHints?.direction;
     const primary = edge.routeHints?.priority === 'primary'
       || primaryPairs.has(`${edge.from}->${edge.to}`);
     return !primary && ['up', 'down', 'left', 'right'].includes(direction);
   });
+}
+
+export function routingBundles(edges) {
+  const bundles = [];
+  for (const [kind, endpoint] of [['fan-out', 'from'], ['fan-in', 'to']]) {
+    const groups = new Map();
+    for (const edge of edges) {
+      const node = edge[endpoint];
+      const list = groups.get(node) ?? [];
+      list.push(edge);
+      groups.set(node, list);
+    }
+    for (const [node, group] of groups) {
+      if (group.length < 2) continue;
+      bundles.push({
+        kind,
+        node,
+        edgeIds: group.map(edgeId).sort()
+      });
+    }
+  }
+  return bundles.sort((a, b) => a.node.localeCompare(b.node) || a.kind.localeCompare(b.kind));
+}
+
+function optimizeBundles(scene, spec, eligible, currentScore) {
+  let workingSpec = spec;
+  let workingScene = scene;
+  let workingScore = currentScore;
+  const decisions = [];
+  const changedEdges = new Set();
+  const axisDirection = flowAxisDirection(spec);
+
+  for (const bundle of routingBundles(eligible)) {
+    const beforeDirections = Object.fromEntries(bundle.edgeIds.map((id) => {
+      const edge = (workingSpec.edges ?? []).find((candidate) => edgeId(candidate) === id);
+      return [id, edge?.routeHints?.direction ?? null];
+    }));
+    let bestSpec = workingSpec;
+    let bestScene = workingScene;
+    let bestScore = workingScore;
+    let bestStrategy = 'preserve';
+    let bestDirection = null;
+
+    for (const candidate of [
+      { strategy: 'flow-axis', direction: axisDirection },
+      { strategy: 'auto', direction: null }
+    ]) {
+      const candidateSpec = withBundleDirection(workingSpec, bundle.edgeIds, candidate.direction);
+      const candidateScene = finalizeRouting(workingScene, candidateSpec);
+      const candidateScore = score(candidateScene, candidateSpec);
+      const hardSafe = candidateScore.hardPenalty <= workingScore.hardPenalty;
+      if (hardSafe && candidateScore.cost + 0.01 < bestScore.cost) {
+        bestSpec = candidateSpec;
+        bestScene = candidateScene;
+        bestScore = candidateScore;
+        bestStrategy = candidate.strategy;
+        bestDirection = candidate.direction;
+      }
+    }
+
+    const improvement = workingScore.cost - bestScore.cost;
+    const accepted = bestStrategy !== 'preserve' && improvement >= 4;
+    decisions.push({
+      ...bundle,
+      accepted,
+      strategy: accepted ? bestStrategy : 'preserve',
+      selectedDirection: accepted ? bestDirection : null,
+      originalDirections: beforeDirections,
+      costBefore: workingScore.cost,
+      costAfter: accepted ? bestScore.cost : workingScore.cost,
+      improvement: Number((accepted ? improvement : 0).toFixed(2))
+    });
+    if (!accepted) continue;
+
+    for (const id of bundle.edgeIds) {
+      const previous = beforeDirections[id];
+      if (previous !== bestDirection) changedEdges.add(id);
+    }
+    workingSpec = bestSpec;
+    workingScene = bestScene;
+    workingScore = bestScore;
+  }
+
+  return { workingSpec, workingScene, workingScore, decisions, changedEdges };
+}
+
+export function optimizeEdgeRouting(scene, spec) {
+  if (!isFlow(spec)) return scene;
+  const primaryPairs = primaryPairSet(spec);
+  const eligible = secondaryEligibleEdges(spec, primaryPairs);
   if (eligible.length === 0) return scene;
 
   let workingSpec = clone(spec);
@@ -78,6 +182,13 @@ export function optimizeEdgeRouting(scene, spec) {
   let workingScore = score(workingScene, workingSpec);
   const baselineCost = workingScore.cost;
   const decisions = [];
+  const changedEdges = new Set();
+
+  const bundleResult = optimizeBundles(workingScene, workingSpec, eligible, workingScore);
+  workingSpec = bundleResult.workingSpec;
+  workingScene = bundleResult.workingScene;
+  workingScore = bundleResult.workingScore;
+  for (const id of bundleResult.changedEdges) changedEdges.add(id);
 
   for (const edge of eligible) {
     const id = edgeId(edge);
@@ -113,6 +224,7 @@ export function optimizeEdgeRouting(scene, spec) {
       improvement: Number((accepted ? improvement : 0).toFixed(2))
     });
     if (accepted) {
+      changedEdges.add(id);
       workingSpec = bestSpec;
       workingScene = bestScene;
       workingScore = bestScore;
@@ -122,11 +234,14 @@ export function optimizeEdgeRouting(scene, spec) {
   workingScene.customData ??= {};
   workingScene.customData.excalidrawSkill ??= {};
   workingScene.customData.excalidrawSkill.routeOptimization = {
-    version: '0.3.0',
-    strategy: 'soft-secondary-direction-search',
+    version: '0.4.0',
+    strategy: 'bundle-then-edge-secondary-direction-search',
     scoring: 'shared-post-route-quality-score',
+    bundlesConsidered: bundleResult.decisions.length,
+    bundlesChanged: bundleResult.decisions.filter((decision) => decision.accepted).length,
+    bundleDecisions: bundleResult.decisions,
     edgesConsidered: eligible.length,
-    edgesChanged: decisions.filter((decision) => decision.accepted).length,
+    edgesChanged: changedEdges.size,
     baselineCost,
     selectedCost: workingScore.cost,
     improvement: Number((baselineCost - workingScore.cost).toFixed(2)),
