@@ -6,8 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { routeEdges } from './route-edges.mjs';
 import { repairRoutes } from './repair-routes.mjs';
 import { simplifyRoutes } from './simplify-routes.mjs';
-import { createQualityReport } from './quality-report.mjs';
-import { createPerceptualQuality } from './perceptual-quality.mjs';
+import { scoreLayoutCandidate } from './layout-score.mjs';
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -83,28 +82,7 @@ function finalizedRouting(scene, spec) {
 
 function candidateScore(scene, spec) {
   const routed = finalizedRouting(scene, spec);
-  const quality = createQualityReport(routed, spec);
-  const perceptual = createPerceptualQuality(routed, spec);
-  const metrics = quality.metrics;
-  const hardPenalty = metrics.nodeOverlaps * 1_000_000
-    + metrics.edgeNodeCrossings * 1_000_000
-    + metrics.endpointOverlaps * 500_000
-    + metrics.endpointApproachViolations * 500_000
-    + metrics.labelNodeOverlaps * 100_000
-    + metrics.textOverflows * 100_000
-    + (quality.familyPass ? 0 : 1_000_000);
-  const crossingPenalty = metrics.edgeCrossings * 90;
-  const aspectPenalty = Math.max(0, (metrics.aspectRatio ?? 1) - 5) * 12;
-  const cost = hardPenalty
-    + crossingPenalty
-    + aspectPenalty
-    + (perceptual.metrics.readabilityCost ?? 0);
-  return {
-    cost: Number(cost.toFixed(2)),
-    quality,
-    perceptual,
-    routed
-  };
+  return { ...scoreLayoutCandidate(routed, spec, { aspectSoftLimit: 5 }), routed };
 }
 
 function optimizationGroups(spec) {
@@ -130,7 +108,7 @@ export function optimizeFlowLayout(scene, spec) {
     scene.customData ??= {};
     scene.customData.excalidrawSkill ??= {};
     scene.customData.excalidrawSkill.flowOptimization = {
-      version: '0.2.0',
+      version: '0.3.0',
       groupsConsidered: 0,
       groupsChanged: 0
     };
@@ -173,9 +151,9 @@ export function optimizeFlowLayout(scene, spec) {
   bestScene.customData ??= {};
   bestScene.customData.excalidrawSkill ??= {};
   bestScene.customData.excalidrawSkill.flowOptimization = {
-    version: '0.2.0',
+    version: '0.3.0',
     strategy: 'lane-rank-permutation-search',
-    scoring: 'post-route-repair-and-simplification',
+    scoring: 'shared-post-route-quality-score',
     groupsConsidered: groups.length,
     groupsChanged,
     baselineCost,
