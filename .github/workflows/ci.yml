@@ -22,3 +22,20 @@ jobs:
       - run: npm run smoke:system
       - run: npm run smoke:module
       - run: npm run evaluate
+      - name: Export visual review previews
+        run: |
+          mkdir -p artifacts/visual-review
+          node ./src/export-preview-svg.mjs examples/service-flow/payment-flow.visual-plan.excalidraw -o artifacts/visual-review/payment-flow.svg
+          node ./src/export-preview-svg.mjs examples/system-architecture/layered-middleware.excalidraw -o artifacts/visual-review/system-layered.svg
+          node ./src/export-preview-svg.mjs examples/module-architecture/connection-manager.excalidraw -o artifacts/visual-review/module-component.svg
+          cp examples/service-flow/payment-flow.visual-plan.excalidraw.editability.json artifacts/visual-review/payment-flow.editability.json
+          cp examples/service-flow/payment-flow.visual-plan.excalidraw.quality.json artifacts/visual-review/payment-flow.quality.json
+          cp examples/system-architecture/layered-middleware.excalidraw.editability.json artifacts/visual-review/system-layered.editability.json
+          cp examples/system-architecture/layered-middleware.excalidraw.quality.json artifacts/visual-review/system-layered.quality.json
+          cp examples/module-architecture/connection-manager.excalidraw.editability.json artifacts/visual-review/module-component.editability.json
+          cp examples/module-architecture/connection-manager.excalidraw.quality.json artifacts/visual-review/module-component.quality.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: visual-review
+          path: artifacts/visual-review
+          if-no-files-found: error
