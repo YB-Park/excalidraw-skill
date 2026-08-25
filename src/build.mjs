@@ -36,6 +36,7 @@ function main() {
   runStep('src/style-by-kind.mjs', [outputPath]);
   runStep('src/layout-service-flow.mjs', [outputPath, specPath]);
   runStep('src/layout-system-architecture.mjs', [outputPath, specPath]);
+  runStep('src/refine-system-spine.mjs', [outputPath, specPath]);
   runStep('src/layout-module-architecture.mjs', [outputPath, specPath]);
   runStep('src/optimize-flow-layout.mjs', [outputPath, specPath]);
   runStep('src/refine-flow-positions.mjs', [outputPath, specPath]);
