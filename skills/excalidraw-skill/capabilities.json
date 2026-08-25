@@ -1,23 +1,24 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "skill": "excalidraw-skill",
   "agentRules": [
     "Use build for new graph-like diagrams.",
     "Use inspect then patch for existing .excalidraw edits.",
     "Do not hand-author raw Excalidraw JSON.",
     "Use capabilities, schema, examples, and explain commands for normal discovery.",
+    "Treat editability-report failures as release blockers.",
     "Use quality-report for structural and family quality evidence.",
     "Sequence rendering is contract-only until a dedicated renderer is implemented."
   ],
   "commands": {
-    "agentFacing": ["build", "inspect", "patch", "validate", "quality-report", "capabilities", "schema", "examples", "explain", "doctor"],
-    "developerDebug": ["render", "style-by-kind", "layout-service-flow", "layout-system-architecture", "layout-module-architecture", "route-edges", "style-edges", "frame-groups", "label-edges", "place-edge-labels", "apply-fonts"]
+    "agentFacing": ["build", "inspect", "patch", "validate", "editability-report", "quality-report", "capabilities", "schema", "examples", "explain", "doctor"],
+    "developerDebug": ["render", "style-by-kind", "layout-service-flow", "layout-system-architecture", "layout-module-architecture", "route-edges", "repair-routes", "style-edges", "frame-groups", "label-edges", "place-edge-labels", "apply-fonts"]
   },
   "families": {
     "flow": {
       "diagramTypes": ["flow", "service-flow", "event-flow", "data-flow"],
       "profiles": {"layered-flow": "runnable", "swimlane-flow": "runnable", "hub-and-spoke": "runnable"},
-      "supports": ["primaryFlow", "lanes", "centerAxisX", "centerAxisY", "edge.visual", "routeHints", "logicalGroups", "explicitFrames", "singletonBoundary"]
+      "supports": ["primaryFlow", "lanes", "centerAxisX", "centerAxisY", "edge.visual", "routeHints", "logicalGroups", "explicitFrames", "singletonBoundary", "routeRepair"]
     },
     "system-architecture": {
       "diagramTypes": ["system-architecture"],
@@ -49,8 +50,12 @@
     "suppression": ["small automatic groups", "unspecified groups when explicit mode is active", "implicit whole-scene frames", "frames over budget"],
     "collisionPolicy": "Explicit frame collisions are avoided by reducing facing padding when member-node spacing allows it. Native frame title reserve is estimated at 100% export scale."
   },
+  "editability": {
+    "passMeaning": "All semantic node labels and edges are natively bound, visible frame membership is native, and generated component details share a native group with their parent node.",
+    "checks": ["node label container binding", "node label boundElements backref", "edge start/end bindings", "node arrow boundElements backrefs", "frameId membership", "component detail native grouping"]
+  },
   "quality": {
-    "passMeaning": "structuralPass && familyPass; not aesthetic approval",
+    "passMeaning": "structuralPass && familyPass; not aesthetic approval. Build additionally requires editabilityPass.",
     "checks": ["node overlaps", "edge-node crossings", "edge crossings", "endpoint approach", "label overlaps", "text overflow", "family invariants", "frame policy", "singleton boundary policy", "edge visual preservation", "center axis preservation"]
   }
 }
