@@ -46,6 +46,8 @@ function main() {
   runStep('src/repair-routes.mjs', [outputPath]);
   runStep('src/simplify-routes.mjs', [outputPath]);
   runStep('src/repair-module-routes.mjs', [outputPath, specPath]);
+  runStep('src/repair-endpoint-routes.mjs', [outputPath]);
+  runStep('src/route-integrity.mjs', [outputPath]);
   runStep('src/style-edges.mjs', [outputPath]);
   runStep('src/frame-groups.mjs', [outputPath, specPath]);
   runStep('src/assign-frame-membership.mjs', [outputPath]);
