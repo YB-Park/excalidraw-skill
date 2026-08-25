@@ -239,6 +239,11 @@ export function repairFlowBundles(scene, spec) {
       costAfter: accepted ? candidateScore.cost : workingScore.cost,
       hardPenaltyBefore: workingScore.hardPenalty,
       hardPenaltyAfter: candidateScore.hardPenalty,
+      hardViolationsAfter: candidateScore.hardViolations,
+      endpointOverlapsAfter: candidateScore.quality?.details?.endpointOverlaps ?? [],
+      endpointApproachViolationsAfter: candidateScore.quality?.details?.endpointApproachViolations ?? [],
+      endpointNodePenetrationsAfter: candidateScore.quality?.details?.endpointNodePenetrations ?? [],
+      edgeNodeCrossingsAfter: candidateScore.quality?.details?.edgeNodeCrossings ?? [],
       improvement: Number((accepted ? improvement : 0).toFixed(2))
     });
     if (!accepted) continue;
@@ -249,7 +254,7 @@ export function repairFlowBundles(scene, spec) {
   working.customData ??= {};
   working.customData.excalidrawSkill ??= {};
   working.customData.excalidrawSkill.flowBundleRepair = {
-    version: '0.1.0',
+    version: '0.2.0',
     strategy: 'diagonal-stack-bundle-geometry',
     considered: decisions.filter((decision) => decision.considered).length,
     accepted: decisions.filter((decision) => decision.accepted).length,
