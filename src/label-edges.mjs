@@ -2,6 +2,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { fitEdgeLabel } from './edge-label-fit.mjs';
 
 const [scenePath, flag, outputPathArg] = process.argv.slice(2);
 
@@ -20,13 +21,14 @@ function safeId(prefix, value) {
 
 function makeLabel(edge) {
   const meta = edge.customData?.excalidrawSkill;
+  const fitted = fitEdgeLabel(meta.label, edge);
   const text = {
     id: safeId('text', `${meta.semanticId}_label`),
     type: 'text',
-    x: edge.x + edge.width / 2 - 56,
-    y: edge.y + edge.height / 2 - 26,
-    width: 112,
-    height: 22,
+    x: edge.x + edge.width / 2 - fitted.width / 2,
+    y: edge.y + edge.height / 2 - fitted.height / 2,
+    width: fitted.width,
+    height: fitted.height,
     angle: 0,
     strokeColor: '#374151',
     backgroundColor: 'transparent',
@@ -46,19 +48,25 @@ function makeLabel(edge) {
     updated: 1,
     link: null,
     locked: false,
-    text: meta.label,
-    originalText: meta.label,
-    fontSize: 13,
+    text: fitted.text,
+    originalText: fitted.originalText,
+    fontSize: fitted.fontSize,
     fontFamily: 1,
     textAlign: 'center',
     verticalAlign: 'middle',
     containerId: null,
-    lineHeight: 1.25,
+    lineHeight: fitted.lineHeight,
     customData: {
       excalidrawSkill: {
         semanticId: `${meta.semanticId}_label`,
         role: 'edge-label',
-        edge: meta.semanticId
+        edge: meta.semanticId,
+        fit: {
+          version: '0.1.0',
+          lineCount: fitted.lineCount,
+          preferredMaxWidth: fitted.preferredMaxWidth,
+          estimatedLineWidths: fitted.estimatedLineWidths
+        }
       }
     }
   };
