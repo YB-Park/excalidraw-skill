@@ -45,12 +45,47 @@ function candidates(edge, label, preferred) {
   });
 }
 
-function score(candidate, obstacles, placed, otherSegments, preferred, origin) {
+function pointToSegmentDistance(point, segment) {
+  const dx = segment.b.x - segment.a.x;
+  const dy = segment.b.y - segment.a.y;
+  const lengthSquared = dx * dx + dy * dy;
+  if (lengthSquared < 1e-9) return Math.hypot(point.x - segment.a.x, point.y - segment.a.y);
+  const projection = Math.max(0, Math.min(1,
+    ((point.x - segment.a.x) * dx + (point.y - segment.a.y) * dy) / lengthSquared));
+  const x = segment.a.x + projection * dx;
+  const y = segment.a.y + projection * dy;
+  return Math.hypot(point.x - x, point.y - y);
+}
+
+function nearestDistance(point, segments) {
+  return segments.length
+    ? Math.min(...segments.map((segment) => pointToSegmentDistance(point, segment)))
+    : Number.POSITIVE_INFINITY;
+}
+
+function associationMetrics(candidate, ownSegments, otherSegments) {
+  const center = { x: candidate.x + candidate.width / 2, y: candidate.y + candidate.height / 2 };
+  const ownDistance = nearestDistance(center, ownSegments);
+  const nearestOtherDistance = nearestDistance(center, otherSegments);
+  const ambiguityGap = Number.isFinite(nearestOtherDistance)
+    ? Math.max(0, ownDistance + 12 - nearestOtherDistance)
+    : 0;
+  return {
+    ownDistance,
+    nearestOtherDistance,
+    ambiguityGap,
+    associationPenalty: ambiguityGap * 400 + Math.max(0, ownDistance - 52) * 20
+  };
+}
+
+function score(candidate, obstacles, placed, ownSegments, otherSegments, preferred, origin) {
   const obstacleHits = obstacles.filter((item) => boxesOverlap(candidate, item)).length;
   const labelHits = placed.filter((item) => boxesOverlap(candidate, item)).length;
   const edgeHits = otherSegments.filter((segment) => segmentIntersectsRect(segment, candidate)).length;
   const preference = preferred === 'auto' || preferred === candidate.side ? 0 : 900;
+  const association = associationMetrics(candidate, ownSegments, otherSegments);
   return obstacleHits * 100000 + labelHits * 60000 + edgeHits * 2500 + preference
+    + association.associationPenalty
     + candidate.distance * 3 + Math.hypot(candidate.x - origin.x, candidate.y - origin.y) * 0.1;
 }
 
@@ -87,14 +122,24 @@ export function placeEdgeLabels(scene, spec = null) {
     if (!edge) continue;
     const edgeMeta = meta(edge);
     const preferred = specs.get(edgeMeta.semanticId)?.routeHints?.labelSide ?? 'auto';
+    const own = segments.filter((entry) => entry.edgeId === edgeMeta.semanticId).map((entry) => entry.segment);
     const others = segments.filter((entry) => entry.edgeId !== edgeMeta.semanticId).map((entry) => entry.segment);
     const origin = { x: label.x, y: label.y };
     const options = candidates(edge, label, preferred);
-    options.sort((a, b) => score(a, obstacles, placed, others, preferred, origin) - score(b, obstacles, placed, others, preferred, origin));
+    options.sort((a, b) => score(a, obstacles, placed, own, others, preferred, origin) - score(b, obstacles, placed, own, others, preferred, origin));
     const next = options[0];
     if (!next) continue;
+    const association = associationMetrics(next, own, others);
     label.x = Math.round(next.x); label.y = Math.round(next.y); label.backgroundColor = '#ffffff';
-    labelMeta.placement = { engine: 'collision-aware-v0.3', side: next.side, preferred };
+    labelMeta.placement = {
+      engine: 'collision-aware-v0.4',
+      side: next.side,
+      preferred,
+      ownDistance: Number(association.ownDistance.toFixed(1)),
+      nearestOtherDistance: Number.isFinite(association.nearestOtherDistance)
+        ? Number(association.nearestOtherDistance.toFixed(1))
+        : null
+    };
     placed.push(rectOf(label));
   }
   return scene;
