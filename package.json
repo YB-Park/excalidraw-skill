@@ -19,9 +19,14 @@
     "evaluate:system": "node ./src/evaluate-suite.mjs --family system-architecture",
     "evaluate:module": "node ./src/evaluate-suite.mjs --family module-architecture",
     "editability-report": "node ./src/editability-report.mjs",
+    "perceptual-quality-report": "node ./src/perceptual-quality-report.mjs",
+    "research:layouts": "node ./src/evaluate-layout-candidates.mjs",
     "skill:install:global": "node ./bin/excalidraw-skill.mjs install --global",
     "skill:doctor:global": "node ./bin/excalidraw-skill.mjs doctor --global",
     "skill:uninstall:global": "node ./bin/excalidraw-skill.mjs uninstall --global"
+  },
+  "dependencies": {
+    "elkjs": "^0.12.0"
   },
   "engines": {
     "node": ">=20",
