@@ -78,6 +78,18 @@ function associationMetrics(candidate, ownSegments, otherSegments) {
   };
 }
 
+function frameBorderObstacles(frame) {
+  const thickness = 8;
+  const titleHeight = 34;
+  return [
+    { x: frame.x - thickness, y: frame.y - thickness, width: frame.width + thickness * 2, height: thickness * 2 },
+    { x: frame.x - thickness, y: frame.y + frame.height - thickness, width: frame.width + thickness * 2, height: thickness * 2 },
+    { x: frame.x - thickness, y: frame.y + thickness, width: thickness * 2, height: Math.max(0, frame.height - thickness * 2) },
+    { x: frame.x + frame.width - thickness, y: frame.y + thickness, width: thickness * 2, height: Math.max(0, frame.height - thickness * 2) },
+    { x: frame.x, y: frame.y - titleHeight, width: Math.min(frame.width, 260), height: titleHeight }
+  ];
+}
+
 function score(candidate, obstacles, placed, ownSegments, otherSegments, preferred, origin) {
   const obstacleHits = obstacles.filter((item) => boxesOverlap(candidate, item)).length;
   const labelHits = placed.filter((item) => boxesOverlap(candidate, item)).length;
@@ -104,7 +116,10 @@ export function placeEdgeLabels(scene, spec = null) {
 
   const specs = specIndex(spec);
   const primary = primaryPairs(spec);
-  const obstacles = [...nodes.map((node) => rectOf(node, 8)), ...frames.map((frame) => rectOf(frame, 2))];
+  const obstacles = [
+    ...nodes.map((node) => rectOf(node, 8)),
+    ...frames.flatMap(frameBorderObstacles)
+  ];
   const segments = [...edges.entries()].flatMap(([edgeId, edge]) => segmentsFromEdge(edge).map((segment) => ({ edgeId, segment })));
   const placed = [];
 
@@ -132,7 +147,7 @@ export function placeEdgeLabels(scene, spec = null) {
     const association = associationMetrics(next, own, others);
     label.x = Math.round(next.x); label.y = Math.round(next.y); label.backgroundColor = '#ffffff';
     labelMeta.placement = {
-      engine: 'collision-aware-v0.4',
+      engine: 'collision-aware-v0.5',
       side: next.side,
       preferred,
       ownDistance: Number(association.ownDistance.toFixed(1)),
