@@ -22,6 +22,8 @@ jobs:
       - run: npm run smoke:system
       - run: npm run smoke:module
       - run: npm run evaluate
+      - name: Compare layout candidates
+        run: npm run research:layouts
       - name: Export visual review previews
         run: |
           mkdir -p artifacts/visual-review
@@ -30,10 +32,14 @@ jobs:
           node ./src/export-preview-svg.mjs examples/module-architecture/connection-manager.excalidraw -o artifacts/visual-review/module-component.svg
           cp examples/service-flow/payment-flow.visual-plan.excalidraw.editability.json artifacts/visual-review/payment-flow.editability.json
           cp examples/service-flow/payment-flow.visual-plan.excalidraw.quality.json artifacts/visual-review/payment-flow.quality.json
+          cp examples/service-flow/payment-flow.visual-plan.excalidraw.perceptual.json artifacts/visual-review/payment-flow.perceptual.json
           cp examples/system-architecture/layered-middleware.excalidraw.editability.json artifacts/visual-review/system-layered.editability.json
           cp examples/system-architecture/layered-middleware.excalidraw.quality.json artifacts/visual-review/system-layered.quality.json
+          cp examples/system-architecture/layered-middleware.excalidraw.perceptual.json artifacts/visual-review/system-layered.perceptual.json
           cp examples/module-architecture/connection-manager.excalidraw.editability.json artifacts/visual-review/module-component.editability.json
           cp examples/module-architecture/connection-manager.excalidraw.quality.json artifacts/visual-review/module-component.quality.json
+          cp examples/module-architecture/connection-manager.excalidraw.perceptual.json artifacts/visual-review/module-component.perceptual.json
+          cp examples/evaluation/results/layout-candidates.latest.json artifacts/visual-review/layout-candidates.latest.json
       - uses: actions/upload-artifact@v4
         with:
           name: visual-review
