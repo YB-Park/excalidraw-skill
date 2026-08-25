@@ -32,6 +32,33 @@ export function segmentLength(segment) {
   return Math.hypot(segment.b.x - segment.a.x, segment.b.y - segment.a.y);
 }
 
+export function pointToSegmentDistance(point, segment) {
+  const dx = segment.b.x - segment.a.x;
+  const dy = segment.b.y - segment.a.y;
+  const lengthSquared = dx * dx + dy * dy;
+  if (lengthSquared < 1e-9) return Math.hypot(point.x - segment.a.x, point.y - segment.a.y);
+  const projection = Math.max(0, Math.min(1,
+    ((point.x - segment.a.x) * dx + (point.y - segment.a.y) * dy) / lengthSquared));
+  const x = segment.a.x + projection * dx;
+  const y = segment.a.y + projection * dy;
+  return Math.hypot(point.x - x, point.y - y);
+}
+
+export function pointToRectDistance(point, rect) {
+  const dx = Math.max(rect.x - point.x, 0, point.x - (rect.x + rect.width));
+  const dy = Math.max(rect.y - point.y, 0, point.y - (rect.y + rect.height));
+  return Math.hypot(dx, dy);
+}
+
+function rectCorners(rect) {
+  return [
+    { x: rect.x, y: rect.y },
+    { x: rect.x + rect.width, y: rect.y },
+    { x: rect.x + rect.width, y: rect.y + rect.height },
+    { x: rect.x, y: rect.y + rect.height }
+  ];
+}
+
 function orientation(a, b, c) {
   const value = (b.y - a.y) * (c.x - b.x) - (b.x - a.x) * (c.y - b.y);
   if (Math.abs(value) < 1e-9) return 0;
@@ -70,14 +97,24 @@ export function segmentIntersectsRect(segment, rect, { includeBoundary = true } 
     : point.x > rect.x && point.x < rect.x + rect.width && point.y > rect.y && point.y < rect.y + rect.height;
   if (inside(segment.a) || inside(segment.b)) return true;
   if (maxX < rect.x || minX > rect.x + rect.width || maxY < rect.y || minY > rect.y + rect.height) return false;
-  const corners = [
-    { x: rect.x, y: rect.y },
-    { x: rect.x + rect.width, y: rect.y },
-    { x: rect.x + rect.width, y: rect.y + rect.height },
-    { x: rect.x, y: rect.y + rect.height }
-  ];
+  const corners = rectCorners(rect);
   const sides = corners.map((corner, index) => ({ a: corner, b: corners[(index + 1) % corners.length] }));
   return sides.some((side) => segmentsIntersect(segment, side, { includeEndpoints: includeBoundary }));
+}
+
+export function segmentToRectDistance(segment, rect) {
+  if (segmentIntersectsRect(segment, rect)) return 0;
+  return Math.min(
+    pointToRectDistance(segment.a, rect),
+    pointToRectDistance(segment.b, rect),
+    ...rectCorners(rect).map((corner) => pointToSegmentDistance(corner, segment))
+  );
+}
+
+export function rectToSegmentsDistance(rect, segments) {
+  return segments.length
+    ? Math.min(...segments.map((segment) => segmentToRectDistance(segment, rect)))
+    : Number.POSITIVE_INFINITY;
 }
 
 export function polylineLength(points) {
