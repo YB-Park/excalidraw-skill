@@ -41,6 +41,7 @@ function main() {
   runStep('src/route-edges.mjs', [outputPath, specPath]);
   runStep('src/style-edges.mjs', [outputPath]);
   runStep('src/frame-groups.mjs', [outputPath, specPath]);
+  runStep('src/assign-frame-membership.mjs', [outputPath]);
   runStep('src/label-edges.mjs', [outputPath]);
   runStep('src/place-edge-labels.mjs', [outputPath, specPath]);
   runStep('src/apply-fonts.mjs', [outputPath]);
