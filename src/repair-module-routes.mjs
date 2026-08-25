@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   absolutePoints,
+  collinearOverlapLength,
   polylineLength,
   rectOf,
   segmentIntersectsRect,
@@ -12,6 +13,7 @@ import {
   segmentsFromPoints,
   segmentsIntersect
 } from './geometry.mjs';
+import { segmentPenetratesNodeInterior } from './route-integrity.mjs';
 
 const MODULE_ROUTE_PADDING = 40;
 const STUB = 20;
@@ -44,9 +46,23 @@ function setEdgePoints(edge, points) {
 }
 
 function dedupe(points) {
-  return points.filter((point, index) => index === 0
+  const filtered = points.filter((point, index) => index === 0
     || point.x !== points[index - 1].x
     || point.y !== points[index - 1].y);
+  const result = [];
+  for (const point of filtered) {
+    if (result.length < 2) {
+      result.push(point);
+      continue;
+    }
+    const a = result[result.length - 2];
+    const b = result[result.length - 1];
+    const collinear = (a.x === b.x && b.x === point.x)
+      || (a.y === b.y && b.y === point.y);
+    if (collinear) result[result.length - 1] = point;
+    else result.push(point);
+  }
+  return result;
 }
 
 function outward(point, side, distance = STUB) {
@@ -54,6 +70,17 @@ function outward(point, side, distance = STUB) {
   if (side === 'down') return { x: point.x, y: point.y + distance };
   if (side === 'left') return { x: point.x - distance, y: point.y };
   return { x: point.x + distance, y: point.y };
+}
+
+function center(node) {
+  return { x: node.x + node.width / 2, y: node.y + node.height / 2 };
+}
+
+function pointOnSide(node, side, fraction = 0.5) {
+  if (side === 'up') return { x: node.x + node.width * fraction, y: node.y };
+  if (side === 'down') return { x: node.x + node.width * fraction, y: node.y + node.height };
+  if (side === 'left') return { x: node.x, y: node.y + node.height * fraction };
+  return { x: node.x + node.width, y: node.y + node.height * fraction };
 }
 
 function moduleMemberIds(spec) {
@@ -88,11 +115,11 @@ function routeEscapes(points, bounds) {
 function endpointNodePenetrations(points, edgeMeta, nodes) {
   const segments = segmentsFromPoints(points);
   if (segments.length === 0) return 0;
-  const source = nodes.get(edgeMeta.from);
-  const target = nodes.get(edgeMeta.to);
   let count = 0;
-  if (source && segmentIntersectsRect(segments[0], rectOf(source, -3), { includeBoundary: false })) count += 1;
-  if (target && segmentIntersectsRect(segments.at(-1), rectOf(target, -3), { includeBoundary: false })) count += 1;
+  for (const nodeId of [edgeMeta.from, edgeMeta.to]) {
+    const node = nodes.get(nodeId);
+    if (node && segments.some((segment) => segmentPenetratesNodeInterior(segment, node))) count += 1;
+  }
   return count;
 }
 
@@ -118,6 +145,31 @@ function crossingCount(points, edge, edges) {
     }
   }
   return count;
+}
+
+function endpointSegmentFromPoints(points, edgeMeta, nodeId) {
+  const segments = segmentsFromPoints(points);
+  if (edgeMeta.from === nodeId) return segments[0] ?? null;
+  if (edgeMeta.to === nodeId) return segments.at(-1) ?? null;
+  return null;
+}
+
+function endpointOverlapCount(points, edge, edges) {
+  const edgeMeta = metaOf(edge);
+  let overlaps = 0;
+  for (const other of edges) {
+    if (other === edge) continue;
+    const otherMeta = metaOf(other);
+    const sharedNodes = [edgeMeta.from, edgeMeta.to]
+      .filter((id) => id === otherMeta.from || id === otherMeta.to);
+    for (const nodeId of sharedNodes) {
+      const first = endpointSegmentFromPoints(points, edgeMeta, nodeId);
+      const otherSegments = segmentsFromEdge(other);
+      const second = otherMeta.from === nodeId ? otherSegments[0] : otherSegments.at(-1);
+      if (first && second && collinearOverlapLength(first, second) > 8) overlaps += 1;
+    }
+  }
+  return overlaps;
 }
 
 function routeCandidates(edge, bounds) {
@@ -162,13 +214,116 @@ function routeCandidates(edge, bounds) {
 
 function routeScore(points, edge, nodes, edges) {
   return {
-    escapes: 0,
     endpointNodePenetrations: endpointNodePenetrations(points, metaOf(edge), nodes),
     nodeHits: nodeHits(points, metaOf(edge), nodes),
+    endpointOverlaps: endpointOverlapCount(points, edge, edges),
     crossings: crossingCount(points, edge, edges),
     bends: Math.max(0, points.length - 2),
     length: polylineLength(points)
   };
+}
+
+function hubFraction(hub, satellite) {
+  const hubCenter = center(hub);
+  const satelliteCenter = center(satellite);
+  if (satelliteCenter.y < hubCenter.y - 1) return 0.25;
+  if (satelliteCenter.y > hubCenter.y + 1) return 0.75;
+  return 0.5;
+}
+
+function hubSpokeCandidate(edge, nodes, layout) {
+  if (layout?.strategy !== 'hub-grid' || !layout?.hubId) return null;
+  const edgeMeta = metaOf(edge);
+  const hub = nodes.get(layout.hubId);
+  if (!hub) return null;
+  const hubIsSource = edgeMeta.from === layout.hubId;
+  const hubIsTarget = edgeMeta.to === layout.hubId;
+  if (!hubIsSource && !hubIsTarget) return null;
+  const satelliteId = hubIsSource ? edgeMeta.to : edgeMeta.from;
+  const satellite = nodes.get(satelliteId);
+  if (!satellite) return null;
+
+  const hubCenter = center(hub);
+  const satelliteCenter = center(satellite);
+  if (Math.abs(satelliteCenter.x - hubCenter.x) < Math.max(hub.width, satellite.width) * 0.4) return null;
+  if (Math.abs(satelliteCenter.y - hubCenter.y) < 1) return null;
+
+  const satelliteIsRight = satelliteCenter.x > hubCenter.x;
+  const hubSide = satelliteIsRight ? 'right' : 'left';
+  const satelliteSide = satelliteIsRight ? 'left' : 'right';
+  const fraction = hubFraction(hub, satellite);
+
+  const sourceNode = nodes.get(edgeMeta.from);
+  const targetNode = nodes.get(edgeMeta.to);
+  const sourceSide = hubIsSource ? hubSide : satelliteSide;
+  const targetSide = hubIsTarget ? hubSide : satelliteSide;
+  const sourceFraction = hubIsSource ? fraction : 0.5;
+  const targetFraction = hubIsTarget ? fraction : 0.5;
+  const start = pointOnSide(sourceNode, sourceSide, sourceFraction);
+  const end = pointOnSide(targetNode, targetSide, targetFraction);
+  const midX = (start.x + end.x) / 2;
+  const points = dedupe([
+    start,
+    { x: midX, y: start.y },
+    { x: midX, y: end.y },
+    end
+  ]);
+  return { points, sourceSide, targetSide, hubId: layout.hubId, satelliteId, hubPortFraction: fraction };
+}
+
+function repairHubSpokes(scene, nodes, edges, memberIds, bounds) {
+  const layout = scene.customData?.excalidrawSkill?.layout;
+  if (layout?.strategy !== 'hub-grid' || !layout?.hubId) {
+    return { considered: 0, repaired: 0, decisions: [] };
+  }
+
+  let considered = 0;
+  let repaired = 0;
+  const decisions = [];
+  for (const edge of edges) {
+    const edgeMeta = metaOf(edge);
+    if (!memberIds.has(edgeMeta.from) || !memberIds.has(edgeMeta.to)) continue;
+    const proposal = hubSpokeCandidate(edge, nodes, layout);
+    if (!proposal) continue;
+    const current = absolutePoints(edge);
+    const currentScore = routeScore(current, edge, nodes, edges);
+    if (currentScore.bends <= 2) continue;
+    considered += 1;
+    const nextScore = routeScore(proposal.points, edge, nodes, edges);
+    const safe = !routeEscapes(proposal.points, bounds)
+      && nextScore.endpointNodePenetrations === 0
+      && nextScore.nodeHits === 0
+      && nextScore.endpointOverlaps === 0
+      && nextScore.crossings <= currentScore.crossings
+      && nextScore.bends < currentScore.bends
+      && nextScore.length <= currentScore.length + 60;
+    decisions.push({
+      edge: edgeMeta.semanticId,
+      repaired: safe,
+      hubId: proposal.hubId,
+      satelliteId: proposal.satelliteId,
+      hubPortFraction: proposal.hubPortFraction,
+      previousBends: currentScore.bends,
+      nextBends: nextScore.bends,
+      previousLength: Number(currentScore.length.toFixed(1)),
+      nextLength: Number(nextScore.length.toFixed(1)),
+      previousCrossings: currentScore.crossings,
+      nextCrossings: nextScore.crossings
+    });
+    if (!safe) continue;
+    setEdgePoints(edge, proposal.points);
+    edgeMeta.route ??= {};
+    edgeMeta.route.sourceSide = proposal.sourceSide;
+    edgeMeta.route.targetSide = proposal.targetSide;
+    edgeMeta.moduleHubSpoke = {
+      engine: 'module-hub-spoke-v0.1',
+      hubId: proposal.hubId,
+      satelliteId: proposal.satelliteId,
+      hubPortFraction: proposal.hubPortFraction
+    };
+    repaired += 1;
+  }
+  return { considered, repaired, decisions };
 }
 
 export function repairModuleRoutes(scene, spec) {
@@ -185,27 +340,29 @@ export function repairModuleRoutes(scene, spec) {
   const bounds = moduleBounds(nodes, memberIds);
   if (!bounds) return scene;
 
-  let considered = 0;
-  let repaired = 0;
-  const decisions = [];
+  const hubSpokes = repairHubSpokes(scene, nodes, edges, memberIds, bounds);
+  let boundaryConsidered = 0;
+  let boundaryRepaired = 0;
+  const boundaryDecisions = [];
   for (const edge of edges) {
     const meta = metaOf(edge);
     if (!memberIds.has(meta.from) || !memberIds.has(meta.to)) continue;
     const current = absolutePoints(edge);
     if (!routeEscapes(current, bounds)) continue;
-    considered += 1;
+    boundaryConsidered += 1;
     const currentCrossings = crossingCount(current, edge, edges);
     const candidates = routeCandidates(edge, bounds)
       .filter((points) => !routeEscapes(points, bounds))
       .map((points) => ({ points, score: routeScore(points, edge, nodes, edges) }))
       .filter((candidate) => candidate.score.endpointNodePenetrations === 0
         && candidate.score.nodeHits === 0
+        && candidate.score.endpointOverlaps === 0
         && candidate.score.crossings <= currentCrossings)
       .sort((a, b) => a.score.crossings - b.score.crossings
         || a.score.bends - b.score.bends
         || a.score.length - b.score.length);
     const chosen = candidates[0];
-    decisions.push({
+    boundaryDecisions.push({
       edge: meta.semanticId,
       escapedBefore: true,
       repaired: Boolean(chosen),
@@ -217,19 +374,26 @@ export function repairModuleRoutes(scene, spec) {
     });
     if (!chosen) continue;
     setEdgePoints(edge, chosen.points);
-    meta.moduleRouteRepair = { contained: true, engine: 'module-boundary-v0.1' };
-    repaired += 1;
+    meta.moduleRouteRepair = { contained: true, engine: 'module-boundary-v0.2' };
+    boundaryRepaired += 1;
   }
 
   scene.customData ??= {};
   scene.customData.excalidrawSkill ??= {};
+  const considered = hubSpokes.considered + boundaryConsidered;
+  const repaired = hubSpokes.repaired + boundaryRepaired;
   scene.customData.excalidrawSkill.moduleRouteRepair = {
-    version: '0.1.0',
+    version: '0.2.0',
     bounds,
     considered,
     repaired,
     unresolved: Math.max(0, considered - repaired),
-    decisions
+    hubSpokesConsidered: hubSpokes.considered,
+    hubSpokesRepaired: hubSpokes.repaired,
+    hubSpokeDecisions: hubSpokes.decisions,
+    boundaryConsidered,
+    boundaryRepaired,
+    decisions: boundaryDecisions
   };
   return scene;
 }
