@@ -37,6 +37,7 @@ function main() {
   runStep('src/layout-service-flow.mjs', [outputPath, specPath]);
   runStep('src/layout-system-architecture.mjs', [outputPath, specPath]);
   runStep('src/layout-module-architecture.mjs', [outputPath, specPath]);
+  runStep('src/optimize-flow-layout.mjs', [outputPath, specPath]);
   runStep('src/apply-components.mjs', [outputPath]);
   runStep('src/group-component-details.mjs', [outputPath]);
   runStep('src/route-edges.mjs', [outputPath, specPath]);
