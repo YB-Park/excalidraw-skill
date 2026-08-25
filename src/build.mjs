@@ -40,6 +40,7 @@ function main() {
   runStep('src/apply-components.mjs', [outputPath]);
   runStep('src/group-component-details.mjs', [outputPath]);
   runStep('src/route-edges.mjs', [outputPath, specPath]);
+  runStep('src/repair-routes.mjs', [outputPath]);
   runStep('src/style-edges.mjs', [outputPath]);
   runStep('src/frame-groups.mjs', [outputPath, specPath]);
   runStep('src/assign-frame-membership.mjs', [outputPath]);
