@@ -56,6 +56,7 @@ function main() {
   runStep('src/assign-frame-membership.mjs', [outputPath]);
   runStep('src/label-edges.mjs', [outputPath]);
   runStep('src/place-edge-labels.mjs', [outputPath, specPath]);
+  runStep('src/separate-reciprocal-labels.mjs', [outputPath, specPath]);
   runStep('src/apply-fonts.mjs', [outputPath]);
   runStep('src/editability-report.mjs', [outputPath]);
   runStep('src/validate.mjs', [outputPath]);
