@@ -21,6 +21,7 @@
     "editability-report": "node ./src/editability-report.mjs",
     "perceptual-quality-report": "node ./src/perceptual-quality-report.mjs",
     "research:layouts": "node ./src/evaluate-layout-candidates.mjs",
+    "visual:actual": "node ./src/render-actual-preview.mjs",
     "skill:install:global": "node ./bin/excalidraw-skill.mjs install --global",
     "skill:doctor:global": "node ./bin/excalidraw-skill.mjs doctor --global",
     "skill:uninstall:global": "node ./bin/excalidraw-skill.mjs uninstall --global"
@@ -28,8 +29,15 @@
   "dependencies": {
     "elkjs": "^0.12.0"
   },
+  "devDependencies": {
+    "@excalidraw/excalidraw": "0.18.1",
+    "playwright": "1.62.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "vite": "8.2.2"
+  },
   "engines": {
-    "node": ">=20",
+    "node": ">=20.20.0",
     "npm": ">=10"
   },
   "files": [
