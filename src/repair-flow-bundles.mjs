@@ -17,7 +17,7 @@ function readJson(filePath) {
 
 function writeJson(filePath, data) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`);
+  fs.writeFileSync(path.dirname(filePath) ? filePath : path.resolve(filePath), `${JSON.stringify(data, null, 2)}\n`);
 }
 
 function clone(value) {
@@ -113,6 +113,19 @@ function relation(values, pivot, extent = 0) {
   return 0;
 }
 
+function horizontalRelation(common, peer) {
+  if (peer.x >= common.x + common.width + MIN_SEPARATION) return 1;
+  if (peer.x + peer.width <= common.x - MIN_SEPARATION) return -1;
+  return 0;
+}
+
+function sharedHorizontalAnchor(first, second) {
+  const left = Math.max(first.x + 12, second.x + 12);
+  const right = Math.min(first.x + first.width - 12, second.x + second.width - 12);
+  if (left > right) return null;
+  return (left + right) / 2;
+}
+
 function nestedFractions(items, commonCenter, vertical, horizontal) {
   const sorted = [...items].sort((a, b) => {
     const ad = vertical * (center(a.peer).y - commonCenter.y);
@@ -126,6 +139,88 @@ function nestedFractions(items, commonCenter, vertical, horizontal) {
     result.set(item.id, fraction);
   });
   return result;
+}
+
+function buildSupportShelfFanOut(scene, bundle, common, items) {
+  const commonCenter = center(common);
+  const vertical = relation(items.map((item) => center(item.peer).y), commonCenter.y, common.height / 2);
+  if (vertical !== 1) return null;
+
+  const classified = items.map((item) => ({ ...item, horizontal: horizontalRelation(common, item.peer) }));
+  const centered = classified.filter((item) => item.horizontal === 0)
+    .sort((a, b) => center(a.peer).y - center(b.peer).y || a.id.localeCompare(b.id));
+  const lateral = classified.filter((item) => item.horizontal !== 0)
+    .sort((a, b) => center(a.peer).y - center(b.peer).y || a.id.localeCompare(b.id));
+  if (centered.length === 0 || lateral.length === 0) return null;
+  const lateralSides = new Set(lateral.map((item) => item.horizontal));
+  if (lateralSides.size !== 1) return null;
+  const lateralDirection = lateral[0].horizontal;
+
+  const nearest = centered[0];
+  const sharedX = sharedHorizontalAnchor(common, nearest.peer);
+  if (sharedX === null) return null;
+  const directStart = { x: sharedX, y: common.y + common.height };
+  const directEnd = { x: sharedX, y: nearest.peer.y };
+  setEdgePoints(nearest.edge, [directStart, directEnd], 'down', 'up', {
+    engine: 'flow-bundle-v0.2',
+    kind: bundle.kind,
+    node: bundle.node,
+    template: 'support-shelf-direct',
+    shelfRole: 'nearest-centered'
+  });
+
+  const escapeSide = lateralDirection > 0 ? 'left' : 'right';
+  for (const [index, item] of centered.slice(1).entries()) {
+    const sourceFraction = Math.max(0.64, 0.78 - index * 0.08);
+    const start = anchorFraction(common, escapeSide, sourceFraction);
+    const end = anchorFraction(item.peer, escapeSide, 0.5);
+    const channelX = escapeSide === 'left'
+      ? Math.min(common.x, item.peer.x) - 36 - index * 22
+      : Math.max(common.x + common.width, item.peer.x + item.peer.width) + 36 + index * 22;
+    setEdgePoints(item.edge, [
+      start,
+      { x: channelX, y: start.y },
+      { x: channelX, y: end.y },
+      end
+    ], escapeSide, escapeSide, {
+      engine: 'flow-bundle-v0.2',
+      kind: bundle.kind,
+      node: bundle.node,
+      template: 'support-shelf-centered-bypass',
+      shelfRole: 'deeper-centered',
+      channelOffset: 36 + index * 22
+    });
+  }
+
+  const lateralSide = lateralDirection > 0 ? 'right' : 'left';
+  const targetSide = lateralDirection > 0 ? 'left' : 'right';
+  for (const [index, item] of lateral.entries()) {
+    const fraction = clamp(0.68 + index * 0.1, 0.2, 0.84);
+    const start = anchorFraction(common, lateralSide, fraction);
+    const end = anchorFraction(item.peer, targetSide, 0.5);
+    const rawChannel = lateralDirection > 0
+      ? common.x + common.width + 38 + index * 24
+      : common.x - 38 - index * 24;
+    const peerBoundary = lateralDirection > 0 ? item.peer.x - 24 : item.peer.x + item.peer.width + 24;
+    const channelX = lateralDirection > 0
+      ? Math.min(rawChannel, peerBoundary)
+      : Math.max(rawChannel, peerBoundary);
+    setEdgePoints(item.edge, [
+      start,
+      { x: channelX, y: start.y },
+      { x: channelX, y: end.y },
+      end
+    ], lateralSide, targetSide, {
+      engine: 'flow-bundle-v0.2',
+      kind: bundle.kind,
+      node: bundle.node,
+      template: 'support-shelf-lateral-channel',
+      shelfRole: 'lateral',
+      side: lateralSide,
+      channelOffset: Number(Math.abs(channelX - (lateralDirection > 0 ? common.x + common.width : common.x)).toFixed(1))
+    });
+  }
+  return scene;
 }
 
 function buildFanOutCandidate(scene, bundle) {
@@ -149,7 +244,9 @@ function buildFanOutCandidate(scene, bundle) {
 
   const horizontal = relation(items.map((item) => center(item.peer).x), commonCenter.x, common.width / 2);
   const vertical = relation(items.map((item) => center(item.peer).y), commonCenter.y, common.height / 2);
-  if (!horizontal || !vertical) return null;
+  if (!horizontal || !vertical) {
+    return buildSupportShelfFanOut(scene, bundle, common, items);
+  }
 
   const sourceSide = vertical > 0 ? 'down' : 'up';
   const targetSide = horizontal > 0 ? 'left' : 'right';
@@ -226,7 +323,7 @@ export function repairFlowBundles(scene, spec) {
   for (const bundle of bundles(spec)) {
     const candidate = buildCandidate(working, bundle);
     if (!candidate) {
-      decisions.push({ kind: bundle.kind, node: bundle.node, edgeIds: bundle.edges.map(edgeId), considered: false, accepted: false, reason: 'not-diagonal-stack' });
+      decisions.push({ kind: bundle.kind, node: bundle.node, edgeIds: bundle.edges.map(edgeId), considered: false, accepted: false, reason: 'unsupported-bundle-geometry' });
       continue;
     }
     const candidateScore = scoreLayoutCandidate(candidate, spec, { aspectSoftLimit: 6 });
@@ -258,8 +355,8 @@ export function repairFlowBundles(scene, spec) {
   working.customData ??= {};
   working.customData.excalidrawSkill ??= {};
   working.customData.excalidrawSkill.flowBundleRepair = {
-    version: '0.3.0',
-    strategy: 'topology-ordered-diagonal-stack-bundle-geometry',
+    version: '0.4.0',
+    strategy: 'topology-ordered-bundle-geometry-portfolio',
     considered: decisions.filter((decision) => decision.considered).length,
     accepted: decisions.filter((decision) => decision.accepted).length,
     finalCost: workingScore.cost,
