@@ -38,7 +38,11 @@ test('clean direct layout has no hard penalty', () => {
   };
   const spec = {
     diagramType: 'service-flow',
-    layout: { primaryFlow: ['a', 'b'] },
+    layout: {
+      profile: 'layered-flow',
+      direction: 'left-to-right',
+      primaryFlow: ['a', 'b']
+    },
     nodes: [
       { semanticId: 'a', layoutHints: { lane: 'main', rank: 0 } },
       { semanticId: 'b', layoutHints: { lane: 'main', rank: 1 } }
