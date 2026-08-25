@@ -79,6 +79,12 @@ function segmentPerpendicularToSide(segment, side) {
   return side === 'up' || side === 'down' ? vertical : side === 'left' || side === 'right' ? horizontal : false;
 }
 
+function segmentPenetratesNodeInterior(segment, node) {
+  if (!segment || !node) return false;
+  const inset = Math.min(3, Math.max(0, Math.min(node.width, node.height) / 4));
+  return segmentIntersectsRect(segment, rectOf(node, -inset), { includeBoundary: false });
+}
+
 function emptyFamilyQuality(spec, scene) {
   return { version: '0.1.0', family: null, diagramType: spec?.diagramType ?? null, profile: spec?.layout?.profile ?? scene.customData?.excalidrawSkill?.layout?.profile ?? null, supported: true, reason: null, pass: true, metrics: {}, details: {}, suggestedPatches: [] };
 }
@@ -158,6 +164,7 @@ export function createQualityReport(scene, spec = null) {
   }
 
   const endpointApproachViolations = [];
+  const endpointNodePenetrations = [];
   for (const edge of edges) {
     const meta = metaOf(edge);
     const segments = segmentsFromEdge(edge);
@@ -170,6 +177,8 @@ export function createQualityReport(scene, spec = null) {
     const targetSide = nodeSideAtPoint(target, last.b);
     if (!segmentPerpendicularToSide(first, sourceSide)) endpointApproachViolations.push({ edge: meta.semanticId, endpoint: 'source', side: sourceSide });
     if (!segmentPerpendicularToSide(last, targetSide)) endpointApproachViolations.push({ edge: meta.semanticId, endpoint: 'target', side: targetSide });
+    if (segmentPenetratesNodeInterior(first, source)) endpointNodePenetrations.push({ edge: meta.semanticId, endpoint: 'source', node: meta.from, side: sourceSide });
+    if (segmentPenetratesNodeInterior(last, target)) endpointNodePenetrations.push({ edge: meta.semanticId, endpoint: 'target', node: meta.to, side: targetSide });
   }
 
   const edgeVisualMismatches = visualMismatches(edges, spec);
@@ -180,13 +189,14 @@ export function createQualityReport(scene, spec = null) {
   const maxY = nodes.length ? Math.max(...nodes.map((node) => node.y + node.height)) : 0;
   const aspectRatio = Math.max(Math.max(1, maxX - minX) / Math.max(1, maxY - minY), Math.max(1, maxY - minY) / Math.max(1, maxX - minX));
 
-  const structuralMetrics = { nodeOverlaps: nodeOverlaps.length, edgeNodeCrossings: edgeNodeCrossings.length, edgeCrossings: edgeCrossingPairs.size, endpointOverlaps: endpointOverlaps.length, endpointApproachViolations: endpointApproachViolations.length, labelOverlaps: labelOverlaps.length, labelNodeOverlaps: labelNodeOverlaps.length, textOverflows: textOverflows.length, edgeVisualMismatches: edgeVisualMismatches.length, unresolvedFrameCollisions, aspectRatio: Number(aspectRatio.toFixed(2)), nodeCount: nodes.length, edgeCount: edges.length, edgeLabelCount: edgeLabels.length };
+  const structuralMetrics = { nodeOverlaps: nodeOverlaps.length, edgeNodeCrossings: edgeNodeCrossings.length, edgeCrossings: edgeCrossingPairs.size, endpointOverlaps: endpointOverlaps.length, endpointApproachViolations: endpointApproachViolations.length, endpointNodePenetrations: endpointNodePenetrations.length, labelOverlaps: labelOverlaps.length, labelNodeOverlaps: labelNodeOverlaps.length, textOverflows: textOverflows.length, edgeVisualMismatches: edgeVisualMismatches.length, unresolvedFrameCollisions, aspectRatio: Number(aspectRatio.toFixed(2)), nodeCount: nodes.length, edgeCount: edges.length, edgeLabelCount: edgeLabels.length };
 
   const suggestions = [];
   for (const nodesPair of nodeOverlaps) suggestions.push({ operation: 'move-apart', nodes: nodesPair });
   for (const crossing of edgeNodeCrossings) suggestions.push({ operation: 'reroute-edge', ...crossing });
   for (const overlap of endpointOverlaps) suggestions.push({ operation: 'separate-node-ports', ...overlap });
   for (const violation of endpointApproachViolations) suggestions.push({ operation: 'fix-endpoint-approach', ...violation });
+  for (const penetration of endpointNodePenetrations) suggestions.push({ operation: 'reroute-endpoint-outside-node', ...penetration });
   for (const labelsPair of labelOverlaps) suggestions.push({ operation: 'separate-edge-labels', edges: labelsPair });
   for (const overlap of labelNodeOverlaps) suggestions.push({ operation: 'move-edge-label', ...overlap, labelSide: 'auto' });
   for (const overflow of textOverflows) suggestions.push({ operation: 'wrap-or-resize-node-label', ...overflow });
@@ -194,10 +204,10 @@ export function createQualityReport(scene, spec = null) {
   if (unresolvedFrameCollisions > 0) suggestions.push({ operation: 'increase-frame-spacing', unresolvedFrameCollisions });
   if (aspectRatio > 8) suggestions.push({ operation: 'change-layout-aspect', aspectRatio: 'balanced' });
 
-  const structuralPass = structuralMetrics.nodeOverlaps === 0 && structuralMetrics.edgeNodeCrossings === 0 && structuralMetrics.endpointOverlaps === 0 && structuralMetrics.endpointApproachViolations === 0 && structuralMetrics.labelOverlaps === 0 && structuralMetrics.labelNodeOverlaps === 0 && structuralMetrics.textOverflows === 0 && structuralMetrics.edgeVisualMismatches === 0 && structuralMetrics.unresolvedFrameCollisions === 0 && structuralMetrics.edgeCrossings <= 2 && structuralMetrics.aspectRatio <= 8;
+  const structuralPass = structuralMetrics.nodeOverlaps === 0 && structuralMetrics.edgeNodeCrossings === 0 && structuralMetrics.endpointOverlaps === 0 && structuralMetrics.endpointApproachViolations === 0 && structuralMetrics.endpointNodePenetrations === 0 && structuralMetrics.labelOverlaps === 0 && structuralMetrics.labelNodeOverlaps === 0 && structuralMetrics.textOverflows === 0 && structuralMetrics.edgeVisualMismatches === 0 && structuralMetrics.unresolvedFrameCollisions === 0 && structuralMetrics.edgeCrossings <= 2 && structuralMetrics.aspectRatio <= 8;
   const familyQuality = spec ? createFamilyQualityReport(scene, spec) : emptyFamilyQuality(spec, scene);
 
-  return { version: '0.4.1', pass: structuralPass && familyQuality.pass, structuralPass, familyPass: familyQuality.pass, diagramType: spec?.diagramType ?? null, layoutProfile: spec?.layout?.profile ?? scene.customData?.excalidrawSkill?.layout?.profile ?? null, metrics: { ...structuralMetrics, ...familyQuality.metrics }, details: { nodeOverlaps, edgeNodeCrossings, edgeCrossings: [...edgeCrossingPairs], endpointOverlaps, endpointApproachViolations, labelOverlaps, labelNodeOverlaps, textOverflows, edgeVisualMismatches, unresolvedFrameCollisions, family: familyQuality.details }, familyQuality, suggestedPatches: [...suggestions, ...familyQuality.suggestedPatches] };
+  return { version: '0.4.2', pass: structuralPass && familyQuality.pass, structuralPass, familyPass: familyQuality.pass, diagramType: spec?.diagramType ?? null, layoutProfile: spec?.layout?.profile ?? scene.customData?.excalidrawSkill?.layout?.profile ?? null, metrics: { ...structuralMetrics, ...familyQuality.metrics }, details: { nodeOverlaps, edgeNodeCrossings, edgeCrossings: [...edgeCrossingPairs], endpointOverlaps, endpointApproachViolations, endpointNodePenetrations, labelOverlaps, labelNodeOverlaps, textOverflows, edgeVisualMismatches, unresolvedFrameCollisions, family: familyQuality.details }, familyQuality, suggestedPatches: [...suggestions, ...familyQuality.suggestedPatches] };
 }
 
 function main() {
