@@ -61,6 +61,24 @@ function specForFanOut() {
   };
 }
 
+function specForFanIn() {
+  return {
+    diagramType: 'service-flow',
+    layout: { profile: 'swimlane-flow', direction: 'left-to-right', primaryFlow: [] },
+    nodes: [
+      { semanticId: 'aggregate', layoutHints: { lane: 'main', rank: 3 } },
+      { semanticId: 'a', layoutHints: { lane: 'branch', rank: 2 } },
+      { semanticId: 'b', layoutHints: { lane: 'branch', rank: 2 } },
+      { semanticId: 'c', layoutHints: { lane: 'branch', rank: 2 } }
+    ],
+    edges: [
+      { semanticId: 'a-aggregate', from: 'a', to: 'aggregate', routeHints: { direction: 'up', priority: 'secondary' } },
+      { semanticId: 'b-aggregate', from: 'b', to: 'aggregate', routeHints: { direction: 'up', priority: 'secondary' } },
+      { semanticId: 'c-aggregate', from: 'c', to: 'aggregate', routeHints: { direction: 'up', priority: 'secondary' } }
+    ]
+  };
+}
+
 test('replaces a diagonal stacked fan-out with nested one-bend routes without crossings', () => {
   const router = node('router', 0, 0);
   const a = node('a', 420, 180);
@@ -93,6 +111,40 @@ test('replaces a diagonal stacked fan-out with nested one-bend routes without cr
     .sort((x, y) => x.customData.excalidrawSkill.semanticId.localeCompare(y.customData.excalidrawSkill.semanticId))
     .map((item) => item.customData.excalidrawSkill.flowBundleRepair.portFraction);
   assert.ok(new Set(fractions).size === 3);
+});
+
+test('replaces a stacked fan-in below-left of its aggregator with nested one-bend routes without crossings', () => {
+  const aggregate = node('aggregate', 720, 0);
+  const a = node('a', 420, 140);
+  const b = node('b', 420, 300);
+  const c = node('c', 420, 460);
+  const routed = [
+    edge('a-aggregate', 'a', 'aggregate', [
+      { x: 510, y: 140 }, { x: 510, y: 110 }, { x: 800, y: 110 }, { x: 800, y: 80 }
+    ]),
+    edge('b-aggregate', 'b', 'aggregate', [
+      { x: 510, y: 300 }, { x: 510, y: 260 }, { x: 820, y: 260 }, { x: 820, y: 80 }
+    ]),
+    edge('c-aggregate', 'c', 'aggregate', [
+      { x: 510, y: 460 }, { x: 510, y: 420 }, { x: 840, y: 420 }, { x: 840, y: 80 }
+    ])
+  ];
+  const scene = { elements: [aggregate, a, b, c, ...routed] };
+
+  const result = repairFlowBundles(scene, specForFanIn());
+  const repaired = result.elements.filter((element) => element.customData?.excalidrawSkill?.role === 'edge');
+
+  assert.equal(result.customData.excalidrawSkill.flowBundleRepair.accepted, 1);
+  assert.equal(crossings(repaired), 0);
+  for (const item of repaired) {
+    assert.equal(item.points.length, 3);
+    assert.equal(item.customData.excalidrawSkill.route.bends, 1);
+    assert.equal(item.customData.excalidrawSkill.route.sourceSide, 'right');
+    assert.equal(item.customData.excalidrawSkill.route.targetSide, 'down');
+  }
+  const bySourceY = [...repaired].sort((x, y) => x.y - y.y);
+  const fractions = bySourceY.map((item) => item.customData.excalidrawSkill.flowBundleRepair.portFraction);
+  assert.ok(fractions[0] < fractions[1] && fractions[1] < fractions[2]);
 });
 
 test('leaves non-diagonal fan-out geometry untouched', () => {
