@@ -147,6 +147,57 @@ test('replaces a stacked fan-in below-left of its aggregator with nested one-ben
   assert.ok(fractions[0] < fractions[1] && fractions[1] < fractions[2]);
 });
 
+test('keeps fan-in hard-safe when aggregator also owns the primary outgoing port', () => {
+  const aggregate = node('aggregate', 1020, 232);
+  aggregate.height = 96;
+  const response = node('response', 1320, 240);
+  aggregate.customData.excalidrawSkill.importance = 'primary';
+  response.customData.excalidrawSkill.importance = 'primary';
+  const policy = node('policy', 720, 342);
+  const quota = node('quota', 720, 576);
+  const risk = node('risk', 720, 690);
+  const routed = [
+    edge('policy-aggregate', 'policy', 'aggregate', [
+      { x: 818, y: 342 }, { x: 818, y: 335 }, { x: 1094, y: 335 }, { x: 1094, y: 328 }
+    ]),
+    edge('quota-aggregate', 'quota', 'aggregate', [
+      { x: 810, y: 576 }, { x: 810, y: 452 }, { x: 1110, y: 452 }, { x: 1110, y: 328 }
+    ]),
+    edge('risk-aggregate', 'risk', 'aggregate', [
+      { x: 810, y: 690 }, { x: 810, y: 670 }, { x: 1126, y: 670 }, { x: 1126, y: 348 }, { x: 1126, y: 328 }
+    ]),
+    edge('aggregate-response', 'aggregate', 'response', [
+      { x: 1200, y: 280 }, { x: 1320, y: 280 }
+    ])
+  ];
+  const spec = {
+    diagramType: 'service-flow',
+    layout: { profile: 'swimlane-flow', direction: 'left-to-right', primaryFlow: ['aggregate', 'response'] },
+    nodes: [
+      { semanticId: 'policy', layoutHints: { lane: 'branch', rank: 2 } },
+      { semanticId: 'quota', layoutHints: { lane: 'branch', rank: 2 } },
+      { semanticId: 'risk', layoutHints: { lane: 'branch', rank: 2 } },
+      { semanticId: 'aggregate', layoutHints: { lane: 'main', rank: 3, importance: 'primary' } },
+      { semanticId: 'response', layoutHints: { lane: 'main', rank: 4, importance: 'primary' } }
+    ],
+    edges: [
+      { semanticId: 'policy-aggregate', from: 'policy', to: 'aggregate', routeHints: { direction: 'up', priority: 'secondary' } },
+      { semanticId: 'quota-aggregate', from: 'quota', to: 'aggregate', routeHints: { direction: 'up', priority: 'secondary' } },
+      { semanticId: 'risk-aggregate', from: 'risk', to: 'aggregate', routeHints: { direction: 'up', priority: 'secondary' } },
+      { semanticId: 'aggregate-response', from: 'aggregate', to: 'response', routeHints: { priority: 'primary' } }
+    ]
+  };
+  const scene = { elements: [aggregate, response, policy, quota, risk, ...routed] };
+
+  const result = repairFlowBundles(scene, spec);
+  const decision = result.customData.excalidrawSkill.flowBundleRepair.decisions.find((item) => item.kind === 'fan-in');
+
+  assert.equal(decision.hardPenaltyAfter, 0, JSON.stringify(decision));
+  assert.equal(decision.accepted, true, JSON.stringify(decision));
+  assert.equal(decision.endpointOverlapsAfter.length, 0, JSON.stringify(decision));
+  assert.equal(decision.endpointApproachViolationsAfter.length, 0, JSON.stringify(decision));
+});
+
 test('leaves non-diagonal fan-out geometry untouched', () => {
   const router = node('router', 0, 0);
   const a = node('a', 0, 220);
