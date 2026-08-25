@@ -19,9 +19,9 @@ function safeId(prefix, value) {
   return `${prefix}_${String(value).replace(/[^a-zA-Z0-9_-]/g, '_')}`;
 }
 
-function makeLabel(edge) {
+function makeLabel(edge, fitOptions = {}) {
   const meta = edge.customData?.excalidrawSkill;
-  const fitted = fitEdgeLabel(meta.label, edge);
+  const fitted = fitEdgeLabel(meta.label, edge, fitOptions);
   const text = {
     id: safeId('text', `${meta.semanticId}_label`),
     type: 'text',
@@ -62,7 +62,7 @@ function makeLabel(edge) {
         role: 'edge-label',
         edge: meta.semanticId,
         fit: {
-          version: '0.1.0',
+          version: '0.2.0',
           lineCount: fitted.lineCount,
           preferredMaxWidth: fitted.preferredMaxWidth,
           estimatedLineWidths: fitted.estimatedLineWidths
@@ -80,6 +80,10 @@ function run() {
   }
 
   const scene = readJson(scenePath);
+  const layout = scene.customData?.excalidrawSkill?.layout;
+  const fitOptions = layout?.family === 'module-architecture' && layout?.strategy === 'hub-grid'
+    ? { maxWidth: 96 }
+    : {};
   const existing = new Set();
   for (const element of scene.elements ?? []) {
     const meta = element.customData?.excalidrawSkill;
@@ -89,7 +93,7 @@ function run() {
   for (const element of [...(scene.elements ?? [])]) {
     const meta = element.customData?.excalidrawSkill;
     if (meta?.role === 'edge' && meta.label && !existing.has(meta.semanticId)) {
-      scene.elements.push(makeLabel(element));
+      scene.elements.push(makeLabel(element, fitOptions));
     }
   }
 
