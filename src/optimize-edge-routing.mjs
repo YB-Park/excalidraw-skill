@@ -110,11 +110,10 @@ export function routingBundles(edges) {
 }
 
 function optimizeBundles(scene, spec, eligible, currentScore) {
-  let workingSpec = spec;
-  let workingScene = scene;
+  let workingSpec = clone(spec);
+  let workingScene = clone(scene);
   let workingScore = currentScore;
   const decisions = [];
-  const changedEdges = new Set();
   const axisDirection = flowAxisDirection(spec);
 
   for (const bundle of routingBundles(eligible)) {
@@ -158,37 +157,19 @@ function optimizeBundles(scene, spec, eligible, currentScore) {
       improvement: Number((accepted ? improvement : 0).toFixed(2))
     });
     if (!accepted) continue;
-
-    for (const id of bundle.edgeIds) {
-      const previous = beforeDirections[id];
-      if (previous !== bestDirection) changedEdges.add(id);
-    }
     workingSpec = bestSpec;
     workingScene = bestScene;
     workingScore = bestScore;
   }
 
-  return { workingSpec, workingScene, workingScore, decisions, changedEdges };
+  return { spec: workingSpec, scene: workingScene, score: workingScore, decisions };
 }
 
-export function optimizeEdgeRouting(scene, spec) {
-  if (!isFlow(spec)) return scene;
-  const primaryPairs = primaryPairSet(spec);
-  const eligible = secondaryEligibleEdges(spec, primaryPairs);
-  if (eligible.length === 0) return scene;
-
+function optimizeIndividuals(scene, spec, eligible, currentScore) {
   let workingSpec = clone(spec);
-  let workingScene = finalizeRouting(scene, workingSpec);
-  let workingScore = score(workingScene, workingSpec);
-  const baselineCost = workingScore.cost;
+  let workingScene = clone(scene);
+  let workingScore = currentScore;
   const decisions = [];
-  const changedEdges = new Set();
-
-  const bundleResult = optimizeBundles(workingScene, workingSpec, eligible, workingScore);
-  workingSpec = bundleResult.workingSpec;
-  workingScene = bundleResult.workingScene;
-  workingScore = bundleResult.workingScore;
-  for (const id of bundleResult.changedEdges) changedEdges.add(id);
 
   for (const edge of eligible) {
     const id = edgeId(edge);
@@ -223,31 +204,79 @@ export function optimizeEdgeRouting(scene, spec) {
       costAfter: accepted ? bestScore.cost : workingScore.cost,
       improvement: Number((accepted ? improvement : 0).toFixed(2))
     });
-    if (accepted) {
-      changedEdges.add(id);
-      workingSpec = bestSpec;
-      workingScene = bestScene;
-      workingScore = bestScore;
-    }
+    if (!accepted) continue;
+    workingSpec = bestSpec;
+    workingScene = bestScene;
+    workingScore = bestScore;
   }
 
-  workingScene.customData ??= {};
-  workingScene.customData.excalidrawSkill ??= {};
-  workingScene.customData.excalidrawSkill.routeOptimization = {
-    version: '0.4.0',
-    strategy: 'bundle-then-edge-secondary-direction-search',
+  return { spec: workingSpec, scene: workingScene, score: workingScore, decisions };
+}
+
+function changedEdgeIds(originalSpec, selectedSpec, eligible) {
+  const selectedById = new Map((selectedSpec.edges ?? []).map((edge) => [edgeId(edge), edge]));
+  return eligible.map(edgeId).filter((id) => {
+    const original = (originalSpec.edges ?? []).find((edge) => edgeId(edge) === id)?.routeHints?.direction ?? null;
+    const selected = selectedById.get(id)?.routeHints?.direction ?? null;
+    return original !== selected;
+  });
+}
+
+export function optimizeEdgeRouting(scene, spec) {
+  if (!isFlow(spec)) return scene;
+  const primaryPairs = primaryPairSet(spec);
+  const eligible = secondaryEligibleEdges(spec, primaryPairs);
+  if (eligible.length === 0) return scene;
+
+  const baselineSpec = clone(spec);
+  const baselineScene = finalizeRouting(scene, baselineSpec);
+  const baselineScore = score(baselineScene, baselineSpec);
+
+  const edgeOnly = optimizeIndividuals(baselineScene, baselineSpec, eligible, baselineScore);
+  const bundleStage = optimizeBundles(baselineScene, baselineSpec, eligible, baselineScore);
+  const bundleThenEdge = optimizeIndividuals(bundleStage.scene, bundleStage.spec, eligible, bundleStage.score);
+
+  const candidates = [
+    {
+      name: 'edge-only',
+      ...edgeOnly,
+      bundleDecisions: []
+    },
+    {
+      name: 'bundle-then-edge',
+      ...bundleThenEdge,
+      bundleDecisions: bundleStage.decisions
+    }
+  ];
+  candidates.sort((a, b) => a.score.cost - b.score.cost || a.name.localeCompare(b.name));
+  const selected = candidates[0];
+  const changedEdges = changedEdgeIds(baselineSpec, selected.spec, eligible);
+
+  selected.scene.customData ??= {};
+  selected.scene.customData.excalidrawSkill ??= {};
+  selected.scene.customData.excalidrawSkill.routeOptimization = {
+    version: '0.5.0',
+    strategy: 'routing-strategy-portfolio',
+    selectedStrategy: selected.name,
     scoring: 'shared-post-route-quality-score',
-    bundlesConsidered: bundleResult.decisions.length,
-    bundlesChanged: bundleResult.decisions.filter((decision) => decision.accepted).length,
-    bundleDecisions: bundleResult.decisions,
+    bundlesConsidered: routingBundles(eligible).length,
+    bundlesChanged: selected.bundleDecisions.filter((decision) => decision.accepted).length,
+    bundleDecisions: selected.bundleDecisions,
     edgesConsidered: eligible.length,
-    edgesChanged: changedEdges.size,
-    baselineCost,
-    selectedCost: workingScore.cost,
-    improvement: Number((baselineCost - workingScore.cost).toFixed(2)),
-    decisions
+    edgesChanged: changedEdges.length,
+    baselineCost: baselineScore.cost,
+    selectedCost: selected.score.cost,
+    improvement: Number((baselineScore.cost - selected.score.cost).toFixed(2)),
+    candidates: candidates.map((candidate) => ({
+      strategy: candidate.name,
+      cost: candidate.score.cost,
+      hardPenalty: candidate.score.hardPenalty,
+      acceptedBundles: candidate.bundleDecisions.filter((decision) => decision.accepted).length,
+      acceptedEdges: candidate.decisions.filter((decision) => decision.accepted).length
+    })),
+    decisions: selected.decisions
   };
-  return workingScene;
+  return selected.scene;
 }
 
 function main() {
