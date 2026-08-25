@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { routeEdges } from './route-edges.mjs';
+import { repairRoutes } from './repair-routes.mjs';
+import { simplifyRoutes } from './simplify-routes.mjs';
 import { createQualityReport } from './quality-report.mjs';
 import { createPerceptualQuality } from './perceptual-quality.mjs';
 
@@ -75,8 +77,12 @@ function reorderGroup(scene, ids, order) {
   return scene;
 }
 
+function finalizedRouting(scene, spec) {
+  return simplifyRoutes(repairRoutes(routeEdges(clone(scene), spec)));
+}
+
 function candidateScore(scene, spec) {
-  const routed = routeEdges(clone(scene), spec);
+  const routed = finalizedRouting(scene, spec);
   const quality = createQualityReport(routed, spec);
   const perceptual = createPerceptualQuality(routed, spec);
   const metrics = quality.metrics;
@@ -124,7 +130,7 @@ export function optimizeFlowLayout(scene, spec) {
     scene.customData ??= {};
     scene.customData.excalidrawSkill ??= {};
     scene.customData.excalidrawSkill.flowOptimization = {
-      version: '0.1.0',
+      version: '0.2.0',
       groupsConsidered: 0,
       groupsChanged: 0
     };
@@ -167,8 +173,9 @@ export function optimizeFlowLayout(scene, spec) {
   bestScene.customData ??= {};
   bestScene.customData.excalidrawSkill ??= {};
   bestScene.customData.excalidrawSkill.flowOptimization = {
-    version: '0.1.0',
+    version: '0.2.0',
     strategy: 'lane-rank-permutation-search',
+    scoring: 'post-route-repair-and-simplification',
     groupsConsidered: groups.length,
     groupsChanged,
     baselineCost,
