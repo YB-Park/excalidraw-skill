@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 const srcDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(srcDir, '..');
 const defaultSuitePath = 'examples/evaluation/suite.json';
+const defaultQualityCorpusPath = 'examples/evaluation/quality-corpus.json';
 const defaultOutputPath = 'examples/evaluation/results/latest.json';
 
 function readJson(filePath) {
@@ -22,6 +23,8 @@ function writeJson(filePath, data) {
 function parseArgs(args) {
   const options = {
     suitePath: defaultSuitePath,
+    qualityCorpusPath: defaultQualityCorpusPath,
+    includeQualityCorpus: true,
     outputPath: defaultOutputPath,
     family: null,
     caseId: null,
@@ -32,11 +35,26 @@ function parseArgs(args) {
     if (arg === '--family') options.family = args[++index] ?? null;
     else if (arg === '--case') options.caseId = args[++index] ?? null;
     else if (arg === '--suite') options.suitePath = args[++index] ?? defaultSuitePath;
+    else if (arg === '--quality-corpus') options.qualityCorpusPath = args[++index] ?? defaultQualityCorpusPath;
+    else if (arg === '--no-quality-corpus') options.includeQualityCorpus = false;
     else if (arg === '-o' || arg === '--output') options.outputPath = args[++index] ?? defaultOutputPath;
     else if (arg === '--no-build') options.build = false;
     else throw new Error(`Unknown argument: ${arg}`);
   }
   return options;
+}
+
+export function mergeEvaluationSuites(baseSuite, qualityCorpus = null) {
+  if (!qualityCorpus) return baseSuite;
+  const baseCases = baseSuite.cases ?? [];
+  const qualityCases = qualityCorpus.cases ?? [];
+  const existingIds = new Set(baseCases.map((entry) => entry.id));
+  const dedupedQualityCases = qualityCases.filter((entry) => !existingIds.has(entry.id));
+  return {
+    ...baseSuite,
+    qualityCorpusVersion: qualityCorpus.version ?? null,
+    cases: [...baseCases, ...dedupedQualityCases]
+  };
 }
 
 export function selectCases(suite, options = {}) {
@@ -133,15 +151,9 @@ function evaluateCase(entry, build) {
   const editabilityPath = `${outputPath}.editability.json`;
   const qualityPath = `${outputPath}.quality.json`;
   const perceptualPath = `${outputPath}.perceptual.json`;
-  if (!fs.existsSync(editabilityPath)) {
-    return missingReport(entry, entry.fixture, 'editability-report', editabilityPath, buildResult);
-  }
-  if (!fs.existsSync(qualityPath)) {
-    return missingReport(entry, entry.fixture, 'quality-report', qualityPath, buildResult);
-  }
-  if (!fs.existsSync(perceptualPath)) {
-    return missingReport(entry, entry.fixture, 'perceptual-quality-report', perceptualPath, buildResult);
-  }
+  if (!fs.existsSync(editabilityPath)) return missingReport(entry, entry.fixture, 'editability-report', editabilityPath, buildResult);
+  if (!fs.existsSync(qualityPath)) return missingReport(entry, entry.fixture, 'quality-report', qualityPath, buildResult);
+  if (!fs.existsSync(perceptualPath)) return missingReport(entry, entry.fixture, 'perceptual-quality-report', perceptualPath, buildResult);
 
   const editability = readJson(editabilityPath);
   const quality = readJson(qualityPath);
@@ -178,13 +190,15 @@ export function evaluateSuite(suite, options = {}) {
   const selected = selectCases(suite, options);
   const results = selected.map((entry) => evaluateCase(entry, options.build !== false));
   return {
-    version: '1.2',
+    version: '1.3',
     suiteVersion: suite.version ?? null,
+    qualityCorpusVersion: suite.qualityCorpusVersion ?? null,
     generatedAt: new Date().toISOString(),
     filters: {
       family: options.family ?? null,
       caseId: options.caseId ?? null,
-      build: options.build !== false
+      build: options.build !== false,
+      qualityCorpus: options.includeQualityCorpus !== false
     },
     summary: summarizeResults(results),
     results
@@ -212,8 +226,13 @@ function compactFailure(result) {
 function main() {
   const options = parseArgs(process.argv.slice(2));
   const suitePath = path.resolve(rootDir, options.suitePath);
+  const qualityCorpusPath = path.resolve(rootDir, options.qualityCorpusPath);
   const outputPath = path.resolve(rootDir, options.outputPath);
-  const report = evaluateSuite(readJson(suitePath), options);
+  const qualityCorpus = options.includeQualityCorpus && fs.existsSync(qualityCorpusPath)
+    ? readJson(qualityCorpusPath)
+    : null;
+  const suite = mergeEvaluationSuites(readJson(suitePath), qualityCorpus);
+  const report = evaluateSuite(suite, options);
   writeJson(outputPath, report);
   const failedCases = report.results
     .filter((result) => result.status === 'failed' || result.status === 'missing-fixture')
