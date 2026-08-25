@@ -1,0 +1,38 @@
+{
+  "version":"0.1",
+  "purpose":"Adversarial pre-dogfood quality corpus. These cases extend the capability suite without changing supported-family contracts.",
+  "cases":[
+    {
+      "id":"quality-flow-fanout-fanin",
+      "family":"flow",
+      "view":"service-flow",
+      "implementationStatus":"runnable",
+      "fixture":"examples/evaluation/fixtures/flow-fanout-fanin.diagram.json",
+      "visualInvariants":["three-way fan-out is obvious","three-way fan-in is obvious","parallel branches do not require long overlapping trunks"]
+    },
+    {
+      "id":"quality-flow-feedback-loop",
+      "family":"flow",
+      "view":"event-flow",
+      "implementationStatus":"runnable",
+      "fixture":"examples/evaluation/fixtures/flow-feedback-loop.diagram.json",
+      "visualInvariants":["primary delivery path remains dominant","retry feedback does not obscure the main flow","back edge is traceable"]
+    },
+    {
+      "id":"quality-flow-long-labels",
+      "family":"flow",
+      "view":"data-flow",
+      "implementationStatus":"runnable",
+      "fixture":"examples/evaluation/fixtures/flow-long-labels.diagram.json",
+      "visualInvariants":["Korean and English labels wrap without overflow","main pipeline remains aligned despite variable node widths","support edges stay subordinate"]
+    },
+    {
+      "id":"quality-flow-scale-12",
+      "family":"flow",
+      "view":"service-flow",
+      "implementationStatus":"runnable",
+      "fixture":"examples/evaluation/fixtures/flow-scale-12.diagram.json",
+      "visualInvariants":["seven-node primary story is readable","support relations remain local","twelve-node scene stays balanced without excessive detours"]
+    }
+  ]
+}
