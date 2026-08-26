@@ -1,5 +1,5 @@
 {
-  "version": "2.1",
+  "version": "2.2",
   "name": "professional-software",
   "intent": "Readable, consistent, professional software architecture diagrams.",
   "tokens": {
@@ -17,6 +17,15 @@
       "sketch": 5
     }
   },
+  "base": {
+    "strokeColor": "#1f2937",
+    "backgroundColor": "#ffffff",
+    "fillStyle": "solid",
+    "strokeWidth": 2,
+    "strokeStyle": "solid",
+    "roughness": 0.7,
+    "opacity": 100
+  },
   "roles": {
     "actor": {"strokeColor": "#475569", "backgroundColor": "#f8fafc"},
     "client": {"strokeColor": "#475569", "backgroundColor": "#f8fafc"},
@@ -28,6 +37,41 @@
     "queue": {"strokeColor": "#9333ea", "backgroundColor": "#faf5ff"},
     "external": {"strokeColor": "#64748b", "backgroundColor": "#f8fafc"},
     "risk": {"strokeColor": "#d97706", "backgroundColor": "#fffbeb"},
+    "model": {"strokeColor": "#334155", "backgroundColor": "#f8fafc"},
     "boundary": {"strokeColor": "#cbd5e1", "backgroundColor": "#f8fafc"}
+  },
+  "edgeKinds": {
+    "calls": {"strokeColor": "#2563eb", "strokeStyle": "solid", "strokeWidth": 2, "role": "runtime-call"},
+    "sync": {"strokeColor": "#2563eb", "strokeStyle": "solid", "strokeWidth": 2, "role": "runtime-call"},
+    "returns": {"strokeColor": "#64748b", "strokeStyle": "dashed", "strokeWidth": 2, "role": "return"},
+    "depends-on": {"strokeColor": "#64748b", "strokeStyle": "dashed", "strokeWidth": 2, "role": "dependency"},
+    "references": {"strokeColor": "#64748b", "strokeStyle": "dashed", "strokeWidth": 2, "role": "dependency"},
+    "contains": {"strokeColor": "#94a3b8", "strokeStyle": "dotted", "strokeWidth": 2, "role": "containment"},
+    "async": {"strokeColor": "#7c3aed", "strokeStyle": "dashed", "strokeWidth": 2, "role": "async"},
+    "publishes": {"strokeColor": "#7c3aed", "strokeStyle": "dashed", "strokeWidth": 2, "role": "async"},
+    "subscribes": {"strokeColor": "#7c3aed", "strokeStyle": "dashed", "strokeWidth": 2, "role": "async"},
+    "reads": {"strokeColor": "#0f766e", "strokeStyle": "solid", "strokeWidth": 2, "role": "data-read"},
+    "writes": {"strokeColor": "#b45309", "strokeStyle": "solid", "strokeWidth": 2, "role": "data-write"},
+    "transfers": {"strokeColor": "#0284c7", "strokeStyle": "solid", "strokeWidth": 2, "role": "data-transfer"},
+    "controls": {"strokeColor": "#334155", "strokeStyle": "solid", "strokeWidth": 2, "role": "control"},
+    "interrupts": {"strokeColor": "#dc2626", "strokeStyle": "dashed", "strokeWidth": 2, "role": "interrupt"},
+    "retries": {"strokeColor": "#d97706", "strokeStyle": "dashed", "strokeWidth": 2, "role": "retry"},
+    "fails-to": {"strokeColor": "#dc2626", "strokeStyle": "dashed", "strokeWidth": 2, "role": "failure"},
+    "optional": {"strokeColor": "#64748b", "strokeStyle": "dashed", "strokeWidth": 2, "role": "optional"}
+  },
+  "edgeVisualRoles": {
+    "default": {"strokeColor": "#1f2937", "strokeWidth": 2, "strokeStyle": "solid", "opacity": 100},
+    "data-plane": {"strokeColor": "#2563eb", "strokeWidth": 3, "strokeStyle": "solid", "opacity": 100},
+    "control-plane": {"strokeColor": "#7c3aed", "strokeWidth": 2, "strokeStyle": "solid", "opacity": 100},
+    "event-stream": {"strokeColor": "#0891b2", "strokeWidth": 2, "strokeStyle": "dashed", "opacity": 100},
+    "error-path": {"strokeColor": "#dc2626", "strokeWidth": 3, "strokeStyle": "dashed", "opacity": 100},
+    "dependency": {"strokeColor": "#64748b", "strokeWidth": 2, "strokeStyle": "solid", "opacity": 100},
+    "muted": {"strokeColor": "#94a3b8", "strokeWidth": 1, "strokeStyle": "solid", "opacity": 70}
+  },
+  "edgeEmphasis": {
+    "normal": {},
+    "strong": {"strokeWidthDelta": 1},
+    "critical": {"strokeColor": "#dc2626", "strokeWidth": 4, "opacity": 100},
+    "muted": {"strokeColor": "#94a3b8", "strokeWidth": 1, "opacity": 70}
   }
 }
