@@ -109,6 +109,29 @@ test('applyStylePreset and removeObject are implemented operations', () => {
   assert.equal(summary.edges.length, 0);
 });
 
+test('applyStylePreset styles patch-added edges through the shared preset resolver', () => {
+  const scene = applyPatch(baseScene(), {
+    operations: [
+      { op: 'addNode', semanticId: 'c', label: 'C', shapeRef: 'database.relational', near: 'b', side: 'down' },
+      { op: 'addEdge', semanticId: 'b-c', from: 'b', to: 'c', kind: 'writes' },
+      { op: 'applyStylePreset', preset: 'professional-software' }
+    ]
+  });
+  const edge = scene.elements.find((element) => meta(element).semanticId === 'b-c');
+  assert.equal(edge.strokeColor, '#b45309');
+  assert.equal(edge.strokeStyle, 'solid');
+  assert.equal(meta(edge).styleRole, 'data-write');
+  assert.equal(meta(edge).styleSource, 'kind');
+  assert.equal(scene.customData.excalidrawSkill.stylePreset, 'professional-software');
+});
+
+test('applyStylePreset rejects an unknown preset through the shared resolver', () => {
+  assert.throws(
+    () => applyPatch(baseScene(), { operations: [{ op: 'applyStylePreset', preset: 'unknown-style' }] }),
+    /Unsupported style preset/
+  );
+});
+
 test('unknown patch operations fail instead of silently doing nothing', () => {
   assert.throws(
     () => applyPatch(baseScene(), { operations: [{ op: 'teleportNode', target: 'a' }] }),
