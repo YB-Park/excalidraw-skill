@@ -18,15 +18,28 @@ function assertPresetName(name) {
 }
 
 function assertRuntimePreset(preset, name) {
-  const requiredObjects = ['base', 'roles', 'edgeKinds', 'edgeVisualRoles', 'edgeEmphasis'];
+  const requiredObjects = [
+    'tokens',
+    'canvas',
+    'base',
+    'frame',
+    'edgeLabel',
+    'roles',
+    'edgeKinds',
+    'edgeVisualRoles',
+    'edgeEmphasis',
+    'componentDetails'
+  ];
   for (const key of requiredObjects) {
     if (!preset?.[key] || typeof preset[key] !== 'object' || Array.isArray(preset[key])) {
       throw new Error(`Style preset ${name} is missing runtime section: ${key}`);
     }
   }
+  if (!preset.tokens.fonts) throw new Error(`Style preset ${name} is missing font tokens`);
   if (!preset.roles.service) throw new Error(`Style preset ${name} is missing service role`);
   if (!preset.edgeVisualRoles.default) throw new Error(`Style preset ${name} is missing default edge visual role`);
   if (!preset.edgeEmphasis.normal) throw new Error(`Style preset ${name} is missing normal edge emphasis`);
+  if (!preset.componentDetails.base) throw new Error(`Style preset ${name} is missing component detail base style`);
   return preset;
 }
 
@@ -52,8 +65,28 @@ function resolvePreset(presetOrName = DEFAULT_STYLE_PRESET) {
   return assertRuntimePreset(presetOrName, presetOrName.name ?? 'inline');
 }
 
+export function fontTokens(presetOrName = DEFAULT_STYLE_PRESET) {
+  return resolvePreset(presetOrName).tokens.fonts;
+}
+
+export function canvasStyle(presetOrName = DEFAULT_STYLE_PRESET) {
+  return resolvePreset(presetOrName).canvas;
+}
+
 export function baseElementStyle(presetOrName = DEFAULT_STYLE_PRESET) {
   return resolvePreset(presetOrName).base;
+}
+
+export function frameStyle(presetOrName = DEFAULT_STYLE_PRESET) {
+  return resolvePreset(presetOrName).frame;
+}
+
+export function edgeLabelStyle(presetOrName = DEFAULT_STYLE_PRESET) {
+  return resolvePreset(presetOrName).edgeLabel;
+}
+
+export function componentDetailStyles(presetOrName = DEFAULT_STYLE_PRESET) {
+  return resolvePreset(presetOrName).componentDetails;
 }
 
 export function roleFor(shapeRef = '') {
