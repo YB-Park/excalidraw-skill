@@ -1,0 +1,23 @@
+{
+  "version": "1.0",
+  "metric": "readabilityCost",
+  "sourceCommit": "20967cd95f108465cfd14cbe120c32beb8e8afd5",
+  "defaultTolerance": 4,
+  "cases": {
+    "system-layered-middleware": 32,
+    "module-component-manager-workers": 32,
+    "flow-payment-multilane": 32.9,
+    "flow-event-retry-dlq": 0,
+    "flow-data-pipeline": 16,
+    "flow-branch-merge": 56,
+    "quality-flow-fanout-fanin": 48,
+    "quality-flow-feedback-loop": 16.6,
+    "quality-flow-long-labels": 24,
+    "quality-flow-scale-12": 0,
+    "quality-flow-four-way-fanout": 64,
+    "quality-flow-top-bottom-approval": 48,
+    "quality-flow-dual-support-chains": 0,
+    "quality-flow-asymmetric-split-merge": 64,
+    "quality-flow-mixed-support-shelf": 32
+  }
+}
