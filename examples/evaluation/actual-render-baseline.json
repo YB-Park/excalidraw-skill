@@ -1,0 +1,49 @@
+{
+  "version": "0.1.0",
+  "sourceRun": 32916394746,
+  "sourceCommit": "150100335f1b8ed6b79fd77229db7d06a76c124c",
+  "algorithm": {
+    "name": "native-pixel-dhash",
+    "sampleGrid": "9x8",
+    "bits": 64,
+    "maxHammingDistance": 4,
+    "dimensionPolicy": "exact"
+  },
+  "renders": {
+    "payment-flow.png": {
+      "width": 1444,
+      "height": 478,
+      "dhash": "0054101010151500"
+    },
+    "branch-merge.png": {
+      "width": 1744,
+      "height": 702,
+      "dhash": "4910000020000020"
+    },
+    "fanout-fanin.png": {
+      "width": 1444,
+      "height": 602,
+      "dhash": "4445100000101010"
+    },
+    "feedback-loop.png": {
+      "width": 1150,
+      "height": 486,
+      "dhash": "004a0000080a0a08"
+    },
+    "long-labels.png": {
+      "width": 1800,
+      "height": 360,
+      "dhash": "0055551008141400"
+    },
+    "system-layered.png": {
+      "width": 627,
+      "height": 1248,
+      "dhash": "4040000000000450"
+    },
+    "module-component.png": {
+      "width": 1450,
+      "height": 649,
+      "dhash": "4028000029002800"
+    }
+  }
+}
