@@ -5,6 +5,7 @@ import { fitNodeLabel } from './text-fit.mjs';
 import {
   DEFAULT_STYLE_PRESET,
   baseElementStyle,
+  canvasStyle,
   edgeVisualStyleFor,
   loadStylePreset
 } from './style-preset.mjs';
@@ -87,6 +88,7 @@ function applyEdgeVisual(arrow, edge, preset) {
 export function renderSpec(spec) {
   const presetName = spec.stylePreset ?? DEFAULT_STYLE_PRESET;
   const preset = loadStylePreset(presetName);
+  const canvas = canvasStyle(preset);
   const elements = [];
   const rects = new Map();
   for (const [index, node] of (spec.nodes ?? []).entries()) {
@@ -137,7 +139,7 @@ export function renderSpec(spec) {
     version: 2,
     source: 'excalidraw-skill',
     elements,
-    appState: { gridSize: null, viewBackgroundColor: '#ffffff' },
+    appState: { gridSize: null, viewBackgroundColor: canvas.backgroundColor },
     files: {},
     customData: {
       excalidrawSkill: {
