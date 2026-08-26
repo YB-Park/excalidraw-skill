@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { boxesOverlap, rectOf, rectToSegmentsDistance, segmentIntersectsRect, segmentLength, segmentsFromEdge } from './geometry.mjs';
+import { edgeLabelStyle, presetNameForScene } from './style-preset.mjs';
 
 const read = (file) => JSON.parse(fs.readFileSync(file, 'utf8'));
 const write = (file, data) => { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, `${JSON.stringify(data, null, 2)}\n`); };
@@ -111,6 +112,7 @@ export function placeEdgeLabels(scene, spec = null) {
     if (data.role === 'edge-label') labels.push(element);
   }
 
+  const labelStyle = edgeLabelStyle(presetNameForScene(scene));
   const specs = specIndex(spec);
   const primary = primaryPairs(spec);
   const frameObstacles = frames.flatMap(frameBorderObstacles);
@@ -156,7 +158,7 @@ export function placeEdgeLabels(scene, spec = null) {
     const next = options[0];
     if (!next) continue;
     const association = associationMetrics(next, own, others);
-    label.x = Math.round(next.x); label.y = Math.round(next.y); label.backgroundColor = '#ffffff';
+    label.x = Math.round(next.x); label.y = Math.round(next.y); label.backgroundColor = labelStyle.placedBackgroundColor;
     labelMeta.placement = {
       engine: 'collision-aware-v0.9',
       distanceModel: 'label-box-to-edge',
