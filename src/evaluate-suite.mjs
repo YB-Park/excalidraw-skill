@@ -28,7 +28,8 @@ function parseArgs(args) {
     outputPath: defaultOutputPath,
     family: null,
     caseId: null,
-    build: true
+    build: true,
+    strictPerceptual: false
   };
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
@@ -39,6 +40,7 @@ function parseArgs(args) {
     else if (arg === '--no-quality-corpus') options.includeQualityCorpus = false;
     else if (arg === '-o' || arg === '--output') options.outputPath = args[++index] ?? defaultOutputPath;
     else if (arg === '--no-build') options.build = false;
+    else if (arg === '--strict-perceptual') options.strictPerceptual = true;
     else throw new Error(`Unknown argument: ${arg}`);
   }
   return options;
@@ -65,13 +67,16 @@ export function selectCases(suite, options = {}) {
   });
 }
 
-export function summarizeResults(results) {
+export function summarizeResults(results, options = {}) {
   const runnable = results.filter((result) => result.status === 'passed' || result.status === 'failed');
   const passed = runnable.filter((result) => result.status === 'passed').length;
   const failed = runnable.filter((result) => result.status === 'failed').length;
   const contractOnly = results.filter((result) => result.status === 'contract-only').length;
   const missingFixture = results.filter((result) => result.status === 'missing-fixture').length;
   const perceptualWarnings = runnable.reduce((sum, result) => sum + (result.perceptualWarnings?.length ?? 0), 0);
+  const structuralPass = failed === 0 && missingFixture === 0;
+  const perceptualPass = perceptualWarnings === 0;
+  const strictPerceptual = options.strictPerceptual === true;
   return {
     total: results.length,
     runnable: runnable.length,
@@ -80,7 +85,10 @@ export function summarizeResults(results) {
     contractOnly,
     missingFixture,
     perceptualWarnings,
-    pass: failed === 0 && missingFixture === 0
+    structuralPass,
+    perceptualPass,
+    strictPerceptual,
+    pass: structuralPass && (!strictPerceptual || perceptualPass)
   };
 }
 
@@ -190,7 +198,7 @@ export function evaluateSuite(suite, options = {}) {
   const selected = selectCases(suite, options);
   const results = selected.map((entry) => evaluateCase(entry, options.build !== false));
   return {
-    version: '1.3',
+    version: '1.4',
     suiteVersion: suite.version ?? null,
     qualityCorpusVersion: suite.qualityCorpusVersion ?? null,
     generatedAt: new Date().toISOString(),
@@ -198,9 +206,10 @@ export function evaluateSuite(suite, options = {}) {
       family: options.family ?? null,
       caseId: options.caseId ?? null,
       build: options.build !== false,
-      qualityCorpus: options.includeQualityCorpus !== false
+      qualityCorpus: options.includeQualityCorpus !== false,
+      strictPerceptual: options.strictPerceptual === true
     },
-    summary: summarizeResults(results),
+    summary: summarizeResults(results, options),
     results
   };
 }
