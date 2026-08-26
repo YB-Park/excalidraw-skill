@@ -25,7 +25,8 @@ jobs:
       - run: npm run smoke
       - run: npm run smoke:system
       - run: npm run smoke:module
-      - run: npm run evaluate
+      - name: Evaluate zero-warning quality gate
+        run: npm run evaluate:strict
       - name: Compare layout candidates
         run: npm run research:layouts
       - name: Export deterministic visual review previews
