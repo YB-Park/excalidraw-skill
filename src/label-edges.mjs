@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fitEdgeLabel } from './edge-label-fit.mjs';
+import { edgeLabelStyle, presetNameForScene } from './style-preset.mjs';
 
 const [scenePath, flag, outputPathArg] = process.argv.slice(2);
 
@@ -19,9 +20,13 @@ function safeId(prefix, value) {
   return `${prefix}_${String(value).replace(/[^a-zA-Z0-9_-]/g, '_')}`;
 }
 
-function makeLabel(edge, fitOptions = {}) {
+function makeLabel(edge, fitOptions = {}, style) {
   const meta = edge.customData?.excalidrawSkill;
-  const fitted = fitEdgeLabel(meta.label, edge, fitOptions);
+  const fitted = fitEdgeLabel(meta.label, edge, {
+    fontSize: style.fontSize,
+    lineHeight: style.lineHeight,
+    ...fitOptions
+  });
   const text = {
     id: safeId('text', `${meta.semanticId}_label`),
     type: 'text',
@@ -30,8 +35,8 @@ function makeLabel(edge, fitOptions = {}) {
     width: fitted.width,
     height: fitted.height,
     angle: 0,
-    strokeColor: '#374151',
-    backgroundColor: 'transparent',
+    strokeColor: style.strokeColor,
+    backgroundColor: style.initialBackgroundColor,
     fillStyle: 'solid',
     strokeWidth: 2,
     strokeStyle: 'solid',
@@ -80,6 +85,7 @@ function run() {
   }
 
   const scene = readJson(scenePath);
+  const style = edgeLabelStyle(presetNameForScene(scene));
   const layout = scene.customData?.excalidrawSkill?.layout;
   const fitOptions = layout?.family === 'module-architecture' && layout?.strategy === 'hub-grid'
     ? { maxWidth: 96 }
@@ -93,7 +99,7 @@ function run() {
   for (const element of [...(scene.elements ?? [])]) {
     const meta = element.customData?.excalidrawSkill;
     if (meta?.role === 'edge' && meta.label && !existing.has(meta.semanticId)) {
-      scene.elements.push(makeLabel(element, fitOptions));
+      scene.elements.push(makeLabel(element, fitOptions, style));
     }
   }
 
