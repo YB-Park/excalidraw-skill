@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderSpec } from './render.mjs';
+import { baseElementStyle } from './style-preset.mjs';
 
 test('sizes and wraps node labels before layout', () => {
   const scene = renderSpec({ nodes: [{ semanticId: 'events', label: 'Payment Events Topic', shapeRef: 'queue.topic' }], edges: [] });
@@ -10,6 +11,26 @@ test('sizes and wraps node labels before layout', () => {
   assert.ok(label.text.split('\n').length <= 2);
   assert.equal(label.customData.excalidrawSkill.sourceLabel, 'Payment Events Topic');
   assert.equal(label.originalText, label.text);
+});
+
+test('uses runtime preset base tokens for generated elements', () => {
+  const scene = renderSpec({
+    stylePreset: 'professional-software',
+    nodes: [{ semanticId: 'api', label: 'API', shapeRef: 'gateway.api' }],
+    edges: []
+  });
+  const node = scene.elements.find((element) => element.customData.excalidrawSkill.role === 'node');
+  const base = baseElementStyle('professional-software');
+  assert.equal(node.strokeColor, base.strokeColor);
+  assert.equal(node.backgroundColor, base.backgroundColor);
+  assert.equal(node.strokeWidth, base.strokeWidth);
+  assert.equal(node.strokeStyle, base.strokeStyle);
+  assert.equal(node.roughness, base.roughness);
+  assert.equal(node.opacity, base.opacity);
+});
+
+test('rejects an unsupported style preset before rendering', () => {
+  assert.throws(() => renderSpec({ stylePreset: 'unknown-style', nodes: [], edges: [] }), /Unsupported style preset/u);
 });
 
 test('binds node labels to native Excalidraw containers', () => {
