@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { frameStyle, presetNameForScene } from './style-preset.mjs';
 
 const FRAME_PADDING = 48;
 const SINGLETON_FRAME_PADDING = 80;
@@ -188,7 +189,7 @@ function resolveFrameCollisions(items) {
   return { adjusted, unresolved };
 }
 
-function makeFrame(groupName, label, boxes, mode, definition = {}) {
+function makeFrame(groupName, label, boxes, mode, visualStyle, definition = {}) {
   const pad = paddingForFrame(boxes);
   const bounds = memberBounds(boxes);
   const left = bounds.left - pad;
@@ -204,13 +205,7 @@ function makeFrame(groupName, label, boxes, mode, definition = {}) {
     width: right - left,
     height: bottom - top,
     angle: 0,
-    strokeColor: '#9ca3af',
-    backgroundColor: '#f8fafc',
-    fillStyle: 'solid',
-    strokeWidth: 1,
-    strokeStyle: 'solid',
-    roughness: 0.6,
-    opacity: 100,
+    ...visualStyle,
     groupIds: [],
     frameId: null,
     roundness: null,
@@ -253,6 +248,7 @@ export function frameSceneGroups(scene, spec) {
   const allowFullScene = policy.allowFullScene === true;
   const preferredGroups = new Set(policy.include ?? []);
   const excludedGroups = new Set(policy.exclude ?? []);
+  const visualStyle = frameStyle(presetNameForScene(scene));
 
   for (const node of spec.nodes ?? []) {
     if (node.group) nodeGroups.set(node.semanticId, node.group);
@@ -324,7 +320,7 @@ export function frameSceneGroups(scene, spec) {
 
   const selected = candidates.slice(0, budget);
   const frameItems = selected.map(({ groupName, label, boxes, mode, definition }) => ({
-    frame: makeFrame(groupName, label, boxes, mode, definition),
+    frame: makeFrame(groupName, label, boxes, mode, visualStyle, definition),
     member: memberBounds(boxes),
     mode
   }));
