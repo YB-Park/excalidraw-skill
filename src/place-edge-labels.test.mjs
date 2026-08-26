@@ -55,6 +55,24 @@ test('keeps parallel-edge labels associated with their own edge', () => {
   assert.ok(l2.customData.excalidrawSkill.placement.ownDistance <= l2.customData.excalidrawSkill.placement.nearestOtherDistance);
 });
 
+test('uses a quarter-position when a sibling trunk blocks the midpoint corridor', () => {
+  const hub = node('hub', 0, 100);
+  const target = node('target', 400, 100);
+  const main = edge('main', 'hub', 'target', 180, 140, [[0, 0], [220, 0]]);
+  const spoke = edge('spoke', 'hub', 'satellite', 180, 116, [[0, 0], [110, 0], [110, -96], [220, -96]]);
+  const relation = label('main');
+  relation.width = 82;
+  relation.height = 38;
+  const scene = { elements: [hub, target, main, spoke, relation] };
+
+  placeEdgeLabels(scene, { edges: [{ semanticId: 'main' }, { semanticId: 'spoke' }] });
+  const quality = createPerceptualQuality(scene);
+
+  assert.equal(quality.metrics.ambiguousEdgeLabels, 0);
+  assert.ok(relation.x + relation.width < 290 || relation.x > 290);
+  assert.ok(relation.customData.excalidrawSkill.placement.nearestOtherDistance >= relation.customData.excalidrawSkill.placement.ownDistance);
+});
+
 test('keeps a shared-frame edge label inside the native frame even when the nearest outside position avoids the border', () => {
   const boundary = frame('module-a', 100, 80, 600, 300);
   const a = node('a', 170, 210);
