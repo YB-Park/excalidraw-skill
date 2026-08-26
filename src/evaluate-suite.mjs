@@ -9,6 +9,7 @@ const srcDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(srcDir, '..');
 const defaultSuitePath = 'examples/evaluation/suite.json';
 const defaultQualityCorpusPath = 'examples/evaluation/quality-corpus.json';
+const defaultReadabilityBaselinePath = 'examples/evaluation/readability-baseline.json';
 const defaultOutputPath = 'examples/evaluation/results/latest.json';
 
 function readJson(filePath) {
@@ -24,12 +25,14 @@ function parseArgs(args) {
   const options = {
     suitePath: defaultSuitePath,
     qualityCorpusPath: defaultQualityCorpusPath,
+    readabilityBaselinePath: defaultReadabilityBaselinePath,
     includeQualityCorpus: true,
     outputPath: defaultOutputPath,
     family: null,
     caseId: null,
     build: true,
-    strictPerceptual: false
+    strictPerceptual: false,
+    strictReadability: false
   };
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
@@ -37,10 +40,12 @@ function parseArgs(args) {
     else if (arg === '--case') options.caseId = args[++index] ?? null;
     else if (arg === '--suite') options.suitePath = args[++index] ?? defaultSuitePath;
     else if (arg === '--quality-corpus') options.qualityCorpusPath = args[++index] ?? defaultQualityCorpusPath;
+    else if (arg === '--readability-baseline') options.readabilityBaselinePath = args[++index] ?? defaultReadabilityBaselinePath;
     else if (arg === '--no-quality-corpus') options.includeQualityCorpus = false;
     else if (arg === '-o' || arg === '--output') options.outputPath = args[++index] ?? defaultOutputPath;
     else if (arg === '--no-build') options.build = false;
     else if (arg === '--strict-perceptual') options.strictPerceptual = true;
+    else if (arg === '--strict-readability') options.strictReadability = true;
     else throw new Error(`Unknown argument: ${arg}`);
   }
   return options;
@@ -67,6 +72,38 @@ export function selectCases(suite, options = {}) {
   });
 }
 
+export function applyReadabilityBudgets(results, baseline = null) {
+  if (!baseline) return results;
+  const defaultTolerance = Number(baseline.defaultTolerance ?? 0);
+  if (!Number.isFinite(defaultTolerance) || defaultTolerance < 0) {
+    throw new Error('Readability baseline defaultTolerance must be a non-negative number');
+  }
+  const cases = baseline.cases ?? {};
+  return results.map((result) => {
+    if (result.status !== 'passed' && result.status !== 'failed') return result;
+    const baselineCost = cases[result.id];
+    const currentCost = result.perceptualMetrics?.readabilityCost;
+    const readabilityBaselineMissing = !Number.isFinite(baselineCost);
+    const readabilityMetricMissing = !Number.isFinite(currentCost);
+    const readabilityBudget = readabilityBaselineMissing ? null : Number((baselineCost + defaultTolerance).toFixed(4));
+    const readabilityDelta = readabilityBaselineMissing || readabilityMetricMissing
+      ? null
+      : Number((currentCost - baselineCost).toFixed(4));
+    const readabilityRegression = !readabilityBaselineMissing
+      && (readabilityMetricMissing || currentCost > readabilityBudget + 1e-9);
+    return {
+      ...result,
+      readabilityBaseline: readabilityBaselineMissing ? null : baselineCost,
+      readabilityTolerance: defaultTolerance,
+      readabilityBudget,
+      readabilityDelta,
+      readabilityBaselineMissing,
+      readabilityMetricMissing,
+      readabilityRegression
+    };
+  });
+}
+
 export function summarizeResults(results, options = {}) {
   const runnable = results.filter((result) => result.status === 'passed' || result.status === 'failed');
   const passed = runnable.filter((result) => result.status === 'passed').length;
@@ -74,9 +111,16 @@ export function summarizeResults(results, options = {}) {
   const contractOnly = results.filter((result) => result.status === 'contract-only').length;
   const missingFixture = results.filter((result) => result.status === 'missing-fixture').length;
   const perceptualWarnings = runnable.reduce((sum, result) => sum + (result.perceptualWarnings?.length ?? 0), 0);
+  const readabilityRegressions = runnable.filter((result) => result.readabilityRegression === true).length;
+  const missingReadabilityBaselines = runnable.filter((result) => result.readabilityBaselineMissing === true).length;
+  const missingReadabilityMetrics = runnable.filter((result) => result.readabilityMetricMissing === true).length;
   const structuralPass = failed === 0 && missingFixture === 0;
   const perceptualPass = perceptualWarnings === 0;
+  const readabilityPass = readabilityRegressions === 0
+    && missingReadabilityBaselines === 0
+    && missingReadabilityMetrics === 0;
   const strictPerceptual = options.strictPerceptual === true;
+  const strictReadability = options.strictReadability === true;
   return {
     total: results.length,
     runnable: runnable.length,
@@ -85,10 +129,17 @@ export function summarizeResults(results, options = {}) {
     contractOnly,
     missingFixture,
     perceptualWarnings,
+    readabilityRegressions,
+    missingReadabilityBaselines,
+    missingReadabilityMetrics,
     structuralPass,
     perceptualPass,
+    readabilityPass,
     strictPerceptual,
-    pass: structuralPass && (!strictPerceptual || perceptualPass)
+    strictReadability,
+    pass: structuralPass
+      && (!strictPerceptual || perceptualPass)
+      && (!strictReadability || readabilityPass)
   };
 }
 
@@ -196,18 +247,21 @@ function evaluateCase(entry, build) {
 
 export function evaluateSuite(suite, options = {}) {
   const selected = selectCases(suite, options);
-  const results = selected.map((entry) => evaluateCase(entry, options.build !== false));
+  const rawResults = selected.map((entry) => evaluateCase(entry, options.build !== false));
+  const results = applyReadabilityBudgets(rawResults, options.readabilityBaseline ?? null);
   return {
-    version: '1.4',
+    version: '1.5',
     suiteVersion: suite.version ?? null,
     qualityCorpusVersion: suite.qualityCorpusVersion ?? null,
+    readabilityBaselineVersion: options.readabilityBaseline?.version ?? null,
     generatedAt: new Date().toISOString(),
     filters: {
       family: options.family ?? null,
       caseId: options.caseId ?? null,
       build: options.build !== false,
       qualityCorpus: options.includeQualityCorpus !== false,
-      strictPerceptual: options.strictPerceptual === true
+      strictPerceptual: options.strictPerceptual === true,
+      strictReadability: options.strictReadability === true
     },
     summary: summarizeResults(results, options),
     results
@@ -228,6 +282,10 @@ function compactFailure(result) {
     metrics: result.metrics ?? null,
     perceptualMetrics: result.perceptualMetrics ?? null,
     perceptualWarnings: result.perceptualWarnings ?? null,
+    readabilityBaseline: result.readabilityBaseline ?? null,
+    readabilityBudget: result.readabilityBudget ?? null,
+    readabilityDelta: result.readabilityDelta ?? null,
+    readabilityRegression: result.readabilityRegression ?? null,
     suggestedPatches: result.suggestedPatches ?? null
   };
 }
@@ -236,9 +294,16 @@ function main() {
   const options = parseArgs(process.argv.slice(2));
   const suitePath = path.resolve(rootDir, options.suitePath);
   const qualityCorpusPath = path.resolve(rootDir, options.qualityCorpusPath);
+  const readabilityBaselinePath = path.resolve(rootDir, options.readabilityBaselinePath);
   const outputPath = path.resolve(rootDir, options.outputPath);
   const qualityCorpus = options.includeQualityCorpus && fs.existsSync(qualityCorpusPath)
     ? readJson(qualityCorpusPath)
+    : null;
+  if (options.strictReadability && !fs.existsSync(readabilityBaselinePath)) {
+    throw new Error(`Strict readability baseline not found: ${path.relative(rootDir, readabilityBaselinePath)}`);
+  }
+  options.readabilityBaseline = fs.existsSync(readabilityBaselinePath)
+    ? readJson(readabilityBaselinePath)
     : null;
   const suite = mergeEvaluationSuites(readJson(suitePath), qualityCorpus);
   const report = evaluateSuite(suite, options);
@@ -255,11 +320,28 @@ function main() {
       perceptualMetrics: result.perceptualMetrics,
       warnings: result.perceptualWarnings
     }));
+  const readabilityReview = report.results
+    .filter((result) => result.status === 'passed'
+      && (result.readabilityRegression || result.readabilityBaselineMissing || result.readabilityMetricMissing))
+    .map((result) => ({
+      id: result.id,
+      family: result.family,
+      view: result.view,
+      readabilityCost: result.perceptualMetrics?.readabilityCost ?? null,
+      baseline: result.readabilityBaseline,
+      tolerance: result.readabilityTolerance,
+      budget: result.readabilityBudget,
+      delta: result.readabilityDelta,
+      baselineMissing: result.readabilityBaselineMissing,
+      metricMissing: result.readabilityMetricMissing,
+      regression: result.readabilityRegression
+    }));
   console.log(JSON.stringify({
     outputPath: path.relative(rootDir, outputPath),
     summary: report.summary,
     failedCases,
-    perceptualReview
+    perceptualReview,
+    readabilityReview
   }, null, 2));
   process.exit(report.summary.pass ? 0 : 1);
 }
