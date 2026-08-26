@@ -64,6 +64,8 @@ jobs:
           npm run visual:actual -- examples/evaluation/outputs/flow-long-labels.excalidraw -o artifacts/actual-render/long-labels.png
           npm run visual:actual -- examples/system-architecture/layered-middleware.excalidraw -o artifacts/actual-render/system-layered.png
           npm run visual:actual -- examples/module-architecture/connection-manager.excalidraw -o artifacts/actual-render/module-component.png
+      - name: Verify actual Excalidraw render signatures
+        run: npm run visual:verify
       - uses: actions/upload-artifact@v4
         with:
           name: visual-review
