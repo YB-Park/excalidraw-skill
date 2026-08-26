@@ -3,8 +3,13 @@ import assert from 'node:assert/strict';
 import {
   DEFAULT_STYLE_PRESET,
   baseElementStyle,
+  canvasStyle,
+  componentDetailStyles,
   edgeKindStyleFor,
+  edgeLabelStyle,
   edgeVisualStyleFor,
+  fontTokens,
+  frameStyle,
   loadStylePreset,
   nodeStyleFor,
   roleFor
@@ -13,12 +18,13 @@ import {
 test('loads the professional preset as a runtime-complete style source', () => {
   const preset = loadStylePreset(DEFAULT_STYLE_PRESET);
   assert.equal(preset.name, 'professional-software');
-  assert.equal(preset.version, '2.2');
+  assert.equal(preset.version, '2.3');
   assert.equal(preset.base.roughness, 0.7);
   assert.ok(preset.roles.model);
   assert.ok(preset.edgeKinds.calls);
   assert.ok(preset.edgeVisualRoles['data-plane']);
   assert.ok(preset.edgeEmphasis.critical);
+  assert.ok(preset.componentDetails.database);
 });
 
 test('resolves node roles and styles from the preset', () => {
@@ -55,7 +61,7 @@ test('resolves edge kind and visual styles from the same preset', () => {
   });
 });
 
-test('exposes base element style without duplicating runtime constants', () => {
+test('exposes base, frame, label, canvas, font, and component styles from one preset', () => {
   assert.deepEqual(baseElementStyle(), {
     strokeColor: '#1f2937',
     backgroundColor: '#ffffff',
@@ -65,6 +71,11 @@ test('exposes base element style without duplicating runtime constants', () => {
     roughness: 0.7,
     opacity: 100
   });
+  assert.equal(frameStyle().strokeColor, '#9ca3af');
+  assert.equal(edgeLabelStyle().placedBackgroundColor, '#ffffff');
+  assert.equal(canvasStyle().backgroundColor, '#ffffff');
+  assert.deepEqual(fontTokens(), { default: 2, mono: 3, sketch: 5 });
+  assert.equal(componentDetailStyles().queue.strokeColor, '#9333ea');
 });
 
 test('rejects unknown style presets deterministically', () => {
