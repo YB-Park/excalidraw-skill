@@ -24,7 +24,7 @@ function candidates(edge, label, preferred) {
   const segments = segmentsFromEdge(edge).sort((a, b) => segmentLength(b) - segmentLength(a));
   for (const segment of segments) {
     const horizontal = Math.abs(segment.b.x - segment.a.x) >= Math.abs(segment.b.y - segment.a.y);
-    for (const fraction of [0.5, 0.35, 0.65]) {
+    for (const fraction of [0.5, 0.35, 0.65, 0.25, 0.75]) {
       const x = segment.a.x + (segment.b.x - segment.a.x) * fraction;
       const y = segment.a.y + (segment.b.y - segment.a.y) * fraction;
       for (const distance of [14, 32, 52, 78, 106]) {
@@ -158,7 +158,7 @@ export function placeEdgeLabels(scene, spec = null) {
     const association = associationMetrics(next, own, others);
     label.x = Math.round(next.x); label.y = Math.round(next.y); label.backgroundColor = '#ffffff';
     labelMeta.placement = {
-      engine: 'collision-aware-v0.8',
+      engine: 'collision-aware-v0.9',
       distanceModel: 'label-box-to-edge',
       side: next.side,
       preferred,
