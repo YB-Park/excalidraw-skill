@@ -1,0 +1,31 @@
+{
+  "version":"2.0",
+  "diagramType":"service-flow",
+  "title":"Four-Way Eligibility Evaluation",
+  "stylePreset":"professional-software",
+  "layout":{"profile":"swimlane-flow","direction":"left-to-right","aspectRatio":"balanced","primaryFlow":["request","router","aggregate","response"],"lanes":[{"id":"main","position":"center","order":0},{"id":"checks","position":"bottom","order":1}]},
+  "framePolicy":{"mode":"none"},
+  "nodes":[
+    {"semanticId":"request","label":"Eligibility Request","shapeRef":"client.web","layoutHints":{"lane":"main","rank":0,"importance":"primary"}},
+    {"semanticId":"router","label":"Eligibility Router","shapeRef":"gateway.api","layoutHints":{"lane":"main","rank":1,"importance":"primary"}},
+    {"semanticId":"aggregate","label":"Eligibility Aggregator","shapeRef":"service.backend","layoutHints":{"lane":"main","rank":3,"importance":"primary"}},
+    {"semanticId":"response","label":"Eligibility Result","shapeRef":"client.web","layoutHints":{"lane":"main","rank":4,"importance":"primary"}},
+    {"semanticId":"policy","label":"Policy Check","shapeRef":"service.worker","layoutHints":{"lane":"checks","rank":2,"importance":"secondary"}},
+    {"semanticId":"risk","label":"Risk Check","shapeRef":"risk.security","layoutHints":{"lane":"checks","rank":2,"importance":"secondary"}},
+    {"semanticId":"quota","label":"Quota Check","shapeRef":"service.worker","layoutHints":{"lane":"checks","rank":2,"importance":"secondary"}},
+    {"semanticId":"region","label":"Region Check","shapeRef":"service.worker","layoutHints":{"lane":"checks","rank":2,"importance":"secondary"}}
+  ],
+  "edges":[
+    {"semanticId":"request-router","from":"request","to":"router","label":"submit","kind":"calls","routeHints":{"priority":"primary"}},
+    {"semanticId":"router-policy","from":"router","to":"policy","label":"policy","kind":"optional","routeHints":{"direction":"down","priority":"secondary"}},
+    {"semanticId":"router-risk","from":"router","to":"risk","label":"risk","kind":"optional","routeHints":{"direction":"down","priority":"secondary"}},
+    {"semanticId":"router-quota","from":"router","to":"quota","label":"quota","kind":"optional","routeHints":{"direction":"down","priority":"secondary"}},
+    {"semanticId":"router-region","from":"router","to":"region","label":"region","kind":"optional","routeHints":{"direction":"down","priority":"secondary"}},
+    {"semanticId":"policy-aggregate","from":"policy","to":"aggregate","label":"result","kind":"transfers","routeHints":{"direction":"up","priority":"secondary"}},
+    {"semanticId":"risk-aggregate","from":"risk","to":"aggregate","label":"result","kind":"transfers","routeHints":{"direction":"up","priority":"secondary"}},
+    {"semanticId":"quota-aggregate","from":"quota","to":"aggregate","label":"result","kind":"transfers","routeHints":{"direction":"up","priority":"secondary"}},
+    {"semanticId":"region-aggregate","from":"region","to":"aggregate","label":"result","kind":"transfers","routeHints":{"direction":"up","priority":"secondary"}},
+    {"semanticId":"aggregate-response","from":"aggregate","to":"response","label":"decision","kind":"returns","routeHints":{"priority":"primary"}}
+  ],
+  "outputPath":"examples/evaluation/outputs/flow-four-way-fanout.excalidraw"
+}
