@@ -5,6 +5,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fitNodeLabel } from './text-fit.mjs';
 import { styleByKind } from './style-by-kind.mjs';
+import { styleEdges } from './style-edges.mjs';
+import {
+  baseElementStyle,
+  loadStylePreset,
+  presetNameForScene
+} from './style-preset.mjs';
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -23,7 +29,8 @@ function metaOf(element) {
   return element?.customData?.excalidrawSkill ?? {};
 }
 
-function base(type, semanticId) {
+function base(type, semanticId, preset) {
+  const style = baseElementStyle(preset);
   return {
     id: safeId(type, semanticId),
     type,
@@ -32,13 +39,13 @@ function base(type, semanticId) {
     width: 0,
     height: 0,
     angle: 0,
-    strokeColor: '#1f2937',
-    backgroundColor: '#ffffff',
-    fillStyle: 'solid',
-    strokeWidth: 2,
-    strokeStyle: 'solid',
-    roughness: 0.7,
-    opacity: 100,
+    strokeColor: style.strokeColor,
+    backgroundColor: style.backgroundColor,
+    fillStyle: style.fillStyle,
+    strokeWidth: style.strokeWidth,
+    strokeStyle: style.strokeStyle,
+    roughness: style.roughness,
+    opacity: style.opacity,
     groupIds: [],
     frameId: null,
     roundness: type === 'rectangle' ? { type: 3 } : null,
@@ -116,9 +123,9 @@ function choosePosition(near, nodes, fallbackIndex, side = 'right', gap = 100) {
   return candidates[0];
 }
 
-function createNode(op, position) {
+function createNode(op, position, preset) {
   const fit = fitNodeLabel(op.label ?? op.semanticId);
-  const rect = base('rectangle', op.semanticId);
+  const rect = base('rectangle', op.semanticId, preset);
   rect.x = position.x;
   rect.y = position.y;
   rect.width = fit.width;
@@ -129,7 +136,7 @@ function createNode(op, position) {
   rect.customData.excalidrawSkill.shapeRef = op.shapeRef ?? 'service.backend';
   rect.customData.excalidrawSkill.textFit = { sizeClass: fit.sizeClass, lineCount: fit.lineCount, overflow: fit.overflow };
 
-  const text = base('text', `${op.semanticId}_label`);
+  const text = base('text', `${op.semanticId}_label`, preset);
   text.x = rect.x + 16;
   text.y = rect.y + (rect.height - Math.ceil(fit.lineCount * fit.fontSize * fit.lineHeight)) / 2;
   text.width = rect.width - 32;
@@ -162,12 +169,12 @@ function bindArrow(arrow, from, to) {
   addBoundElement(to, arrow.id, 'arrow');
 }
 
-function createEdge(nodes, op) {
+function createEdge(nodes, op, preset) {
   const from = nodes.get(op.from);
   const to = nodes.get(op.to);
   if (!from || !to) throw new Error(`Cannot add edge ${op.semanticId ?? ''}: missing endpoint`);
   const semanticId = op.semanticId ?? `${op.from}_to_${op.to}`;
-  const arrow = base('arrow', semanticId);
+  const arrow = base('arrow', semanticId, preset);
   bindArrow(arrow, from, to);
   arrow.startArrowhead = null;
   arrow.endArrowhead = 'arrow';
@@ -179,21 +186,21 @@ function createEdge(nodes, op) {
   return arrow;
 }
 
-function addNode(elements, nodes, op) {
+function addNode(elements, nodes, op, preset) {
   if (!op.semanticId) throw new Error('addNode requires semanticId');
   if (nodes.has(op.semanticId)) throw new Error(`Node already exists: ${op.semanticId}`);
   const near = nodes.get(op.near);
   const position = op.position && Number.isFinite(op.position.x) && Number.isFinite(op.position.y)
     ? op.position
     : choosePosition(near, nodes, nodes.size, op.side ?? 'right', Number(op.gap ?? 100));
-  const [rect, text] = createNode(op, position);
+  const [rect, text] = createNode(op, position, preset);
   nodes.set(op.semanticId, rect);
   elements.push(rect, text);
   return rect;
 }
 
-function addEdge(elements, nodes, op) {
-  const arrow = createEdge(nodes, op);
+function addEdge(elements, nodes, op, preset) {
+  const arrow = createEdge(nodes, op, preset);
   elements.push(arrow);
   return arrow;
 }
@@ -302,7 +309,7 @@ function removeSemanticObject(elements, semanticId) {
   return filtered;
 }
 
-function insertNodeBetween(elements, nodes, op) {
+function insertNodeBetween(elements, nodes, op, preset) {
   const edgeId = op.target ?? op.edge;
   const edge = semanticElement(elements, edgeId);
   if (!edge || metaOf(edge).role !== 'edge') throw new Error(`insertNodeBetween requires an existing edge: ${edgeId}`);
@@ -318,7 +325,7 @@ function insertNodeBetween(elements, nodes, op) {
   };
   const nextElements = removeSemanticObject(elements, edgeId);
   elements.splice(0, elements.length, ...nextElements);
-  const newNode = addNode(elements, nodes, { ...op, position });
+  const newNode = addNode(elements, nodes, { ...op, position }, preset);
   nodes.set(op.semanticId, newNode);
   addEdge(elements, nodes, {
     semanticId: op.inEdgeSemanticId ?? `${edgeId}__in`,
@@ -326,17 +333,17 @@ function insertNodeBetween(elements, nodes, op) {
     to: op.semanticId,
     label: op.inLabel ?? edgeMeta.label ?? '',
     kind: op.inKind ?? edgeMeta.kind ?? 'sync'
-  });
+  }, preset);
   addEdge(elements, nodes, {
     semanticId: op.outEdgeSemanticId ?? `${edgeId}__out`,
     from: op.semanticId,
     to: edgeMeta.to,
     label: op.outLabel ?? '',
     kind: op.outKind ?? edgeMeta.kind ?? 'sync'
-  });
+  }, preset);
 }
 
-function groupIntoFrame(elements, nodes, op) {
+function groupIntoFrame(elements, nodes, op, preset) {
   const members = Array.isArray(op.members) && op.members.length > 0
     ? op.members
     : [op.target].filter(Boolean);
@@ -348,7 +355,7 @@ function groupIntoFrame(elements, nodes, op) {
   const top = Math.min(...memberNodes.map((node) => node.y)) - padding;
   const right = Math.max(...memberNodes.map((node) => node.x + node.width)) + padding;
   const bottom = Math.max(...memberNodes.map((node) => node.y + node.height)) + padding;
-  const frame = base('frame', semanticId);
+  const frame = base('frame', semanticId, preset);
   frame.x = left;
   frame.y = top;
   frame.width = right - left;
@@ -372,13 +379,16 @@ function groupIntoFrame(elements, nodes, op) {
   elements.unshift(frame);
 }
 
-function applyStylePreset(scene, op) {
+function applyStylePreset(scene, elements, op) {
   const preset = op.preset ?? op.stylePreset ?? 'professional-software';
-  if (preset !== 'professional-software') throw new Error(`Unsupported style preset: ${preset}`);
-  styleByKind(scene);
+  loadStylePreset(preset);
+  const workingScene = { ...scene, elements };
+  styleByKind(workingScene, preset);
+  styleEdges(workingScene, preset);
   scene.customData ??= {};
   scene.customData.excalidrawSkill ??= {};
   scene.customData.excalidrawSkill.stylePreset = preset;
+  return preset;
 }
 
 export function applyPatch(scene, patch) {
@@ -386,6 +396,8 @@ export function applyPatch(scene, patch) {
   if (!patch || typeof patch !== 'object') throw new TypeError('DiagramPatch JSON must be an object');
   const elements = Array.isArray(scene.elements) ? [...scene.elements] : [];
   const nodes = nodeMap(elements);
+  let currentPreset = presetNameForScene(scene);
+  loadStylePreset(currentPreset);
   const supported = new Set([
     'addNode',
     'addEdge',
@@ -399,13 +411,13 @@ export function applyPatch(scene, patch) {
 
   for (const op of patch.operations ?? []) {
     if (!supported.has(op.op)) throw new Error(`Unsupported patch operation: ${op.op}`);
-    if (op.op === 'addNode') addNode(elements, nodes, op);
-    if (op.op === 'addEdge') addEdge(elements, nodes, op);
+    if (op.op === 'addNode') addNode(elements, nodes, op, currentPreset);
+    if (op.op === 'addEdge') addEdge(elements, nodes, op, currentPreset);
     if (op.op === 'updateLabel') updateLabel(elements, nodes, op);
     if (op.op === 'moveNear') moveNear(elements, nodes, op);
-    if (op.op === 'insertNodeBetween') insertNodeBetween(elements, nodes, op);
-    if (op.op === 'groupIntoFrame') groupIntoFrame(elements, nodes, op);
-    if (op.op === 'applyStylePreset') applyStylePreset({ ...scene, elements }, op);
+    if (op.op === 'insertNodeBetween') insertNodeBetween(elements, nodes, op, currentPreset);
+    if (op.op === 'groupIntoFrame') groupIntoFrame(elements, nodes, op, currentPreset);
+    if (op.op === 'applyStylePreset') currentPreset = applyStylePreset(scene, elements, op);
     if (op.op === 'removeObject') {
       const next = removeSemanticObject(elements, op.target ?? op.semanticId);
       elements.splice(0, elements.length, ...next);
