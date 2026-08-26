@@ -15,7 +15,7 @@
     "smoke:system": "node ./bin/excalidraw-skill.mjs build examples/system-architecture/layered-middleware.diagram.json",
     "smoke:module": "node ./bin/excalidraw-skill.mjs build examples/module-architecture/connection-manager.diagram.json",
     "evaluate": "node ./src/evaluate-suite.mjs",
-    "evaluate:strict": "node ./src/evaluate-suite.mjs --strict-perceptual",
+    "evaluate:strict": "node ./src/evaluate-suite.mjs --strict-perceptual --strict-readability",
     "evaluate:flow": "node ./src/evaluate-suite.mjs --family flow",
     "evaluate:system": "node ./src/evaluate-suite.mjs --family system-architecture",
     "evaluate:module": "node ./src/evaluate-suite.mjs --family module-architecture",
