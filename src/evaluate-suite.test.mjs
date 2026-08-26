@@ -1,6 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mergeEvaluationSuites, selectCases, summarizeResults } from './evaluate-suite.mjs';
+import {
+  applyReadabilityBudgets,
+  mergeEvaluationSuites,
+  selectCases,
+  summarizeResults
+} from './evaluate-suite.mjs';
 
 const suite = {
   cases: [
@@ -76,4 +81,54 @@ test('strict perceptual mode passes a zero-warning runnable suite', () => {
   assert.equal(summary.perceptualPass, true);
   assert.equal(summary.strictPerceptual, true);
   assert.equal(summary.pass, true);
+});
+
+test('readability budgets allow improvements and small drift within tolerance', () => {
+  const results = applyReadabilityBudgets([
+    { id: 'flow-a', status: 'passed', perceptualMetrics: { readabilityCost: 27 } },
+    { id: 'flow-b', status: 'passed', perceptualMetrics: { readabilityCost: 33.9 } }
+  ], {
+    defaultTolerance: 4,
+    cases: { 'flow-a': 32, 'flow-b': 30 }
+  });
+
+  assert.equal(results[0].readabilityDelta, -5);
+  assert.equal(results[0].readabilityRegression, false);
+  assert.equal(results[1].readabilityBudget, 34);
+  assert.equal(results[1].readabilityRegression, false);
+  const summary = summarizeResults(results, { strictReadability: true });
+  assert.equal(summary.readabilityPass, true);
+  assert.equal(summary.pass, true);
+});
+
+test('strict readability mode fails when a case exceeds its budget', () => {
+  const results = applyReadabilityBudgets([
+    { id: 'flow-a', status: 'passed', perceptualMetrics: { readabilityCost: 36.1 } }
+  ], {
+    defaultTolerance: 4,
+    cases: { 'flow-a': 32 }
+  });
+
+  assert.equal(results[0].readabilityBudget, 36);
+  assert.equal(results[0].readabilityDelta, 4.1);
+  assert.equal(results[0].readabilityRegression, true);
+  const summary = summarizeResults(results, { strictReadability: true });
+  assert.equal(summary.readabilityRegressions, 1);
+  assert.equal(summary.readabilityPass, false);
+  assert.equal(summary.pass, false);
+});
+
+test('strict readability mode fails when a runnable case lacks a baseline', () => {
+  const results = applyReadabilityBudgets([
+    { id: 'new-flow', status: 'passed', perceptualMetrics: { readabilityCost: 0 } }
+  ], {
+    defaultTolerance: 4,
+    cases: {}
+  });
+
+  assert.equal(results[0].readabilityBaselineMissing, true);
+  const summary = summarizeResults(results, { strictReadability: true });
+  assert.equal(summary.missingReadabilityBaselines, 1);
+  assert.equal(summary.readabilityPass, false);
+  assert.equal(summary.pass, false);
 });
