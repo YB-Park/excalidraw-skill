@@ -1,5 +1,5 @@
 {
-  "version":"0.1",
+  "version":"0.2",
   "purpose":"Adversarial pre-dogfood quality corpus. These cases extend the capability suite without changing supported-family contracts.",
   "cases":[
     {
@@ -33,6 +33,46 @@
       "implementationStatus":"runnable",
       "fixture":"examples/evaluation/fixtures/flow-scale-12.diagram.json",
       "visualInvariants":["seven-node primary story is readable","support relations remain local","twelve-node scene stays balanced without excessive detours"]
+    },
+    {
+      "id":"quality-flow-four-way-fanout",
+      "family":"flow",
+      "view":"service-flow",
+      "implementationStatus":"runnable",
+      "fixture":"examples/evaluation/fixtures/flow-four-way-fanout.diagram.json",
+      "visualInvariants":["four sibling checks remain individually traceable","fan-out and fan-in port ordering is stable","main request-response path stays dominant"]
+    },
+    {
+      "id":"quality-flow-top-bottom-approval",
+      "family":"flow",
+      "view":"service-flow",
+      "implementationStatus":"runnable",
+      "fixture":"examples/evaluation/fixtures/flow-top-bottom-approval.diagram.json",
+      "visualInvariants":["top-to-bottom primary spine stays straight","manual review remains clearly lateral","audit support does not obscure approval"]
+    },
+    {
+      "id":"quality-flow-dual-support-chains",
+      "family":"flow",
+      "view":"data-flow",
+      "implementationStatus":"runnable",
+      "fixture":"examples/evaluation/fixtures/flow-dual-support-chains.diagram.json",
+      "visualInvariants":["two independent support chains remain visually separate","primary data pipeline stays straight","support chain labels remain associated with their own edges"]
+    },
+    {
+      "id":"quality-flow-asymmetric-split-merge",
+      "family":"flow",
+      "view":"service-flow",
+      "implementationStatus":"runnable",
+      "fixture":"examples/evaluation/fixtures/flow-asymmetric-split-merge.diagram.json",
+      "visualInvariants":["short and long branches are distinguishable","asymmetric branch lengths do not create global detours","merge remains visually obvious"]
+    },
+    {
+      "id":"quality-flow-mixed-support-shelf",
+      "family":"flow",
+      "view":"event-flow",
+      "implementationStatus":"runnable",
+      "fixture":"examples/evaluation/fixtures/flow-mixed-support-shelf.diagram.json",
+      "visualInvariants":["upper and lower support relations stay subordinate","queue path remains traceable","failure and telemetry edges do not compete with primary flow"]
     }
   ]
 }
