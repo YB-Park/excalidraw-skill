@@ -1,0 +1,25 @@
+{
+  "version":"2.0",
+  "diagramType":"service-flow",
+  "title":"Top-to-Bottom Approval",
+  "stylePreset":"professional-software",
+  "layout":{"profile":"swimlane-flow","direction":"top-to-bottom","aspectRatio":"balanced","primaryFlow":["intake","validate","approve","complete"],"lanes":[{"id":"review","position":"left","order":0},{"id":"main","position":"center","order":1},{"id":"audit","position":"right","order":2}]},
+  "framePolicy":{"mode":"none"},
+  "nodes":[
+    {"semanticId":"intake","label":"Request Intake","shapeRef":"gateway.api","layoutHints":{"lane":"main","rank":0,"importance":"primary"}},
+    {"semanticId":"validate","label":"Validate Request","shapeRef":"service.backend","layoutHints":{"lane":"main","rank":1,"importance":"primary"}},
+    {"semanticId":"approve","label":"Approve Request","shapeRef":"service.backend","layoutHints":{"lane":"main","rank":2,"importance":"primary"}},
+    {"semanticId":"complete","label":"Complete","shapeRef":"client.web","layoutHints":{"lane":"main","rank":3,"importance":"primary"}},
+    {"semanticId":"manual","label":"Manual Review","shapeRef":"service.worker","layoutHints":{"lane":"review","rank":2,"importance":"secondary"}},
+    {"semanticId":"audit","label":"Audit Log","shapeRef":"data.store","layoutHints":{"lane":"audit","rank":2,"importance":"secondary"}}
+  ],
+  "edges":[
+    {"semanticId":"intake-validate","from":"intake","to":"validate","label":"request","kind":"calls","routeHints":{"priority":"primary"}},
+    {"semanticId":"validate-approve","from":"validate","to":"approve","label":"valid","kind":"calls","routeHints":{"priority":"primary"}},
+    {"semanticId":"approve-complete","from":"approve","to":"complete","label":"approved","kind":"returns","routeHints":{"priority":"primary"}},
+    {"semanticId":"validate-manual","from":"validate","to":"manual","label":"needs review","kind":"optional","routeHints":{"direction":"left","priority":"secondary"}},
+    {"semanticId":"manual-approve","from":"manual","to":"approve","label":"reviewed","kind":"returns","routeHints":{"direction":"right","priority":"secondary"}},
+    {"semanticId":"approve-audit","from":"approve","to":"audit","label":"record","kind":"writes","routeHints":{"direction":"right","priority":"secondary"}}
+  ],
+  "outputPath":"examples/evaluation/outputs/flow-top-bottom-approval.excalidraw"
+}
