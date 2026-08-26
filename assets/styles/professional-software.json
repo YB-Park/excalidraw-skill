@@ -1,5 +1,5 @@
 {
-  "version": "2.2",
+  "version": "2.3",
   "name": "professional-software",
   "intent": "Readable, consistent, professional software architecture diagrams.",
   "tokens": {
@@ -17,6 +17,9 @@
       "sketch": 5
     }
   },
+  "canvas": {
+    "backgroundColor": "#ffffff"
+  },
   "base": {
     "strokeColor": "#1f2937",
     "backgroundColor": "#ffffff",
@@ -25,6 +28,22 @@
     "strokeStyle": "solid",
     "roughness": 0.7,
     "opacity": 100
+  },
+  "frame": {
+    "strokeColor": "#9ca3af",
+    "backgroundColor": "#f8fafc",
+    "fillStyle": "solid",
+    "strokeWidth": 1,
+    "strokeStyle": "solid",
+    "roughness": 0.6,
+    "opacity": 100
+  },
+  "edgeLabel": {
+    "strokeColor": "#374151",
+    "initialBackgroundColor": "transparent",
+    "placedBackgroundColor": "#ffffff",
+    "fontSize": 13,
+    "lineHeight": 1.25
   },
   "roles": {
     "actor": {"strokeColor": "#475569", "backgroundColor": "#f8fafc"},
@@ -73,5 +92,22 @@
     "strong": {"strokeWidthDelta": 1},
     "critical": {"strokeColor": "#dc2626", "strokeWidth": 4, "opacity": 100},
     "muted": {"strokeColor": "#94a3b8", "strokeWidth": 1, "opacity": 70}
+  },
+  "componentDetails": {
+    "base": {"strokeColor": "#64748b", "backgroundColor": "transparent", "fillStyle": "solid", "strokeWidth": 1, "strokeStyle": "solid", "roughness": 0.7, "opacity": 100},
+    "text": {"strokeColor": "#475569"},
+    "database": {"strokeColor": "#0f766e", "tagFill": "#ccfbf1"},
+    "queue": {"strokeColor": "#9333ea", "bandFill": "#f3e8ff", "labelStroke": "#7e22ce"},
+    "external": {"strokeColor": "#64748b", "tagFill": "#f1f5f9"},
+    "risk": {"strokeColor": "#d97706", "badgeFill": "#fef3c7", "textStroke": "#b45309"},
+    "worker": {"strokeColor": "#7c3aed", "tagFill": "#ede9fe"},
+    "state": {"strokeColor": "#334155", "tagFill": "#f1f5f9", "separator": "#94a3b8"},
+    "entity": {"strokeColor": "#334155", "tagFill": "#f8fafc", "separator": "#cbd5e1"},
+    "process": {"strokeColor": "#475569", "tagFill": "#f8fafc", "accent": "#64748b"},
+    "sequence": {"strokeColor": "#2563eb", "tagFill": "#dbeafe", "lifeline": "#94a3b8"},
+    "deployment": {"strokeColor": "#94a3b8", "tagStroke": "#64748b", "tagFill": "#f1f5f9"},
+    "gateway": {"strokeColor": "#2563eb", "tagFill": "#dbeafe"},
+    "actor": {"strokeColor": "#475569"},
+    "service": {"strokeColor": "#4f46e5"}
   }
 }
