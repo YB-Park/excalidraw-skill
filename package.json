@@ -23,6 +23,7 @@
     "perceptual-quality-report": "node ./src/perceptual-quality-report.mjs",
     "research:layouts": "node ./src/evaluate-layout-candidates.mjs",
     "visual:actual": "node ./src/render-actual-preview.mjs",
+    "visual:actual:suite": "node ./src/render-actual-suite.mjs",
     "visual:verify": "node ./src/verify-actual-render-signatures.mjs",
     "skill:install:global": "node ./bin/excalidraw-skill.mjs install --global",
     "skill:doctor:global": "node ./bin/excalidraw-skill.mjs doctor --global",
