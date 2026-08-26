@@ -1,0 +1,20 @@
+{
+  "version": "1.0",
+  "cases": {
+    "system-layered-middleware": "system-layered.png",
+    "module-component-manager-workers": "module-component.png",
+    "flow-payment-multilane": "payment-flow.png",
+    "flow-event-retry-dlq": "event-retry-dlq.png",
+    "flow-data-pipeline": "data-pipeline.png",
+    "flow-branch-merge": "branch-merge.png",
+    "quality-flow-fanout-fanin": "fanout-fanin.png",
+    "quality-flow-feedback-loop": "feedback-loop.png",
+    "quality-flow-long-labels": "long-labels.png",
+    "quality-flow-scale-12": "scale-12.png",
+    "quality-flow-four-way-fanout": "four-way-fanout.png",
+    "quality-flow-top-bottom-approval": "top-bottom-approval.png",
+    "quality-flow-dual-support-chains": "dual-support-chains.png",
+    "quality-flow-asymmetric-split-merge": "asymmetric-split-merge.png",
+    "quality-flow-mixed-support-shelf": "mixed-support-shelf.png"
+  }
+}
