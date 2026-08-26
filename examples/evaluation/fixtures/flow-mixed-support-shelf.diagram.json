@@ -1,0 +1,29 @@
+{
+  "version":"2.0",
+  "diagramType":"event-flow",
+  "title":"Mixed Support Shelf",
+  "stylePreset":"professional-software",
+  "layout":{"profile":"swimlane-flow","direction":"left-to-right","aspectRatio":"balanced","primaryFlow":["ingress","orchestrate","deliver","ack"],"lanes":[{"id":"upper","position":"top","order":0},{"id":"main","position":"center","order":1},{"id":"lower","position":"bottom","order":2}]},
+  "framePolicy":{"mode":"none"},
+  "nodes":[
+    {"semanticId":"ingress","label":"Ingress","shapeRef":"gateway.api","layoutHints":{"lane":"main","rank":0,"importance":"primary"}},
+    {"semanticId":"orchestrate","label":"Orchestrator","shapeRef":"service.backend","layoutHints":{"lane":"main","rank":1,"importance":"primary"}},
+    {"semanticId":"deliver","label":"Delivery Worker","shapeRef":"service.worker","layoutHints":{"lane":"main","rank":3,"importance":"primary"}},
+    {"semanticId":"ack","label":"Acknowledged","shapeRef":"client.web","layoutHints":{"lane":"main","rank":4,"importance":"primary"}},
+    {"semanticId":"config","label":"Config Store","shapeRef":"data.store","layoutHints":{"lane":"upper","rank":1,"importance":"secondary"}},
+    {"semanticId":"metrics","label":"Metrics Sink","shapeRef":"telemetry.metrics","layoutHints":{"lane":"upper","rank":3,"importance":"secondary"}},
+    {"semanticId":"queue","label":"Delivery Queue","shapeRef":"queue.event","layoutHints":{"lane":"lower","rank":2,"importance":"secondary"}},
+    {"semanticId":"deadletter","label":"Dead Letter","shapeRef":"queue.event","layoutHints":{"lane":"lower","rank":3,"importance":"secondary"}}
+  ],
+  "edges":[
+    {"semanticId":"ingress-orchestrate","from":"ingress","to":"orchestrate","label":"dispatch","kind":"calls","routeHints":{"priority":"primary"}},
+    {"semanticId":"orchestrate-deliver","from":"orchestrate","to":"deliver","label":"execute","kind":"calls","routeHints":{"priority":"primary"}},
+    {"semanticId":"deliver-ack","from":"deliver","to":"ack","label":"complete","kind":"returns","routeHints":{"priority":"primary"}},
+    {"semanticId":"config-orchestrate","from":"config","to":"orchestrate","label":"settings","kind":"reads","routeHints":{"direction":"down","priority":"secondary"}},
+    {"semanticId":"orchestrate-queue","from":"orchestrate","to":"queue","label":"enqueue","kind":"async","routeHints":{"direction":"down","priority":"secondary"}},
+    {"semanticId":"queue-deliver","from":"queue","to":"deliver","label":"dequeue","kind":"async","routeHints":{"direction":"up","priority":"secondary"}},
+    {"semanticId":"deliver-metrics","from":"deliver","to":"metrics","label":"observe","kind":"writes","routeHints":{"direction":"up","priority":"secondary"}},
+    {"semanticId":"deliver-deadletter","from":"deliver","to":"deadletter","label":"failure","kind":"failure","routeHints":{"direction":"down","priority":"secondary"}}
+  ],
+  "outputPath":"examples/evaluation/outputs/flow-mixed-support-shelf.excalidraw"
+}
