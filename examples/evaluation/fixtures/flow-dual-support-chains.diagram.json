@@ -1,0 +1,28 @@
+{
+  "version":"2.0",
+  "diagramType":"data-flow",
+  "title":"Primary Pipeline with Dual Support Chains",
+  "stylePreset":"professional-software",
+  "layout":{"profile":"swimlane-flow","direction":"left-to-right","aspectRatio":"balanced","primaryFlow":["source","normalize","publish","result"],"lanes":[{"id":"main","position":"center","order":0},{"id":"upper","position":"top","order":1},{"id":"lower","position":"bottom","order":2}]},
+  "framePolicy":{"mode":"none"},
+  "nodes":[
+    {"semanticId":"source","label":"Raw Source","shapeRef":"data.source","layoutHints":{"lane":"main","rank":0,"importance":"primary"}},
+    {"semanticId":"normalize","label":"Normalize","shapeRef":"service.backend","layoutHints":{"lane":"main","rank":1,"importance":"primary"}},
+    {"semanticId":"publish","label":"Publish","shapeRef":"service.backend","layoutHints":{"lane":"main","rank":2,"importance":"primary"}},
+    {"semanticId":"result","label":"Published Result","shapeRef":"data.store","layoutHints":{"lane":"main","rank":3,"importance":"primary"}},
+    {"semanticId":"audit","label":"Audit Buffer","shapeRef":"data.store","layoutHints":{"lane":"upper","rank":1,"importance":"secondary"}},
+    {"semanticId":"archive","label":"Audit Archive","shapeRef":"data.store","layoutHints":{"lane":"upper","rank":2,"importance":"secondary"}},
+    {"semanticId":"events","label":"Event Topic","shapeRef":"queue.event","layoutHints":{"lane":"lower","rank":2,"importance":"secondary"}},
+    {"semanticId":"consumer","label":"Event Consumer","shapeRef":"service.worker","layoutHints":{"lane":"lower","rank":3,"importance":"secondary"}}
+  ],
+  "edges":[
+    {"semanticId":"source-normalize","from":"source","to":"normalize","label":"records","kind":"transfers","routeHints":{"priority":"primary"}},
+    {"semanticId":"normalize-publish","from":"normalize","to":"publish","label":"normalized","kind":"transfers","routeHints":{"priority":"primary"}},
+    {"semanticId":"publish-result","from":"publish","to":"result","label":"persist","kind":"writes","routeHints":{"priority":"primary"}},
+    {"semanticId":"normalize-audit","from":"normalize","to":"audit","label":"audit","kind":"writes","routeHints":{"direction":"up","priority":"secondary"}},
+    {"semanticId":"audit-archive","from":"audit","to":"archive","label":"archive","kind":"transfers","routeHints":{"direction":"right","priority":"secondary"}},
+    {"semanticId":"publish-events","from":"publish","to":"events","label":"emit","kind":"async","routeHints":{"direction":"down","priority":"secondary"}},
+    {"semanticId":"events-consumer","from":"events","to":"consumer","label":"consume","kind":"async","routeHints":{"direction":"right","priority":"secondary"}}
+  ],
+  "outputPath":"examples/evaluation/outputs/flow-dual-support-chains.excalidraw"
+}
