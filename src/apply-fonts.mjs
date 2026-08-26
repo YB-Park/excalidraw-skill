@@ -2,14 +2,9 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { fontTokens, presetNameForScene } from './style-preset.mjs';
 
 const [scenePath, flag, outputPathArg] = process.argv.slice(2);
-
-const FONT = {
-  default: 2,
-  mono: 3,
-  sketch: 5
-};
 
 function readJson(filePath) { return JSON.parse(fs.readFileSync(filePath, 'utf8')); }
 function writeJson(filePath, data) {
@@ -23,15 +18,15 @@ function edgeKind(edgeMap, label) {
   const meta = label.customData?.excalidrawSkill;
   return edgeMap.get(meta?.edge)?.customData?.excalidrawSkill?.kind ?? '';
 }
-function fontFor(element, edgeMap) {
+function fontFor(element, edgeMap, fonts) {
   const meta = element.customData?.excalidrawSkill ?? {};
   const value = element.text ?? element.originalText ?? '';
-  if (meta.fontRole === 'sketch') return FONT.sketch;
-  if (meta.fontRole === 'mono') return FONT.mono;
-  if (meta.role === 'edge-label' && /async|event|queue/.test(edgeKind(edgeMap, element))) return FONT.mono;
-  if (meta.role === 'component-detail' && codeLike(value)) return FONT.mono;
-  if (codeLike(value) && value.length <= 40) return FONT.mono;
-  return FONT.default;
+  if (meta.fontRole === 'sketch') return fonts.sketch;
+  if (meta.fontRole === 'mono') return fonts.mono;
+  if (meta.role === 'edge-label' && /async|event|queue/.test(edgeKind(edgeMap, element))) return fonts.mono;
+  if (meta.role === 'component-detail' && codeLike(value)) return fonts.mono;
+  if (codeLike(value) && value.length <= 40) return fonts.mono;
+  return fonts.default;
 }
 
 function main() {
@@ -41,6 +36,7 @@ function main() {
   }
 
   const scene = readJson(scenePath);
+  const fonts = fontTokens(presetNameForScene(scene));
   const edgeMap = new Map();
   for (const element of scene.elements ?? []) {
     const meta = element.customData?.excalidrawSkill;
@@ -49,7 +45,7 @@ function main() {
 
   for (const element of scene.elements ?? []) {
     if (element.type !== 'text') continue;
-    element.fontFamily = fontFor(element, edgeMap);
+    element.fontFamily = fontFor(element, edgeMap, fonts);
   }
 
   const outputPath = flag === '-o' && outputPathArg ? outputPathArg : scenePath;
