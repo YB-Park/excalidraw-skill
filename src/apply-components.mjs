@@ -2,6 +2,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { componentDetailStyles, presetNameForScene } from './style-preset.mjs';
 
 const [scenePathArg, flag, outputPathArg] = process.argv.slice(2);
 
@@ -41,7 +42,7 @@ function validNode(node) {
   );
 }
 
-function make(type, id, x, y, width, height) {
+function make(type, id, x, y, width, height, styles) {
   return {
     id,
     type,
@@ -50,13 +51,7 @@ function make(type, id, x, y, width, height) {
     width: numberOr(width, 0),
     height: numberOr(height, 0),
     angle: 0,
-    strokeColor: '#64748b',
-    backgroundColor: 'transparent',
-    fillStyle: 'solid',
-    strokeWidth: 1,
-    strokeStyle: 'solid',
-    roughness: 0.7,
-    opacity: 100,
+    ...styles.base,
     groupIds: [],
     frameId: null,
     roundness: type === 'rectangle' ? { type: 3 } : null,
@@ -72,8 +67,8 @@ function make(type, id, x, y, width, height) {
   };
 }
 
-function makeText(id, value, x, y, width, size = 11) {
-  const text = make('text', id, x, y, width, 18);
+function makeText(id, value, x, y, width, styles, size = 11) {
+  const text = make('text', id, x, y, width, 18, styles);
   text.text = String(value ?? '');
   text.originalText = text.text;
   text.fontSize = size;
@@ -82,123 +77,147 @@ function makeText(id, value, x, y, width, size = 11) {
   text.verticalAlign = 'middle';
   text.containerId = null;
   text.lineHeight = 1.25;
-  text.strokeColor = '#475569';
+  text.strokeColor = styles.text.strokeColor;
   return text;
 }
 
-function tag(node, value, color, fill, width = 54) {
-  const box = make('rectangle', safeId('tag', `${node.id}_${value}`), node.x + 12, node.y + 8, width, 18);
+function tag(node, value, color, fill, styles, width = 54) {
+  const box = make('rectangle', safeId('tag', `${node.id}_${value}`), node.x + 12, node.y + 8, width, 18, styles);
   box.strokeColor = color;
   box.backgroundColor = fill;
-  const label = makeText(safeId('tag_text', `${node.id}_${value}`), value, box.x + 8, box.y + 2, width - 8, 10);
+  const label = makeText(safeId('tag_text', `${node.id}_${value}`), value, box.x + 8, box.y + 2, width - 8, styles, 10);
   label.strokeColor = color;
   return [box, label];
 }
 
-function line(node, name, x1, y1, x2, y2, color) {
-  const element = make('line', safeId(name, node.id), x1, y1, x2 - x1, y2 - y1);
+function line(node, name, x1, y1, x2, y2, color, styles) {
+  const element = make('line', safeId(name, node.id), x1, y1, x2 - x1, y2 - y1, styles);
   element.points = [[0, 0], [x2 - x1, y2 - y1]];
   element.strokeColor = color;
   return element;
 }
 
-function accent(node, color, width = 8) {
-  const bar = make('rectangle', safeId('accent', node.id), node.x, node.y, width, node.height);
+function accent(node, color, styles, width = 8) {
+  const bar = make('rectangle', safeId('accent', node.id), node.x, node.y, width, node.height, styles);
   bar.strokeColor = color;
   bar.backgroundColor = color;
   return [bar];
 }
 
-function database(node) {
+function database(node, styles) {
+  const visual = styles.database;
   return [
-    line(node, 'db_top', node.x + 14, node.y + 22, node.x + node.width - 14, node.y + 22, '#0f766e'),
-    line(node, 'db_bottom', node.x + 14, node.y + node.height - 18, node.x + node.width - 14, node.y + node.height - 18, '#0f766e'),
-    ...tag(node, 'DATA', '#0f766e', '#ccfbf1')
+    line(node, 'db_top', node.x + 14, node.y + 22, node.x + node.width - 14, node.y + 22, visual.strokeColor, styles),
+    line(node, 'db_bottom', node.x + 14, node.y + node.height - 18, node.x + node.width - 14, node.y + node.height - 18, visual.strokeColor, styles),
+    ...tag(node, 'DATA', visual.strokeColor, visual.tagFill, styles)
   ];
 }
 
-function queue(node) {
-  const band = make('rectangle', safeId('queue_band', node.id), node.x, node.y, node.width, 24);
-  band.strokeColor = '#9333ea';
-  band.backgroundColor = '#f3e8ff';
-  const label = makeText(safeId('queue_label', node.id), 'EVENT', node.x + 12, node.y + 4, 60, 10);
-  label.strokeColor = '#7e22ce';
+function queue(node, styles) {
+  const visual = styles.queue;
+  const band = make('rectangle', safeId('queue_band', node.id), node.x, node.y, node.width, 24, styles);
+  band.strokeColor = visual.strokeColor;
+  band.backgroundColor = visual.bandFill;
+  const label = makeText(safeId('queue_label', node.id), 'EVENT', node.x + 12, node.y + 4, 60, styles, 10);
+  label.strokeColor = visual.labelStroke;
   const dots = [0, 1, 2].map((index) => {
-    const dot = make('ellipse', safeId(`queue_dot_${index}`, node.id), node.x + node.width - 44 + index * 14, node.y + 8, 8, 8);
-    dot.strokeColor = '#9333ea';
-    dot.backgroundColor = '#9333ea';
+    const dot = make('ellipse', safeId(`queue_dot_${index}`, node.id), node.x + node.width - 44 + index * 14, node.y + 8, 8, 8, styles);
+    dot.strokeColor = visual.strokeColor;
+    dot.backgroundColor = visual.strokeColor;
     return dot;
   });
   return [band, label, ...dots];
 }
 
-function external(node) {
-  const shell = make('rectangle', safeId('external_shell', node.id), node.x - 6, node.y - 6, node.width + 12, node.height + 12);
-  shell.strokeColor = '#64748b';
+function external(node, styles) {
+  const visual = styles.external;
+  const shell = make('rectangle', safeId('external_shell', node.id), node.x - 6, node.y - 6, node.width + 12, node.height + 12, styles);
+  shell.strokeColor = visual.strokeColor;
   shell.strokeStyle = 'dashed';
-  return [shell, ...tag(node, 'EXT', '#64748b', '#f1f5f9')];
+  return [shell, ...tag(node, 'EXT', visual.strokeColor, visual.tagFill, styles)];
 }
 
-function risk(node) {
-  const badge = make('ellipse', safeId('risk_badge', node.id), node.x + node.width - 34, node.y + 8, 22, 22);
-  badge.strokeColor = '#d97706';
-  badge.backgroundColor = '#fef3c7';
-  const bang = makeText(safeId('risk_bang', node.id), '!', badge.x + 8, badge.y + 1, 12, 15);
-  bang.strokeColor = '#b45309';
-  return [...accent(node, '#d97706', 10), badge, bang];
+function risk(node, styles) {
+  const visual = styles.risk;
+  const badge = make('ellipse', safeId('risk_badge', node.id), node.x + node.width - 34, node.y + 8, 22, 22, styles);
+  badge.strokeColor = visual.strokeColor;
+  badge.backgroundColor = visual.badgeFill;
+  const bang = makeText(safeId('risk_bang', node.id), '!', badge.x + 8, badge.y + 1, 12, styles, 15);
+  bang.strokeColor = visual.textStroke;
+  return [...accent(node, visual.strokeColor, styles, 10), badge, bang];
 }
 
-function worker(node) {
-  return [...accent(node, '#7c3aed'), ...tag(node, 'JOB', '#7c3aed', '#ede9fe', 48)];
+function worker(node, styles) {
+  const visual = styles.worker;
+  return [...accent(node, visual.strokeColor, styles), ...tag(node, 'JOB', visual.strokeColor, visual.tagFill, styles, 48)];
 }
 
-function state(node) {
-  return [...tag(node, 'STATE', '#334155', '#f1f5f9', 64), line(node, 'state_mid', node.x + 14, node.y + node.height - 20, node.x + node.width - 14, node.y + node.height - 20, '#94a3b8')];
+function state(node, styles) {
+  const visual = styles.state;
+  return [
+    ...tag(node, 'STATE', visual.strokeColor, visual.tagFill, styles, 64),
+    line(node, 'state_mid', node.x + 14, node.y + node.height - 20, node.x + node.width - 14, node.y + node.height - 20, visual.separator, styles)
+  ];
 }
 
-function entity(node) {
-  return [...tag(node, 'ENTITY', '#334155', '#f8fafc', 70), line(node, 'entity_row_1', node.x + 14, node.y + 32, node.x + node.width - 14, node.y + 32, '#cbd5e1'), line(node, 'entity_row_2', node.x + 14, node.y + 52, node.x + node.width - 14, node.y + 52, '#cbd5e1')];
+function entity(node, styles) {
+  const visual = styles.entity;
+  return [
+    ...tag(node, 'ENTITY', visual.strokeColor, visual.tagFill, styles, 70),
+    line(node, 'entity_row_1', node.x + 14, node.y + 32, node.x + node.width - 14, node.y + 32, visual.separator, styles),
+    line(node, 'entity_row_2', node.x + 14, node.y + 52, node.x + node.width - 14, node.y + 52, visual.separator, styles)
+  ];
 }
 
-function processTask(node) {
-  return [...tag(node, 'TASK', '#475569', '#f8fafc', 56), ...accent(node, '#64748b', 6)];
+function processTask(node, styles) {
+  const visual = styles.process;
+  return [...tag(node, 'TASK', visual.strokeColor, visual.tagFill, styles, 56), ...accent(node, visual.accent, styles, 6)];
 }
 
-function decision(node) {
-  const marker = make('rectangle', safeId('decision_mark', node.id), node.x + node.width - 31, node.y + 11, 18, 18);
+function decision(node, styles) {
+  const visual = styles.process;
+  const marker = make('rectangle', safeId('decision_mark', node.id), node.x + node.width - 31, node.y + 11, 18, 18, styles);
   marker.angle = Math.PI / 4;
-  marker.strokeColor = '#475569';
-  marker.backgroundColor = '#f8fafc';
-  return [...tag(node, 'DECIDE', '#475569', '#f8fafc', 72), marker];
+  marker.strokeColor = visual.strokeColor;
+  marker.backgroundColor = visual.tagFill;
+  return [...tag(node, 'DECIDE', visual.strokeColor, visual.tagFill, styles, 72), marker];
 }
 
-function sequence(node) {
-  return [...tag(node, 'SEQ', '#2563eb', '#dbeafe', 48), line(node, 'lifeline', node.x + node.width / 2, node.y + node.height, node.x + node.width / 2, node.y + node.height + 90, '#94a3b8')];
+function sequence(node, styles) {
+  const visual = styles.sequence;
+  return [
+    ...tag(node, 'SEQ', visual.strokeColor, visual.tagFill, styles, 48),
+    line(node, 'lifeline', node.x + node.width / 2, node.y + node.height, node.x + node.width / 2, node.y + node.height + 90, visual.lifeline, styles)
+  ];
 }
 
-function deployment(node) {
-  const shell = make('rectangle', safeId('deploy_shell', node.id), node.x - 8, node.y - 8, node.width + 16, node.height + 16);
-  shell.strokeColor = '#94a3b8';
+function deployment(node, styles) {
+  const visual = styles.deployment;
+  const shell = make('rectangle', safeId('deploy_shell', node.id), node.x - 8, node.y - 8, node.width + 16, node.height + 16, styles);
+  shell.strokeColor = visual.strokeColor;
   shell.strokeStyle = 'dashed';
-  return [shell, ...tag(node, 'RUN', '#64748b', '#f1f5f9', 48)];
+  return [shell, ...tag(node, 'RUN', visual.tagStroke, visual.tagFill, styles, 48)];
 }
 
-function details(node) {
+function details(node, styles) {
   const ref = String(node.customData?.excalidrawSkill?.shapeRef ?? '');
-  if (ref.includes('database') || ref.includes('storage')) return database(node);
-  if (ref.includes('queue')) return queue(node);
-  if (ref.includes('external')) return external(node);
-  if (ref.includes('risk') || ref.includes('security')) return risk(node);
-  if (ref.includes('worker')) return worker(node);
-  if (ref.includes('state')) return state(node);
-  if (ref.includes('domain')) return entity(node);
-  if (ref.includes('process.decision')) return decision(node);
-  if (ref.includes('process')) return processTask(node);
-  if (ref.includes('sequence')) return sequence(node);
-  if (ref.includes('cloud') || ref.includes('network') || ref.includes('k8s') || ref.includes('runtime')) return deployment(node);
-  if (ref.includes('gateway')) return [...accent(node, '#2563eb'), ...tag(node, 'API', '#2563eb', '#dbeafe')];
-  if (ref.includes('client') || ref.includes('actor')) return accent(node, '#475569');
-  return accent(node, '#4f46e5');
+  if (ref.includes('database') || ref.includes('storage')) return database(node, styles);
+  if (ref.includes('queue')) return queue(node, styles);
+  if (ref.includes('external')) return external(node, styles);
+  if (ref.includes('risk') || ref.includes('security')) return risk(node, styles);
+  if (ref.includes('worker')) return worker(node, styles);
+  if (ref.includes('state')) return state(node, styles);
+  if (ref.includes('domain')) return entity(node, styles);
+  if (ref.includes('process.decision')) return decision(node, styles);
+  if (ref.includes('process')) return processTask(node, styles);
+  if (ref.includes('sequence')) return sequence(node, styles);
+  if (ref.includes('cloud') || ref.includes('network') || ref.includes('k8s') || ref.includes('runtime')) return deployment(node, styles);
+  if (ref.includes('gateway')) return [
+    ...accent(node, styles.gateway.strokeColor, styles),
+    ...tag(node, 'API', styles.gateway.strokeColor, styles.gateway.tagFill, styles)
+  ];
+  if (ref.includes('client') || ref.includes('actor')) return accent(node, styles.actor.strokeColor, styles);
+  return accent(node, styles.service.strokeColor, styles);
 }
 
 function run() {
@@ -210,6 +229,7 @@ function run() {
     throw new TypeError('Scene JSON must be an object');
   }
 
+  const styles = componentDetailStyles(presetNameForScene(scene));
   const elements = Array.isArray(scene.elements) ? scene.elements : [];
   const existing = new Set(elements.map((element) => element?.id).filter(Boolean));
   const additions = [];
@@ -218,7 +238,7 @@ function run() {
     const meta = element?.customData?.excalidrawSkill;
     if (meta?.role !== 'node' || !validNode(element)) continue;
 
-    const generated = details(element);
+    const generated = details(element, styles);
     if (!Array.isArray(generated)) continue;
 
     for (const detail of generated) {
