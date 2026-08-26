@@ -39,5 +39,41 @@ test('summarizeResults distinguishes runnable and contract-only cases', () => {
   assert.equal(summary.failed, 1);
   assert.equal(summary.contractOnly, 1);
   assert.equal(summary.missingFixture, 1);
+  assert.equal(summary.structuralPass, false);
   assert.equal(summary.pass, false);
+});
+
+test('perceptual warnings stay advisory by default', () => {
+  const summary = summarizeResults([
+    { status: 'passed', perceptualWarnings: [{ kind: 'edge-bend-complexity' }] }
+  ]);
+  assert.equal(summary.structuralPass, true);
+  assert.equal(summary.perceptualWarnings, 1);
+  assert.equal(summary.perceptualPass, false);
+  assert.equal(summary.strictPerceptual, false);
+  assert.equal(summary.pass, true);
+});
+
+test('strict perceptual mode fails when any runnable case has a warning', () => {
+  const summary = summarizeResults([
+    { status: 'passed', perceptualWarnings: [{ kind: 'ambiguous-edge-label-association' }] },
+    { status: 'passed', perceptualWarnings: [] }
+  ], { strictPerceptual: true });
+  assert.equal(summary.structuralPass, true);
+  assert.equal(summary.perceptualWarnings, 1);
+  assert.equal(summary.perceptualPass, false);
+  assert.equal(summary.strictPerceptual, true);
+  assert.equal(summary.pass, false);
+});
+
+test('strict perceptual mode passes a zero-warning runnable suite', () => {
+  const summary = summarizeResults([
+    { status: 'passed', perceptualWarnings: [] },
+    { status: 'passed', perceptualWarnings: [] },
+    { status: 'contract-only' }
+  ], { strictPerceptual: true });
+  assert.equal(summary.structuralPass, true);
+  assert.equal(summary.perceptualPass, true);
+  assert.equal(summary.strictPerceptual, true);
+  assert.equal(summary.pass, true);
 });
