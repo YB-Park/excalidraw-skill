@@ -8,6 +8,7 @@ import { styleByKind } from './style-by-kind.mjs';
 import { styleEdges } from './style-edges.mjs';
 import {
   baseElementStyle,
+  frameStyle,
   loadStylePreset,
   presetNameForScene
 } from './style-preset.mjs';
@@ -356,15 +357,13 @@ function groupIntoFrame(elements, nodes, op, preset) {
   const right = Math.max(...memberNodes.map((node) => node.x + node.width)) + padding;
   const bottom = Math.max(...memberNodes.map((node) => node.y + node.height)) + padding;
   const frame = base('frame', semanticId, preset);
+  Object.assign(frame, frameStyle(preset));
   frame.x = left;
   frame.y = top;
   frame.width = right - left;
   frame.height = bottom - top;
   frame.roundness = null;
   frame.name = op.label ?? semanticId;
-  frame.strokeColor = '#9ca3af';
-  frame.backgroundColor = '#f8fafc';
-  frame.strokeWidth = 1;
   frame.customData.excalidrawSkill.role = 'frame';
   frame.customData.excalidrawSkill.memberCount = members.length;
   frame.customData.excalidrawSkill.boundaryIntent = op.boundaryIntent ?? null;
