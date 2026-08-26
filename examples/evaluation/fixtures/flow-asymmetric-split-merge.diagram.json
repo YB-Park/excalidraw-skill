@@ -1,0 +1,27 @@
+{
+  "version":"2.0",
+  "diagramType":"service-flow",
+  "title":"Asymmetric Split and Merge",
+  "stylePreset":"professional-software",
+  "layout":{"profile":"swimlane-flow","direction":"left-to-right","aspectRatio":"balanced","primaryFlow":["request","decision","merge","response"],"lanes":[{"id":"main","position":"center","order":0},{"id":"fast","position":"top","order":1},{"id":"slow","position":"bottom","order":2}]},
+  "framePolicy":{"mode":"none"},
+  "nodes":[
+    {"semanticId":"request","label":"Request","shapeRef":"client.web","layoutHints":{"lane":"main","rank":0,"importance":"primary"}},
+    {"semanticId":"decision","label":"Route Decision","shapeRef":"gateway.api","layoutHints":{"lane":"main","rank":1,"importance":"primary"}},
+    {"semanticId":"merge","label":"Merge Results","shapeRef":"service.backend","layoutHints":{"lane":"main","rank":4,"importance":"primary"}},
+    {"semanticId":"response","label":"Response","shapeRef":"client.web","layoutHints":{"lane":"main","rank":5,"importance":"primary"}},
+    {"semanticId":"cache","label":"Fast Cache Path","shapeRef":"data.cache","layoutHints":{"lane":"fast","rank":2,"importance":"secondary"}},
+    {"semanticId":"enrich","label":"Enrich Request","shapeRef":"service.worker","layoutHints":{"lane":"slow","rank":2,"importance":"secondary"}},
+    {"semanticId":"provider","label":"Remote Provider","shapeRef":"external.system","layoutHints":{"lane":"slow","rank":3,"importance":"secondary"}}
+  ],
+  "edges":[
+    {"semanticId":"request-decision","from":"request","to":"decision","label":"route","kind":"calls","routeHints":{"priority":"primary"}},
+    {"semanticId":"decision-cache","from":"decision","to":"cache","label":"fast path","kind":"optional","routeHints":{"direction":"up","priority":"secondary"}},
+    {"semanticId":"cache-merge","from":"cache","to":"merge","label":"cached result","kind":"returns","routeHints":{"direction":"down","priority":"secondary"}},
+    {"semanticId":"decision-enrich","from":"decision","to":"enrich","label":"slow path","kind":"optional","routeHints":{"direction":"down","priority":"secondary"}},
+    {"semanticId":"enrich-provider","from":"enrich","to":"provider","label":"lookup","kind":"calls","routeHints":{"direction":"right","priority":"secondary"}},
+    {"semanticId":"provider-merge","from":"provider","to":"merge","label":"provider result","kind":"returns","routeHints":{"direction":"up","priority":"secondary"}},
+    {"semanticId":"merge-response","from":"merge","to":"response","label":"combined","kind":"returns","routeHints":{"priority":"primary"}}
+  ],
+  "outputPath":"examples/evaluation/outputs/flow-asymmetric-split-merge.excalidraw"
+}
