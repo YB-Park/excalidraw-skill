@@ -133,7 +133,7 @@ function external(node, styles) {
   const visual = styles.external;
   const shell = make('rectangle', safeId('external_shell', node.id), node.x - 6, node.y - 6, node.width + 12, node.height + 12, styles);
   shell.strokeColor = visual.strokeColor;
-  shell.strokeStyle = 'dashed';
+  shell.strokeStyle = visual.strokeStyle;
   return [shell, ...tag(node, 'EXT', visual.strokeColor, visual.tagFill, styles)];
 }
 
@@ -195,7 +195,7 @@ function deployment(node, styles) {
   const visual = styles.deployment;
   const shell = make('rectangle', safeId('deploy_shell', node.id), node.x - 8, node.y - 8, node.width + 16, node.height + 16, styles);
   shell.strokeColor = visual.strokeColor;
-  shell.strokeStyle = 'dashed';
+  shell.strokeStyle = visual.strokeStyle;
   return [shell, ...tag(node, 'RUN', visual.tagStroke, visual.tagFill, styles, 48)];
 }
 
