@@ -71,6 +71,93 @@ function affectedIntent(beforeScene, patch) {
   return { changedNodes, explicitEdges };
 }
 
+function rectFor(node, margin = 0) {
+  return {
+    x: node.x - margin,
+    y: node.y - margin,
+    width: node.width + margin * 2,
+    height: node.height + margin * 2
+  };
+}
+
+function rectsOverlap(first, second) {
+  return first.x < second.x + second.width
+    && first.x + first.width > second.x
+    && first.y < second.y + second.height
+    && first.y + first.height > second.y;
+}
+
+function positionIsClear(node, position, nodes, margin = 24) {
+  const probe = {
+    x: position.x - margin,
+    y: position.y - margin,
+    width: node.width + margin * 2,
+    height: node.height + margin * 2
+  };
+  return nodes.every((other) => other === node || !rectsOverlap(probe, rectFor(other)));
+}
+
+function moveGeneratedNode(scene, node, position) {
+  const semanticId = metaOf(node).semanticId;
+  const dx = position.x - node.x;
+  const dy = position.y - node.y;
+  const groups = new Set(node.groupIds ?? []);
+  for (const element of scene.elements ?? []) {
+    const meta = metaOf(element);
+    const isBoundLabel = meta.role === 'label' && meta.node === semanticId;
+    const sharesGroup = (element.groupIds ?? []).some((groupId) => groups.has(groupId));
+    if (element === node || isBoundLabel || sharesGroup) {
+      element.x = Number(element.x ?? 0) + dx;
+      element.y = Number(element.y ?? 0) + dy;
+    }
+  }
+  metaOf(node).patchPlacement = {
+    engine: 'collision-slot-v0.1',
+    x: Math.round(position.x),
+    y: Math.round(position.y)
+  };
+}
+
+function resolveAddedNodeOverlaps(scene, newNodeIds) {
+  const nodes = semanticElements(scene, 'node');
+  const newNodes = nodes
+    .filter((node) => newNodeIds.has(metaOf(node).semanticId))
+    .sort((first, second) => metaOf(first).semanticId.localeCompare(metaOf(second).semanticId));
+  const gap = 72;
+
+  for (const node of newNodes) {
+    const overlapping = nodes.filter((other) => other !== node && rectsOverlap(rectFor(node), rectFor(other)));
+    if (overlapping.length === 0) continue;
+
+    const left = Math.min(...overlapping.map((other) => other.x));
+    const right = Math.max(...overlapping.map((other) => other.x + other.width));
+    const top = Math.min(...overlapping.map((other) => other.y));
+    const bottom = Math.max(...overlapping.map((other) => other.y + other.height));
+    const centerX = (left + right) / 2;
+    const centerY = (top + bottom) / 2;
+    const candidates = [
+      { x: centerX - node.width / 2, y: bottom + gap },
+      { x: centerX - node.width / 2, y: top - node.height - gap },
+      { x: right + gap, y: centerY - node.height / 2 },
+      { x: left - node.width - gap, y: centerY - node.height / 2 }
+    ].map((candidate) => ({
+      x: Math.round(candidate.x),
+      y: Math.round(candidate.y)
+    }));
+
+    candidates.sort((first, second) => {
+      const firstDistance = Math.hypot(first.x - node.x, first.y - node.y);
+      const secondDistance = Math.hypot(second.x - node.x, second.y - node.y);
+      return firstDistance - secondDistance || first.y - second.y || first.x - second.x;
+    });
+    const chosen = candidates.find((candidate) => positionIsClear(node, candidate, nodes));
+    if (!chosen) {
+      throw new Error(`No collision-free local slot for patch-added node: ${metaOf(node).semanticId}`);
+    }
+    moveGeneratedNode(scene, node, chosen);
+  }
+}
+
 function copyRouteGeometry(target, source) {
   for (const key of ['x', 'y', 'width', 'height']) target[key] = source[key];
   target.points = clone(source.points ?? []);
@@ -141,6 +228,7 @@ export function applyQualityPatch(scene, patch, options = {}) {
 
   applySemanticPatch(scene, patch);
   const added = styleAddedElements(scene, beforeNodeIds, beforeEdgeIds);
+  resolveAddedNodeOverlaps(scene, added.newNodeIds);
   for (const nodeId of added.newNodeIds) intent.changedNodes.add(nodeId);
   for (const edgeId of added.newEdgeIds) intent.explicitEdges.add(edgeId);
 
@@ -165,7 +253,7 @@ export function applyQualityPatch(scene, patch, options = {}) {
   scene.customData ??= {};
   scene.customData.excalidrawSkill ??= {};
   scene.customData.excalidrawSkill.patchQuality = {
-    version: '0.1.0',
+    version: '0.2.0',
     affectedEdges: [...affectedEdges].sort(),
     newNodes: [...added.newNodeIds].sort(),
     newEdges: [...added.newEdgeIds].sort(),
