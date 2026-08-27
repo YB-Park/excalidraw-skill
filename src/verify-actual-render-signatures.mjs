@@ -36,6 +36,13 @@ export function compareRenderSignature(expected, actual, maxHammingDistance = 4)
   };
 }
 
+export function findUnexpectedRenders(renderFiles, expectedRenders) {
+  const expected = new Set(Object.keys(expectedRenders ?? {}));
+  return renderFiles
+    .filter((fileName) => fileName.endsWith('.png') && !expected.has(fileName))
+    .sort();
+}
+
 async function computeSignature(page, filePath) {
   const data = fs.readFileSync(filePath).toString('base64');
   const dataUrl = `data:image/png;base64,${data}`;
@@ -107,16 +114,18 @@ export async function verifyActualRenderSignatures(options = {}) {
     await browser.close();
   }
   const unexpected = fs.existsSync(renderDir)
-    ? fs.readdirSync(renderDir)
-        .filter((fileName) => fileName.endsWith('.png') && !(fileName in (baseline.renders ?? {})))
-        .sort()
+    ? findUnexpectedRenders(fs.readdirSync(renderDir), baseline.renders)
     : [];
+  const signaturePass = results.every((result) => result.pass);
+  const coveragePass = unexpected.length === 0;
   return {
-    version: '0.1.0',
+    version: '0.2.0',
     baseline: path.relative(rootDir, baselinePath),
     renderDir: path.relative(rootDir, renderDir),
     maxHammingDistance,
-    pass: results.every((result) => result.pass),
+    signaturePass,
+    coveragePass,
+    pass: signaturePass && coveragePass,
     results,
     unexpected
   };
