@@ -2,10 +2,9 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { fitEdgeLabel } from './edge-label-fit.mjs';
 import { edgeLabelStyle, presetNameForScene } from './style-preset.mjs';
-
-const [scenePath, flag, outputPathArg] = process.argv.slice(2);
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -27,7 +26,7 @@ function makeLabel(edge, fitOptions = {}, style) {
     lineHeight: style.lineHeight,
     ...fitOptions
   });
-  const text = {
+  return {
     id: safeId('text', `${meta.semanticId}_label`),
     type: 'text',
     x: edge.x + edge.width / 2 - fitted.width / 2,
@@ -75,16 +74,9 @@ function makeLabel(edge, fitOptions = {}, style) {
       }
     }
   };
-  return text;
 }
 
-function run() {
-  if (!scenePath) {
-    console.error('Usage: node src/label-edges.mjs <scene.excalidraw> [-o output.excalidraw]');
-    process.exit(1);
-  }
-
-  const scene = readJson(scenePath);
+export function labelEdges(scene) {
   const style = edgeLabelStyle(presetNameForScene(scene));
   const layout = scene.customData?.excalidrawSkill?.layout;
   const fitOptions = layout?.family === 'module-architecture' && layout?.strategy === 'hub-grid'
@@ -100,12 +92,31 @@ function run() {
     const meta = element.customData?.excalidrawSkill;
     if (meta?.role === 'edge' && meta.label && !existing.has(meta.semanticId)) {
       scene.elements.push(makeLabel(element, fitOptions, style));
+      existing.add(meta.semanticId);
     }
   }
+  return scene;
+}
 
+function main() {
+  const [scenePath, flag, outputPathArg] = process.argv.slice(2);
+  if (!scenePath) {
+    console.error('Usage: node src/label-edges.mjs <scene.excalidraw> [-o output.excalidraw]');
+    process.exit(1);
+  }
+
+  const scene = labelEdges(readJson(scenePath));
   const outputPath = flag === '-o' && outputPathArg ? outputPathArg : scenePath;
   writeJson(outputPath, scene);
   console.log(outputPath);
 }
 
-run();
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) {
+  try {
+    main();
+  } catch (error) {
+    console.error(`label-edges failed: ${error instanceof Error ? error.message : String(error)}`);
+    process.exit(1);
+  }
+}
