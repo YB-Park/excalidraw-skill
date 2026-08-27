@@ -1,6 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { compareRenderSignature, hammingDistance } from './verify-actual-render-signatures.mjs';
+import {
+  compareRenderSignature,
+  findUnexpectedRenders,
+  hammingDistance
+} from './verify-actual-render-signatures.mjs';
 
 test('counts dHash bit differences', () => {
   assert.equal(hammingDistance('0000000000000000', '0000000000000000'), 0);
@@ -37,4 +41,23 @@ test('rejects visual drift beyond the configured threshold', () => {
   );
   assert.equal(result.pass, false);
   assert.equal(result.hammingDistance, 8);
+});
+
+test('finds rendered PNGs that are missing from the baseline', () => {
+  const unexpected = findUnexpectedRenders(
+    ['known.png', 'new-case.png', 'known.png.json', 'notes.txt', 'another-new.png'],
+    { 'known.png': { width: 100, height: 60, dhash: '0000000000000000' } }
+  );
+  assert.deepEqual(unexpected, ['another-new.png', 'new-case.png']);
+});
+
+test('accepts exact render coverage', () => {
+  const unexpected = findUnexpectedRenders(
+    ['a.png', 'a.png.json', 'b.png'],
+    {
+      'a.png': { width: 100, height: 60, dhash: '0000000000000000' },
+      'b.png': { width: 120, height: 80, dhash: '0000000000000000' }
+    }
+  );
+  assert.deepEqual(unexpected, []);
 });
