@@ -3,14 +3,24 @@ import fs from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { renderSpec } from './render.mjs';
+import { layoutServiceFlow } from './layout-service-flow.mjs';
+import { routeEdges } from './route-edges.mjs';
 import { applyQualityPatch } from './quality-patch.mjs';
 
 const srcDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(srcDir, '..');
-const source = JSON.parse(fs.readFileSync(
-  path.join(rootDir, 'examples/service-flow/payment-flow.visual-plan.excalidraw'),
+const spec = JSON.parse(fs.readFileSync(
+  path.join(rootDir, 'examples/service-flow/payment-flow.visual-plan.diagram.json'),
   'utf8'
 ));
+
+function makeSource() {
+  const scene = renderSpec(structuredClone(spec));
+  layoutServiceFlow(scene, spec);
+  routeEdges(scene, spec);
+  return scene;
+}
 
 function metaOf(element) {
   return element?.customData?.excalidrawSkill ?? {};
@@ -38,6 +48,7 @@ function assertPositionEqual(actual, expected, label) {
 }
 
 test('removeObject removes the worker and connected edge without moving unrelated primary nodes', () => {
+  const source = makeSource();
   const beforePayment = nodePosition(source, 'payment-service');
   const beforeNetwork = nodePosition(source, 'card-network');
   const scene = applyQualityPatch(structuredClone(source), {
@@ -52,6 +63,7 @@ test('removeObject removes the worker and connected edge without moving unrelate
 });
 
 test('moveNear moves only the requested worker below the event queue and reroutes its edge', () => {
+  const source = makeSource();
   const beforePayment = nodePosition(source, 'payment-service');
   const beforeNetwork = nodePosition(source, 'card-network');
   const scene = applyQualityPatch(structuredClone(source), {
@@ -74,6 +86,7 @@ test('moveNear moves only the requested worker below the event queue and reroute
 });
 
 test('updateLabel keeps semantic identity and native binding for a longer primary node label', () => {
+  const source = makeSource();
   const beforeWeb = nodePosition(source, 'web-app');
   const scene = applyQualityPatch(structuredClone(source), {
     preserveManualLayout: true,
@@ -97,6 +110,7 @@ test('updateLabel keeps semantic identity and native binding for a longer primar
 });
 
 test('edge edit can rewire an existing semantic edge without moving unrelated nodes', () => {
+  const source = makeSource();
   const beforePayment = nodePosition(source, 'payment-service');
   const beforeEvents = nodePosition(source, 'payment-events');
   const scene = applyQualityPatch(structuredClone(source), {
