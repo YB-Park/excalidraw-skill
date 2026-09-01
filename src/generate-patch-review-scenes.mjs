@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { applyQualityPatch } from './quality-patch.mjs';
 import { createEditabilityReport } from './editability-report.mjs';
 import { createQualityReport } from './quality-report.mjs';
+import { createPerceptualQuality } from './perceptual-quality.mjs';
 
 const srcDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(srcDir, '..');
@@ -24,6 +25,7 @@ function writeJson(filePath, data) {
 const cases = [
   {
     id: 'payment-add-audit',
+    reviewStatus: 'accepted',
     patch: {
       preserveManualLayout: true,
       operations: [
@@ -49,6 +51,7 @@ const cases = [
   },
   {
     id: 'payment-local-edit',
+    reviewStatus: 'accepted',
     patch: {
       preserveManualLayout: true,
       operations: [
@@ -69,6 +72,7 @@ const cases = [
   },
   {
     id: 'payment-insert-auth',
+    reviewStatus: 'accepted',
     patch: {
       preserveManualLayout: true,
       operations: [
@@ -80,6 +84,70 @@ const cases = [
           shapeRef: 'risk.security',
           inLabel: 'TLS',
           outLabel: 'session'
+        }
+      ]
+    }
+  },
+  {
+    id: 'payment-remove-worker',
+    reviewStatus: 'candidate',
+    patch: {
+      preserveManualLayout: true,
+      operations: [
+        {
+          op: 'removeObject',
+          target: 'settlement-worker'
+        }
+      ]
+    }
+  },
+  {
+    id: 'payment-move-worker-down',
+    reviewStatus: 'candidate',
+    patch: {
+      preserveManualLayout: true,
+      operations: [
+        {
+          op: 'moveNear',
+          target: 'settlement-worker',
+          near: 'payment-events',
+          side: 'down',
+          gap: 80
+        }
+      ]
+    }
+  },
+  {
+    id: 'payment-relabel-service',
+    reviewStatus: 'candidate',
+    patch: {
+      preserveManualLayout: true,
+      operations: [
+        {
+          op: 'updateLabel',
+          target: 'payment-service',
+          label: 'Payment Authorization Service'
+        }
+      ]
+    }
+  },
+  {
+    id: 'payment-rewire-worker',
+    reviewStatus: 'candidate',
+    patch: {
+      preserveManualLayout: true,
+      operations: [
+        {
+          op: 'removeObject',
+          target: 'events-to-worker'
+        },
+        {
+          op: 'addEdge',
+          semanticId: 'events-to-worker',
+          from: 'payment-db',
+          to: 'settlement-worker',
+          label: 'settle',
+          kind: 'sync'
         }
       ]
     }
@@ -98,6 +166,7 @@ function main() {
     const scene = applyQualityPatch(structuredClone(source), entry.patch);
     const editability = createEditabilityReport(scene);
     const quality = createQualityReport(scene);
+    const perceptual = createPerceptualQuality(scene);
     if (!editability.pass || !quality.structuralPass) {
       throw new Error(`${entry.id} failed patch review gates`);
     }
@@ -105,19 +174,27 @@ function main() {
     writeJson(scenePath, scene);
     summaries.push({
       id: entry.id,
+      reviewStatus: entry.reviewStatus,
       scene: path.relative(rootDir, scenePath),
       patchQuality: scene.customData?.excalidrawSkill?.patchQuality ?? null,
       editabilityMetrics: editability.metrics,
-      structuralMetrics: quality.metrics
+      structuralMetrics: quality.metrics,
+      perceptualMetrics: perceptual.metrics,
+      perceptualWarnings: perceptual.warnings ?? []
     });
   }
 
   writeJson(path.join(outputDir, 'summary.json'), {
-    version: '0.1.0',
+    version: '0.2.0',
     source: path.relative(rootDir, sourcePath),
     cases: summaries
   });
-  console.log(JSON.stringify({ count: summaries.length, outputDir: path.relative(rootDir, outputDir) }, null, 2));
+  console.log(JSON.stringify({
+    count: summaries.length,
+    accepted: summaries.filter((entry) => entry.reviewStatus === 'accepted').length,
+    candidates: summaries.filter((entry) => entry.reviewStatus === 'candidate').length,
+    outputDir: path.relative(rootDir, outputDir)
+  }, null, 2));
 }
 
 try {
