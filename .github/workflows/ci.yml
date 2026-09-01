@@ -58,12 +58,9 @@ jobs:
         run: node ./src/generate-patch-review-scenes.mjs
       - name: Export patch round-trip actual previews
         run: |
-          mkdir -p artifacts/patch-actual artifacts/patch-candidates
-          for id in payment-add-audit payment-local-edit payment-insert-auth; do
+          mkdir -p artifacts/patch-actual
+          for id in payment-add-audit payment-local-edit payment-insert-auth payment-remove-worker payment-move-worker-down payment-relabel-service payment-rewire-worker; do
             npm run visual:actual -- "artifacts/patch-scenes/${id}.excalidraw" -o "artifacts/patch-actual/${id}.png"
-          done
-          for id in payment-remove-worker payment-move-worker-down payment-relabel-service payment-rewire-worker; do
-            npm run visual:actual -- "artifacts/patch-scenes/${id}.excalidraw" -o "artifacts/patch-candidates/${id}.png"
           done
       - name: Verify patch round-trip actual signatures
         run: npm run visual:verify:patch
