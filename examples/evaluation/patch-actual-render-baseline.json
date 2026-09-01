@@ -1,7 +1,7 @@
 {
-  "version": "0.1.0",
-  "sourceRun": 33469530521,
-  "sourceCommit": "6a277f19216dbff2183ff791a93017083f01c5df",
+  "version": "0.2.0",
+  "sourceRun": 33527883762,
+  "sourceCommit": "82883b51d1623647213a0ec36ee2d4e99b394173",
   "algorithm": {
     "name": "native-pixel-dhash",
     "sampleGrid": "9x8",
@@ -24,6 +24,26 @@
       "width": 1600,
       "height": 506,
       "dhash": "0034000010161500"
+    },
+    "payment-remove-worker.png": {
+      "width": 1150,
+      "height": 478,
+      "dhash": "002a0000080a0a00"
+    },
+    "payment-move-worker-down.png": {
+      "width": 1150,
+      "height": 597,
+      "dhash": "2a2c000802080202"
+    },
+    "payment-relabel-service.png": {
+      "width": 1444,
+      "height": 502,
+      "dhash": "0050180010151510"
+    },
+    "payment-rewire-worker.png": {
+      "width": 1444,
+      "height": 478,
+      "dhash": "0054101010151500"
     }
   }
 }
