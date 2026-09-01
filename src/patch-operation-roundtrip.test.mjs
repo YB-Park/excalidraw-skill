@@ -88,12 +88,13 @@ test('moveNear moves only the requested worker below the event queue and reroute
 test('updateLabel keeps semantic identity and native binding for a longer primary node label', () => {
   const source = makeSource();
   const beforeWeb = nodePosition(source, 'web-app');
+  const requestedLabel = 'Payment Authorization Service';
   const scene = applyQualityPatch(structuredClone(source), {
     preserveManualLayout: true,
     operations: [{
       op: 'updateLabel',
       target: 'payment-service',
-      label: 'Payment Authorization Service'
+      label: requestedLabel
     }]
   });
 
@@ -104,7 +105,8 @@ test('updateLabel keeps semantic identity and native binding for a longer primar
     return meta.role === 'label' && meta.node === 'payment-service';
   });
   assert.ok(label, 'bound payment-service label should remain');
-  assert.equal(label.text, 'Payment Authorization Service');
+  assert.equal(label.text.replace(/\s+/g, ' ').trim(), requestedLabel);
+  assert.equal(metaOf(label).sourceLabel, requestedLabel);
   assert.equal(label.containerId, node.id);
   assertPositionEqual(nodePosition(scene, 'web-app'), beforeWeb, 'web-app');
 });
