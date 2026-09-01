@@ -1,0 +1,29 @@
+{
+  "version": "0.1.0",
+  "sourceRun": 33469530521,
+  "sourceCommit": "6a277f19216dbff2183ff791a93017083f01c5df",
+  "algorithm": {
+    "name": "native-pixel-dhash",
+    "sampleGrid": "9x8",
+    "bits": 64,
+    "maxHammingDistance": 4,
+    "dimensionPolicy": "exact"
+  },
+  "renders": {
+    "payment-add-audit.png": {
+      "width": 1444,
+      "height": 533,
+      "dhash": "0054101010161404"
+    },
+    "payment-local-edit.png": {
+      "width": 1444,
+      "height": 484,
+      "dhash": "0054101010151510"
+    },
+    "payment-insert-auth.png": {
+      "width": 1600,
+      "height": 506,
+      "dhash": "0034000010161500"
+    }
+  }
+}

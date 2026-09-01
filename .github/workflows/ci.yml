@@ -62,6 +62,8 @@ jobs:
           for id in payment-add-audit payment-local-edit payment-insert-auth; do
             npm run visual:actual -- "artifacts/patch-scenes/${id}.excalidraw" -o "artifacts/patch-actual/${id}.png"
           done
+      - name: Verify patch round-trip actual signatures
+        run: npm run visual:verify:patch
       - name: Export all runnable actual Excalidraw previews
         run: npm run visual:actual:suite
       - name: Verify actual Excalidraw render signatures
