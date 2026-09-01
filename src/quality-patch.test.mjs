@@ -200,8 +200,8 @@ test('insertNodeBetween preserves a horizontal edge corridor by rippling the tar
   assert.deepEqual({ x: source.x, y: source.y }, sourceBefore);
   assert.ok(target.x > targetBeforeX);
   assert.equal(inserted.y + inserted.height / 2, source.y + source.height / 2);
-  assert.ok(inserted.x - (source.x + source.width) >= 60);
-  assert.ok(target.x - (inserted.x + inserted.width) >= 60);
+  assert.ok(inserted.x - (source.x + source.width) >= 44);
+  assert.ok(target.x - (inserted.x + inserted.width) >= 44);
   assert.equal(meta(inserted).patchPlacement?.engine, 'insert-corridor-v0.1');
   assert.equal(meta(inserted).patchPlacement?.axis, 'x');
   assert.ok(meta(inserted).patchPlacement?.ripple > 0);

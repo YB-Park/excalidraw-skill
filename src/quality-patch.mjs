@@ -278,7 +278,7 @@ function preserveInsertionCorridors(beforeScene, scene, patch, intent, newNodeId
   const nodes = semanticElements(scene, 'node');
   const nodesById = bySemanticId(nodes);
   const placed = new Set();
-  const minGap = 72;
+  const minGap = 48;
 
   for (const op of patch.operations ?? []) {
     if (op.op !== 'insertNodeBetween' || !op.semanticId || !newNodeIds.has(op.semanticId)) continue;
