@@ -97,10 +97,14 @@ function positionIsClear(node, position, nodes, margin = 24) {
   return nodes.every((other) => other === node || !rectsOverlap(probe, rectFor(other)));
 }
 
-function moveGeneratedNode(scene, node, position) {
+function moveSceneNode(scene, node, position, placement = null) {
   const semanticId = metaOf(node).semanticId;
   const dx = position.x - node.x;
   const dy = position.y - node.y;
+  if (dx === 0 && dy === 0) {
+    if (placement) metaOf(node).patchPlacement = placement;
+    return;
+  }
   const groups = new Set(node.groupIds ?? []);
   for (const element of scene.elements ?? []) {
     const meta = metaOf(element);
@@ -111,11 +115,227 @@ function moveGeneratedNode(scene, node, position) {
       element.y = Number(element.y ?? 0) + dy;
     }
   }
-  metaOf(node).patchPlacement = {
+  if (placement) metaOf(node).patchPlacement = placement;
+}
+
+function moveGeneratedNode(scene, node, position) {
+  moveSceneNode(scene, node, position, {
     engine: 'collision-slot-v0.1',
     x: Math.round(position.x),
     y: Math.round(position.y)
+  });
+}
+
+function preferredSidePosition(node, near, side, gap) {
+  if (side === 'left') {
+    return {
+      x: near.x - node.width - gap,
+      y: near.y + (near.height - node.height) / 2
+    };
+  }
+  if (side === 'up') {
+    return {
+      x: near.x + (near.width - node.width) / 2,
+      y: near.y - node.height - gap
+    };
+  }
+  if (side === 'down') {
+    return {
+      x: near.x + (near.width - node.width) / 2,
+      y: near.y + near.height + gap
+    };
+  }
+  return {
+    x: near.x + near.width + gap,
+    y: near.y + (near.height - node.height) / 2
   };
+}
+
+function preferredSideCandidates(node, near, side, gap, nodes, clearance = 32) {
+  const base = preferredSidePosition(node, near, side, gap);
+  const candidates = [base];
+  const horizontalSide = side === 'left' || side === 'right';
+
+  for (const other of nodes) {
+    if (other === node || other === near) continue;
+    if (horizontalSide) {
+      candidates.push(
+        { x: base.x, y: other.y + other.height + clearance },
+        { x: base.x, y: other.y - node.height - clearance }
+      );
+    } else {
+      candidates.push(
+        { x: other.x + other.width + clearance, y: base.y },
+        { x: other.x - node.width - clearance, y: base.y }
+      );
+    }
+  }
+
+  const unique = new Map();
+  for (const candidate of candidates) {
+    const rounded = { x: Math.round(candidate.x), y: Math.round(candidate.y) };
+    unique.set(`${rounded.x}:${rounded.y}`, rounded);
+  }
+
+  return [...unique.values()].sort((first, second) => {
+    const firstDistance = Math.hypot(first.x - base.x, first.y - base.y);
+    const secondDistance = Math.hypot(second.x - base.x, second.y - base.y);
+    return firstDistance - secondDistance || first.y - second.y || first.x - second.x;
+  });
+}
+
+function placeAddedNodesNearRequestedSide(scene, patch, newNodeIds, reservedNodeIds = new Set()) {
+  const nodes = semanticElements(scene, 'node');
+  const nodesById = bySemanticId(nodes);
+
+  for (const op of patch.operations ?? []) {
+    if (op.op !== 'addNode' || !op.semanticId || !newNodeIds.has(op.semanticId)) continue;
+    if (reservedNodeIds.has(op.semanticId)) continue;
+    if (op.position && Number.isFinite(op.position.x) && Number.isFinite(op.position.y)) continue;
+
+    const node = nodesById.get(op.semanticId);
+    const near = nodesById.get(op.near);
+    if (!node || !near) continue;
+
+    const side = ['left', 'right', 'up', 'down'].includes(op.side) ? op.side : 'right';
+    const gap = Math.max(24, Number(op.gap ?? 100));
+    const chosen = preferredSideCandidates(node, near, side, gap, nodes)
+      .find((candidate) => positionIsClear(node, candidate, nodes, 24));
+    if (!chosen) continue;
+
+    moveSceneNode(scene, node, chosen, {
+      engine: 'side-slot-v0.1',
+      near: op.near,
+      side,
+      gap,
+      x: chosen.x,
+      y: chosen.y
+    });
+  }
+}
+
+function originalEdgeMap(scene) {
+  return new Map(semanticElements(scene, 'edge').map((edge) => [metaOf(edge).semanticId, edge]));
+}
+
+function shiftTargetSideNodes(scene, source, target, axis, direction, amount, intent, insertedNode) {
+  if (amount <= 0) return [];
+  const nodes = semanticElements(scene, 'node');
+  const targetCenter = axis === 'x'
+    ? target.x + target.width / 2
+    : target.y + target.height / 2;
+
+  const shifted = nodes
+    .filter((node) => node !== source && node !== insertedNode)
+    .filter((node) => {
+      const center = axis === 'x' ? node.x + node.width / 2 : node.y + node.height / 2;
+      return direction > 0 ? center >= targetCenter - 0.5 : center <= targetCenter + 0.5;
+    })
+    .sort((first, second) => metaOf(first).semanticId.localeCompare(metaOf(second).semanticId));
+
+  if (shifted.some((node) => node.frameId)) return null;
+
+  for (const node of shifted) {
+    const position = axis === 'x'
+      ? { x: Math.round(node.x + direction * amount), y: node.y }
+      : { x: node.x, y: Math.round(node.y + direction * amount) };
+    moveSceneNode(scene, node, position);
+    intent.changedNodes.add(metaOf(node).semanticId);
+  }
+  return shifted.map((node) => metaOf(node).semanticId);
+}
+
+function insertionCorridorPosition(source, target, insertedNode, axis, direction) {
+  if (axis === 'x') {
+    const sourceBoundary = direction > 0 ? source.x + source.width : source.x;
+    const targetBoundary = direction > 0 ? target.x : target.x + target.width;
+    const left = Math.min(sourceBoundary, targetBoundary);
+    const right = Math.max(sourceBoundary, targetBoundary);
+    return {
+      x: Math.round((left + right - insertedNode.width) / 2),
+      y: Math.round(
+        ((source.y + source.height / 2) + (target.y + target.height / 2)) / 2
+        - insertedNode.height / 2
+      )
+    };
+  }
+
+  const sourceBoundary = direction > 0 ? source.y + source.height : source.y;
+  const targetBoundary = direction > 0 ? target.y : target.y + target.height;
+  const top = Math.min(sourceBoundary, targetBoundary);
+  const bottom = Math.max(sourceBoundary, targetBoundary);
+  return {
+    x: Math.round(
+      ((source.x + source.width / 2) + (target.x + target.width / 2)) / 2
+      - insertedNode.width / 2
+    ),
+    y: Math.round((top + bottom - insertedNode.height) / 2)
+  };
+}
+
+function preserveInsertionCorridors(beforeScene, scene, patch, intent, newNodeIds) {
+  const beforeEdges = originalEdgeMap(beforeScene);
+  const nodes = semanticElements(scene, 'node');
+  const nodesById = bySemanticId(nodes);
+  const placed = new Set();
+  const minGap = 72;
+
+  for (const op of patch.operations ?? []) {
+    if (op.op !== 'insertNodeBetween' || !op.semanticId || !newNodeIds.has(op.semanticId)) continue;
+    const originalEdgeId = op.target ?? op.edge;
+    const originalEdge = beforeEdges.get(originalEdgeId);
+    if (!originalEdge) continue;
+    const originalMeta = metaOf(originalEdge);
+    const source = nodesById.get(originalMeta.from);
+    const target = nodesById.get(originalMeta.to);
+    const insertedNode = nodesById.get(op.semanticId);
+    if (!source || !target || !insertedNode) continue;
+
+    const sourceCenter = { x: source.x + source.width / 2, y: source.y + source.height / 2 };
+    const targetCenter = { x: target.x + target.width / 2, y: target.y + target.height / 2 };
+    const dx = targetCenter.x - sourceCenter.x;
+    const dy = targetCenter.y - sourceCenter.y;
+    const axis = Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y';
+    const direction = (axis === 'x' ? dx : dy) >= 0 ? 1 : -1;
+
+    const currentGap = axis === 'x'
+      ? (direction > 0 ? target.x - (source.x + source.width) : source.x - (target.x + target.width))
+      : (direction > 0 ? target.y - (source.y + source.height) : source.y - (target.y + target.height));
+    const insertedSize = axis === 'x' ? insertedNode.width : insertedNode.height;
+    const requiredGap = insertedSize + minGap * 2;
+    const ripple = Math.max(0, Math.ceil(requiredGap - currentGap));
+
+    const shiftedNodeIds = shiftTargetSideNodes(
+      scene,
+      source,
+      target,
+      axis,
+      direction,
+      ripple,
+      intent,
+      insertedNode
+    );
+    if (shiftedNodeIds === null) continue;
+
+    const corridorPosition = insertionCorridorPosition(source, target, insertedNode, axis, direction);
+    const refreshedNodes = semanticElements(scene, 'node');
+    if (!positionIsClear(insertedNode, corridorPosition, refreshedNodes, Math.min(24, minGap / 3))) continue;
+
+    moveSceneNode(scene, insertedNode, corridorPosition, {
+      engine: 'insert-corridor-v0.1',
+      originalEdge: originalEdgeId,
+      axis,
+      direction,
+      minGap,
+      ripple,
+      shiftedNodes: shiftedNodeIds,
+      x: corridorPosition.x,
+      y: corridorPosition.y
+    });
+    placed.add(op.semanticId);
+  }
+
+  return placed;
 }
 
 function resolveAddedNodeOverlaps(scene, newNodeIds) {
@@ -228,6 +448,8 @@ export function applyQualityPatch(scene, patch, options = {}) {
 
   applySemanticPatch(scene, patch);
   const added = styleAddedElements(scene, beforeNodeIds, beforeEdgeIds);
+  const corridorPlaced = preserveInsertionCorridors(before, scene, patch, intent, added.newNodeIds);
+  placeAddedNodesNearRequestedSide(scene, patch, added.newNodeIds, corridorPlaced);
   resolveAddedNodeOverlaps(scene, added.newNodeIds);
   for (const nodeId of added.newNodeIds) intent.changedNodes.add(nodeId);
   for (const edgeId of added.newEdgeIds) intent.explicitEdges.add(edgeId);
@@ -253,10 +475,11 @@ export function applyQualityPatch(scene, patch, options = {}) {
   scene.customData ??= {};
   scene.customData.excalidrawSkill ??= {};
   scene.customData.excalidrawSkill.patchQuality = {
-    version: '0.2.0',
+    version: '0.3.0',
     affectedEdges: [...affectedEdges].sort(),
     newNodes: [...added.newNodeIds].sort(),
     newEdges: [...added.newEdgeIds].sort(),
+    corridorPlacedNodes: [...corridorPlaced].sort(),
     editabilityPass: editability.pass,
     structuralPass: quality.structuralPass
   };
