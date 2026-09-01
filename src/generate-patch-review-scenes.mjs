@@ -30,21 +30,12 @@ const cases = [
       preserveManualLayout: true,
       operations: [
         {
-          op: 'addNode',
-          semanticId: 'audit-store',
-          label: 'Audit Store',
-          shapeRef: 'database.relational',
-          near: 'payment-db',
-          side: 'right',
-          gap: 120
+          op: 'addNode', semanticId: 'audit-store', label: 'Audit Store', shapeRef: 'database.relational',
+          near: 'payment-db', side: 'right', gap: 120
         },
         {
-          op: 'addEdge',
-          semanticId: 'payment-to-audit',
-          from: 'payment-service',
-          to: 'audit-store',
-          label: 'audit',
-          kind: 'writes'
+          op: 'addEdge', semanticId: 'payment-to-audit', from: 'payment-service', to: 'audit-store',
+          label: 'audit', kind: 'writes'
         }
       ]
     }
@@ -55,18 +46,8 @@ const cases = [
     patch: {
       preserveManualLayout: true,
       operations: [
-        {
-          op: 'updateLabel',
-          target: 'card-network',
-          label: 'Card Network / Acquirer'
-        },
-        {
-          op: 'moveNear',
-          target: 'settlement-worker',
-          near: 'payment-events',
-          side: 'right',
-          gap: 120
-        }
+        { op: 'updateLabel', target: 'card-network', label: 'Card Network / Acquirer' },
+        { op: 'moveNear', target: 'settlement-worker', near: 'payment-events', side: 'right', gap: 120 }
       ]
     }
   },
@@ -77,77 +58,43 @@ const cases = [
       preserveManualLayout: true,
       operations: [
         {
-          op: 'insertNodeBetween',
-          target: 'web-to-gateway',
-          semanticId: 'edge-auth',
-          label: 'Edge Auth',
-          shapeRef: 'risk.security',
-          inLabel: 'TLS',
-          outLabel: 'session'
+          op: 'insertNodeBetween', target: 'web-to-gateway', semanticId: 'edge-auth', label: 'Edge Auth',
+          shapeRef: 'risk.security', inLabel: 'TLS', outLabel: 'session'
         }
       ]
     }
   },
   {
     id: 'payment-remove-worker',
-    reviewStatus: 'candidate',
-    patch: {
-      preserveManualLayout: true,
-      operations: [
-        {
-          op: 'removeObject',
-          target: 'settlement-worker'
-        }
-      ]
-    }
+    reviewStatus: 'accepted',
+    patch: { preserveManualLayout: true, operations: [{ op: 'removeObject', target: 'settlement-worker' }] }
   },
   {
     id: 'payment-move-worker-down',
-    reviewStatus: 'candidate',
+    reviewStatus: 'accepted',
     patch: {
       preserveManualLayout: true,
-      operations: [
-        {
-          op: 'moveNear',
-          target: 'settlement-worker',
-          near: 'payment-events',
-          side: 'down',
-          gap: 80
-        }
-      ]
+      operations: [{ op: 'moveNear', target: 'settlement-worker', near: 'payment-events', side: 'down', gap: 80 }]
     }
   },
   {
     id: 'payment-relabel-service',
-    reviewStatus: 'candidate',
+    reviewStatus: 'accepted',
     patch: {
       preserveManualLayout: true,
-      operations: [
-        {
-          op: 'updateLabel',
-          target: 'payment-service',
-          label: 'Payment Authorization Service'
-        }
-      ]
+      operations: [{ op: 'updateLabel', target: 'payment-service', label: 'Payment Authorization Service' }]
     }
   },
   {
     id: 'payment-rewire-worker',
-    reviewStatus: 'candidate',
+    reviewStatus: 'accepted',
     patch: {
       preserveManualLayout: true,
       operations: [
+        { op: 'removeObject', target: 'events-to-worker' },
         {
-          op: 'removeObject',
-          target: 'events-to-worker'
-        },
-        {
-          op: 'addEdge',
-          semanticId: 'events-to-worker',
-          from: 'payment-db',
-          to: 'settlement-worker',
-          label: 'settle',
-          kind: 'sync'
+          op: 'addEdge', semanticId: 'events-to-worker', from: 'payment-db', to: 'settlement-worker',
+          label: 'settle', kind: 'sync'
         }
       ]
     }
@@ -185,9 +132,7 @@ function main() {
   }
 
   writeJson(path.join(outputDir, 'summary.json'), {
-    version: '0.2.0',
-    source: path.relative(rootDir, sourcePath),
-    cases: summaries
+    version: '0.2.0', source: path.relative(rootDir, sourcePath), cases: summaries
   });
   console.log(JSON.stringify({
     count: summaries.length,
