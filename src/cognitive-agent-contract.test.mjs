@@ -34,18 +34,22 @@ test('all Excalidraw agents explicitly restrict themselves to the cheap model al
   }
 });
 
-test('critic prioritizes an image-capable cheap model and requires actual image inspection', () => {
+test('critic prioritizes an image-capable cheap model and requires actual blind image inspection', () => {
   const critic = read('.github/agents/excalidraw-critic.agent.md');
   assert.equal(frontmatterModels(critic)[0], 'MAI-Code-1.1-Flash (copilot)');
   assert.match(critic, /diagram_review_image/);
+  assert.match(critic, /opaque candidate IDs/i);
+  assert.match(critic, /not fully blind/i);
   assert.match(critic, /image was not actually returned and inspected/i);
 });
 
-test('designer uses subagents and semantic MCP tools rather than raw render orchestration', () => {
+test('designer uses subagents, blind candidate handoff, and semantic MCP tools', () => {
   const designer = read('.github/agents/excalidraw-designer.agent.md');
   assert.match(designer, /Excalidraw Planner/);
   assert.match(designer, /Excalidraw Critic/);
   assert.match(designer, /diagram_candidates/);
+  assert.match(designer, /blindCandidates/);
+  assert.match(designer, /Never reveal strategy names/i);
   assert.doesNotMatch(designer, /render\s+.*\.png/i);
 });
 
@@ -56,7 +60,7 @@ test('portable MCP workspace config points to the local semantic server', () => 
   assert.deepEqual(config.servers.excalidraw.args, ['mcp/server.mjs']);
 });
 
-test('MCP server exposes image review and layout-state tools', () => {
+test('MCP server exposes image review and layout-state tools through current stdio serving', () => {
   const server = read('mcp/server.mjs');
   for (const tool of [
     'diagram_candidates',
@@ -65,6 +69,8 @@ test('MCP server exposes image review and layout-state tools', () => {
     'diagram_capture_layout_state',
     'diagram_apply_layout_state'
   ]) assert.match(server, new RegExp(`['\"]${tool}['\"]`));
+  assert.match(server, /blindCandidates/);
+  assert.match(server, /serveStdio/);
   assert.match(server, /type: 'image'/);
   assert.match(server, /mimeType: 'image\/png'/);
 });
