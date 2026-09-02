@@ -14,4 +14,4 @@ When a locked semantic node is restored to a captured position, the runtime now:
 
 The reconciliation is intentionally local. It does not claim global layout optimization, aesthetic approval, or safe resolution of every obstacle. A fresh deterministic review remains mandatory after application.
 
-Manual layout provenance is evidence of human placement intent. It must not be confused with semantic authority: primary-flow ordering, bindings, editability, node overlap, and route-integrity checks remain hard constraints. Family-level presentation rules such as ideal center-axis alignment may later distinguish explicit manual placement from generated placement, but this change does not silently waive those checks.
+Manual layout provenance is evidence of human placement intent. In `swimlane-flow`, a node marked with both `manualLayout: true` and `manualLayoutSource: "layout-state"` is exempt from the ideal center-axis presentation check. It must not be confused with semantic authority: primary-flow ordering, bindings, editability, node overlap, and route-integrity checks remain hard constraints.
