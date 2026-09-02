@@ -12,7 +12,7 @@ export const LAYOUT_STRATEGIES = Object.freeze([
   Object.freeze({
     id: 'structured',
     label: 'Structured',
-    intent: 'Emphasize semantic grouping and hierarchy over compactness.'
+    intent: 'Emphasize the conceptual center and relationship structure instead of preserving the original lane composition.'
   })
 ]);
 
@@ -37,7 +37,7 @@ export function applyLayoutStrategy(spec, strategyId) {
   }
 
   if (strategyId === 'structured' && isFlowSpec(next)) {
-    next.layout.profile = 'layered-flow';
+    next.layout.profile = 'hub-and-spoke';
     next.layout.aspectRatio = 'balanced';
   }
 
