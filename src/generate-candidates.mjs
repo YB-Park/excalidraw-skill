@@ -30,8 +30,8 @@ function runNode(relativeFile, args, cwd) {
   return result;
 }
 
-function candidateOutputPath(specPath, originalOutputPath, strategyId) {
-  const absoluteOriginal = path.resolve(path.dirname(path.resolve(specPath)), originalOutputPath);
+function candidateOutputPath(workspaceCwd, originalOutputPath, strategyId) {
+  const absoluteOriginal = path.resolve(workspaceCwd, originalOutputPath);
   const ext = path.extname(absoluteOriginal) || '.excalidraw';
   const base = absoluteOriginal.slice(0, -ext.length);
   return `${base}.candidate-${strategyId}${ext}`;
@@ -44,9 +44,9 @@ export function candidateSpecs(spec) {
   }));
 }
 
-export function generateCandidates(specPath) {
-  const absoluteSpecPath = path.resolve(specPath);
-  const cwd = path.dirname(absoluteSpecPath);
+export function generateCandidates(specPath, { cwd = process.cwd() } = {}) {
+  const workspaceCwd = path.resolve(cwd);
+  const absoluteSpecPath = path.resolve(workspaceCwd, specPath);
   const original = readJson(absoluteSpecPath);
   if (!original.outputPath) throw new Error('DiagramSpec outputPath is required for candidate generation');
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'excalidraw-candidates-'));
@@ -54,34 +54,33 @@ export function generateCandidates(specPath) {
 
   try {
     for (const { strategy, spec } of candidateSpecs(original)) {
-      const outputPath = candidateOutputPath(absoluteSpecPath, original.outputPath, strategy.id);
+      const outputPath = candidateOutputPath(workspaceCwd, original.outputPath, strategy.id);
       const candidateSpec = { ...spec, outputPath };
       const candidateSpecPath = path.join(tempDir, `${strategy.id}.diagram.json`);
       writeJson(candidateSpecPath, candidateSpec);
 
-      runNode('src/build.mjs', [candidateSpecPath], cwd);
-      runNode('src/review.mjs', [outputPath, candidateSpecPath], cwd);
+      runNode('src/build.mjs', [candidateSpecPath], workspaceCwd);
+      runNode('src/review.mjs', [outputPath, candidateSpecPath], workspaceCwd);
 
       candidates.push({
         strategy: strategy.id,
         intent: strategy.intent,
         scenePath: outputPath,
         previewPath: `${outputPath.replace(/\.excalidraw$/i, '')}.preview.png`,
-        reviewPath: `${outputPath.replace(/\.excalidraw$/i, '')}.review.json`,
-        specPath: candidateSpecPath
+        reviewPath: `${outputPath.replace(/\.excalidraw$/i, '')}.review.json`
       });
     }
   } finally {
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
 
-  const manifestPath = `${path.resolve(absoluteSpecPath).replace(/\.diagram\.json$/i, '')}.candidates.json`;
+  const manifestPath = `${absoluteSpecPath.replace(/\.diagram\.json$/i, '')}.candidates.json`;
   const manifest = {
     version: '1.0',
     mode: 'cognitive-candidate-portfolio',
     sourceSpec: absoluteSpecPath,
     requiresPerceptualRanking: true,
-    candidates: candidates.map(({ specPath: _discard, ...candidate }) => candidate)
+    candidates
   };
   writeJson(manifestPath, manifest);
   return { manifestPath, manifest };
