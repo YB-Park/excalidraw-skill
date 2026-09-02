@@ -9,7 +9,7 @@ The architectural principle is:
 
 Work through normal PR/CI discipline for architecture changes. Do not lower existing kernel quality gates to make the cognitive layer pass.
 
-Latest verified `main` before this branch: `a28448b3b0f321f65f48b86c122123c8b4c9c26c`.
+Latest verified `main`: `61cc5ad41a6a839f9a5587ee454c029b048df269` — CI #306 fully green.
 
 ## Supported surface
 Renderable now:
@@ -93,17 +93,21 @@ All Excalidraw custom agents explicitly restrict themselves to the current low-c
 
 Designer and Planner prefer Luna. Critic currently prefers MAI-Code-1.1-Flash for image-capable review. Model names are configuration, not architecture; replacements must remain cheap-tier and satisfy the role capability. No agent may silently escalate or hand off to a more expensive model.
 
-## Verified baseline on this branch
-The pre-hardening branch baseline (`024f2da9c5059eab5edaef3553a2f3f68fe5b096`) passed CI #289 end-to-end, demonstrating:
-- all unit tests and existing smoke builds pass;
-- the real payment-flow candidate portfolio builds three valid candidates and verified PNGs;
-- the candidate diversity gate passes with a compositionally distinct structured candidate;
-- strict evaluation remains green;
-- existing layout research remains green;
-- Chromium/native patch round trips and actual-render signatures remain green;
-- all runnable actual Excalidraw render signatures remain green.
+## Verified baseline
+PR #3 was squash-merged as `61cc5ad41a6a839f9a5587ee454c029b048df269`. Branch CI #305 and post-merge main CI #306 both passed end-to-end.
 
-The post-review hardening adds true opaque-ID critic handoff, flow-only portfolio scope, current MCP stdio negotiation/integration testing, and workspace path sandboxing. Its latest CI must be green before merge; do not inherit the older green result as proof of these additions.
+The verified slice demonstrates:
+- all unit tests and existing smoke builds pass;
+- official MCP client ↔ child-process stdio negotiation, `tools/list`, and a real tool invocation pass;
+- MCP workspace path sandbox tests pass;
+- flow candidate generation produces opaque-ID candidates plus a strategy-free `blindCandidates` view;
+- non-flow candidate generation is rejected instead of presenting duplicate choices as meaningful exploration;
+- the real payment-flow portfolio builds three valid candidates and verified PNGs;
+- the candidate diversity gate passes;
+- strict evaluation and existing layout research remain green;
+- Chromium/native patch round trips and signatures remain green;
+- all runnable actual Excalidraw render signatures remain green;
+- artifact upload succeeds.
 
 Manual artifact inspection also proved why the separation matters: the structured candidate is genuinely different, but its reading path can be weaker than Narrative/Compact. This is acceptable exploration evidence and should be rejected by critic/human preference rather than encoded as a new deterministic failure rule.
 
@@ -115,11 +119,11 @@ Manual artifact inspection also proved why the separation matters: the structure
 The preference corpus is intentionally empty until a person actually inspects candidate images and records a ranking. Never invent human preference data to make the suite look populated.
 
 ## Immediate next work
-1. Finish this cognitive-agent vertical slice through PR merge and verify `main` CI.
-2. Dogfood the VS Code `Excalidraw Designer` on real flow-family tasks using cheap models only, starting with Luna for Designer/Planner.
-3. Collect the first real human candidate rankings/reasons in `examples/evaluation/preference-corpus.json`; start with 10–20 meaningful tasks rather than synthetic aesthetic fixtures.
-4. Measure Critic agreement/stability and escalation instead of assuming one LLM judgment is ground truth.
-5. Exercise a real human manual-layout edit, capture LayoutState, make a semantic change, then prove routing reconciliation + fresh review before declaring the full Interaction Suite complete.
+1. Dogfood the VS Code `Excalidraw Designer` on real flow-family tasks using cheap models only, starting with Luna for Designer/Planner.
+2. Collect the first real human candidate rankings/reasons in `examples/evaluation/preference-corpus.json`; start with 10–20 meaningful tasks rather than synthetic aesthetic fixtures.
+3. Measure Critic agreement/stability and escalation instead of assuming one LLM judgment is ground truth.
+4. Exercise a real human manual-layout edit, capture LayoutState, make a semantic change, then prove routing reconciliation + fresh review before declaring the full Interaction Suite complete.
+5. Compare Luna against other allowed cheap models using the same dogfood tasks and preference evidence rather than model reputation alone.
 6. Design family-specific candidate portfolios for system/module only after flow dogfood demonstrates value; do not fake diversity by reusing identical layouts.
 7. Decide agent/MCP installation/distribution only after repo-native dogfood shows the workflow is worth carrying into external workspaces.
 8. Only consider broader unsupported family support after the current families survive this mixed-initiative dogfood cleanly.
