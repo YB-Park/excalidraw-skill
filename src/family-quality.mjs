@@ -201,6 +201,8 @@ function centerLaneAxisViolations(spec, nodes) {
     const specNode = group[0];
     const sceneNode = nodes.get(specNode.semanticId);
     if (!sceneNode) continue;
+    const manualLayout = metaOf(sceneNode);
+    if (manualLayout.manualLayout === true && manualLayout.manualLayoutSource === 'layout-state') continue;
     const value = direction === 'top-to-bottom' ? centerX(sceneNode) : centerY(sceneNode);
     if (Math.abs(value - axis) > 1) violations.push({ node: specNode.semanticId, direction, axis, value: Number(value.toFixed(1)) });
   }

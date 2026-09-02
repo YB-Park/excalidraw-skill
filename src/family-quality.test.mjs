@@ -88,6 +88,50 @@ test('checks primary flow ordering for event-flow', () => {
   assert.equal(bad.pass, false);
 });
 
+const swimlaneSpec = {
+  version: '2.0',
+  diagramType: 'service-flow',
+  layout: {
+    profile: 'swimlane-flow',
+    direction: 'left-to-right',
+    centerAxisY: 280,
+    primaryFlow: ['start', 'finish'],
+    lanes: [{ id: 'primary', position: 'center' }]
+  },
+  nodes: [
+    { semanticId: 'start', layoutHints: { lane: 'primary', rank: 0 } },
+    { semanticId: 'finish', layoutHints: { lane: 'primary', rank: 1 } }
+  ]
+};
+
+test('requires explicit LayoutState provenance to waive swimlane center-axis violations', () => {
+  for (const [extra, expectedViolations] of [
+    [{}, 2],
+    [{ manualLayout: true }, 2],
+    [{ manualLayoutSource: 'layout-state' }, 2],
+    [{ manualLayout: true, manualLayoutSource: 'layout-state' }, 0]
+  ]) {
+    const report = createFamilyQualityReport({ elements: [
+      node('start', 0, 0, extra),
+      node('finish', 200, 0, extra)
+    ] }, swimlaneSpec);
+    assert.equal(report.metrics.centerAxisViolations, expectedViolations);
+    assert.equal(report.metrics.primaryFlowOrderViolations, 0);
+    assert.equal(report.pass, expectedViolations === 0);
+  }
+});
+
+test('retains primary-flow ordering checks for LayoutState placed swimlane nodes', () => {
+  const manualLayout = { manualLayout: true, manualLayoutSource: 'layout-state' };
+  const report = createFamilyQualityReport({ elements: [
+    node('start', 200, 0, manualLayout),
+    node('finish', 0, 0, manualLayout)
+  ] }, swimlaneSpec);
+  assert.equal(report.metrics.centerAxisViolations, 0);
+  assert.equal(report.metrics.primaryFlowOrderViolations, 1);
+  assert.equal(report.pass, false);
+});
+
 test('marks unimplemented profiles as unsupported', () => {
   const report = createFamilyQualityReport({ elements: [] }, {
     diagramType: 'system-architecture',

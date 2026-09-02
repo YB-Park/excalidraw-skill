@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { applyLayoutState } from './layout-state.mjs';
+import { createFamilyQualityReport } from './family-quality.mjs';
 import { createQualityReport } from './quality-report.mjs';
 
 const read = (file) => JSON.parse(fs.readFileSync(new URL(file, import.meta.url), 'utf8'));
@@ -36,13 +37,18 @@ test('dogfood #002 stale LayoutState endpoints are reconciled after reapply', ()
 
   const result = applyLayoutState(preApply, layoutState);
   const quality = createQualityReport(result.scene, spec);
+  const familyQuality = createFamilyQualityReport(result.scene, spec);
   const payment = result.scene.elements.find((element) => meta(element).semanticId === 'payment-service');
   const events = result.scene.elements.find((element) => meta(element).semanticId === 'payment-events');
 
   assert.deepEqual([payment.x, payment.y], [680, 190]);
   assert.deepEqual([events.x, events.y], [1060, 545]);
   assert.equal(payment.customData.excalidrawSkill.manualLayout, true);
+  assert.equal(payment.customData.excalidrawSkill.manualLayoutSource, 'layout-state');
   assert.equal(events.customData.excalidrawSkill.manualLayout, true);
+  assert.equal(events.customData.excalidrawSkill.manualLayoutSource, 'layout-state');
+  assert.equal(familyQuality.metrics.centerAxisViolations, 0);
+  assert.equal(familyQuality.metrics.primaryFlowOrderViolations, 0);
   assert.ok(result.reconciledEdges.length >= 5, 'all edges incident to moved nodes should be reconsidered');
 
   assert.ok(oldQuality.metrics.endpointApproachViolations > 0, 'fixture must preserve the original dogfood failure');
