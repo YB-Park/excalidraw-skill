@@ -12,6 +12,6 @@ test('candidateSpecs produces three meaningfully different flow strategies', () 
   assert.deepEqual(candidates.map((entry) => entry.strategy.id), ['narrative', 'compact', 'structured']);
   assert.equal(candidates[0].spec.layout.profile, 'swimlane-flow');
   assert.equal(candidates[1].spec.layout.aspectRatio, 'tall');
-  assert.equal(candidates[2].spec.layout.profile, 'layered-flow');
+  assert.equal(candidates[2].spec.layout.profile, 'hub-and-spoke');
   assert.equal(source.layout.profile, 'swimlane-flow');
 });
