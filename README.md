@@ -70,15 +70,21 @@ Payment Service 이름을 Payment Authorization Service로 바꾸고
 - `.github/agents/excalidraw-critic.agent.md`: actual PNG를 보는 perceptual critic
 - `.mcp.json` + `mcp/server.mjs`: renderer 내부 명령 대신 typed semantic tools 제공
 
-중요한 새 다이어그램은 한 장을 바로 정답으로 간주하지 않고 세 가지 deterministic strategy를 탐색합니다.
+현재 **3-candidate cognitive portfolio는 flow 계열(`flow`, `service-flow`, `event-flow`, `data-flow`)에만 적용**합니다. `system-architecture`와 `module-architecture`는 렌더링 자체는 지원하지만 아직 서로 다른 세 전략을 검증하지 않았으므로 기존 deterministic build/review + actual image inspection 경로를 유지합니다.
+
+flow 후보 전략은 다음과 같습니다.
 
 - `narrative`: primary story continuity
 - `compact`: eye travel / spread 감소
-- `structured`: conceptual center와 relationship structure 탐색; 현재 flow dogfood에서는 `hub-and-spoke` 사용
+- `structured`: conceptual center와 relationship structure 탐색; 첫 slice에서는 `hub-and-spoke` 사용
 
-후보들은 모두 기존 hard quality gate를 먼저 통과해야 하며, CI는 이름만 다르고 실제 composition은 같은 near-duplicate 후보 portfolio도 거부합니다. **candidate diversity는 품질 점수가 아니라 탐색할 가치가 있는 서로 다른 해가 존재하는지 확인하는 gate**입니다. 최종 선호는 이미지 기반 critic과 사람의 판단 영역입니다.
+후보들은 모두 기존 hard quality gate를 먼저 통과해야 하며, CI는 이름만 다르고 실제 composition은 같은 near-duplicate 후보 portfolio도 거부합니다. **candidate diversity는 품질 점수가 아니라 탐색할 가치가 있는 서로 다른 해가 존재하는지 확인하는 gate**입니다.
+
+Critic 평가에는 전략명을 넘기지 않습니다. 생성 결과는 coordinator용 full manifest와 `c01`, `c02`, `c03` 같은 opaque ID만 포함하는 `blindCandidates` view를 별도로 제공하며, Critic은 blind view의 scene을 독립적으로 이미지 검토한 뒤에만 ranking합니다. 낮은 confidence, 근소한 차이, non-blind handoff, presentation-critical 작업은 사람에게 넘깁니다.
 
 현재 agent 모델은 비용 정책을 코드로 고정해 두었습니다. 허용 목록은 `GPT-5.6 Luna`, `MAI-Code-1.1-Flash`, `Kimi K2.7 Code`뿐입니다. Designer/Planner는 Luna를 우선하고, Critic은 image review 역할 때문에 MAI-Code-1.1-Flash를 우선합니다. agent는 더 비싼 모델로 자동 승격하거나 handoff하면 안 됩니다.
+
+MCP 서버는 typed semantic tools만 노출하고 filesystem 접근을 현재 workspace 안으로 제한합니다. stdio 경로는 공식 MCP client를 이용해 실제 handshake, `tools/list`, tool invocation까지 integration test합니다.
 
 이 agent/MCP 경로는 **현재 저장소/workspace에서의 dogfood integration**입니다. 전역 skill installer가 arbitrary external workspace에 custom agent와 MCP 설정까지 자동 배포한다고 아직 주장하지 않습니다. 먼저 이 workflow가 실제 품질을 개선하는지 사람의 선택 데이터로 검증합니다.
 
@@ -188,7 +194,7 @@ npm run candidates -- examples/service-flow/payment-flow.visual-plan.diagram.jso
 node ./src/candidate-diversity.mjs examples/service-flow/payment-flow.visual-plan.candidates.json
 ```
 
-CI는 native editability, structural/perceptual quality, candidate composition diversity, 실제 Excalidraw 렌더 signature, patch round-trip regression을 함께 검사합니다. 품질 점수는 시각적 승인과 동일하지 않으므로 dogfood에서는 actual PNG visual review도 병행합니다.
+CI는 native editability, structural/perceptual quality, candidate composition diversity, MCP stdio integration, 실제 Excalidraw 렌더 signature, patch round-trip regression을 함께 검사합니다. 품질 점수는 시각적 승인과 동일하지 않으므로 dogfood에서는 actual PNG visual review도 병행합니다.
 
 사람 선호 평가 corpus는 의도적으로 실제 사람이 후보 이미지를 보고 선택한 뒤에만 채웁니다. LLM이나 테스트가 human ranking을 날조해서는 안 됩니다.
 
