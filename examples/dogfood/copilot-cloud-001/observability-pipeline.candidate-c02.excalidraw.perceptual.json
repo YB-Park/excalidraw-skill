@@ -1,0 +1,196 @@
+{
+  "version": "0.5.0",
+  "mode": "advisory",
+  "metrics": {
+    "readabilityCost": 34,
+    "totalBends": 4,
+    "averageBendsPerEdge": 0.57,
+    "highBendEdges": 0,
+    "edgeCrossings": 0,
+    "minCrossingAngle": 90,
+    "lowAngleCrossings": 0,
+    "crossingCost": 0,
+    "edgeLabelCount": 7,
+    "ambiguousEdgeLabels": 0,
+    "distantEdgeLabels": 0,
+    "averageEdgeLabelDistance": 18.7,
+    "edgeLabelAssociationCost": 2,
+    "primaryFlowBends": 0,
+    "primaryFlowAverageBends": 0,
+    "averageDetourRatio": 1,
+    "maxDetourRatio": 1,
+    "primaryFlowAverageDetourRatio": 1,
+    "severeDetours": 0,
+    "moderateDetours": 0,
+    "compositionDensity": 0.248,
+    "compositionBalanceOffset": 0.044
+  },
+  "details": {
+    "edgeLabelDistanceModel": "label-box-to-edge",
+    "edges": [
+      {
+        "edge": "emit-signals",
+        "from": "application",
+        "to": "collector",
+        "primary": true,
+        "bends": 0,
+        "routeLength": 90,
+        "idealOrthogonalLength": 90,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "collect-signals",
+        "from": "collector",
+        "to": "telemetry-processor",
+        "primary": true,
+        "bends": 0,
+        "routeLength": 90,
+        "idealOrthogonalLength": 90,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "store-telemetry",
+        "from": "telemetry-processor",
+        "to": "telemetry-store",
+        "primary": true,
+        "bends": 0,
+        "routeLength": 90,
+        "idealOrthogonalLength": 90,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "serve-queries",
+        "from": "telemetry-store",
+        "to": "query-service",
+        "primary": true,
+        "bends": 0,
+        "routeLength": 90,
+        "idealOrthogonalLength": 90,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "archive-telemetry",
+        "from": "telemetry-store",
+        "to": "archive-store",
+        "primary": false,
+        "bends": 0,
+        "routeLength": 38,
+        "idealOrthogonalLength": 38,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "evaluate-alerts",
+        "from": "telemetry-store",
+        "to": "alert-manager",
+        "primary": false,
+        "bends": 2,
+        "routeLength": 320,
+        "idealOrthogonalLength": 320,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "view-dashboard",
+        "from": "query-service",
+        "to": "dashboard",
+        "primary": false,
+        "bends": 2,
+        "routeLength": 428,
+        "idealOrthogonalLength": 428,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      }
+    ],
+    "crossings": [],
+    "edgeLabels": [
+      {
+        "edge": "emit-signals",
+        "ownDistance": 52,
+        "nearestOtherEdge": "collect-signals",
+        "nearestOtherDistance": 162.5,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "collect-signals",
+        "ownDistance": 14,
+        "nearestOtherEdge": "emit-signals",
+        "nearestOtherDistance": 203.5,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "store-telemetry",
+        "ownDistance": 14,
+        "nearestOtherEdge": "archive-telemetry",
+        "nearestOtherDistance": 111,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "serve-queries",
+        "ownDistance": 14,
+        "nearestOtherEdge": "evaluate-alerts",
+        "nearestOtherDistance": 30,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "archive-telemetry",
+        "ownDistance": 14,
+        "nearestOtherEdge": "evaluate-alerts",
+        "nearestOtherDistance": 44.3,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "evaluate-alerts",
+        "ownDistance": 14,
+        "nearestOtherEdge": "view-dashboard",
+        "nearestOtherDistance": 33.8,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "view-dashboard",
+        "ownDistance": 9,
+        "nearestOtherEdge": "evaluate-alerts",
+        "nearestOtherDistance": 127,
+        "ambiguous": false,
+        "distant": false
+      }
+    ],
+    "composition": {
+      "width": 1530,
+      "height": 342
+    },
+    "warnings": []
+  },
+  "suggestedPatches": []
+}

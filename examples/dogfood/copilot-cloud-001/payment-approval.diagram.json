@@ -1,0 +1,33 @@
+{
+  "version": "2.0",
+  "diagramType": "service-flow",
+  "title": "Checkout Payment Approval",
+  "stylePreset": "professional-software",
+  "layout": {
+    "profile": "swimlane-flow",
+    "direction": "left-to-right",
+    "aspectRatio": "wide",
+    "primaryFlow": ["checkout", "payment-api", "card-network", "checkout-result"],
+    "lanes": [
+      {"id": "main", "label": "Synchronous approval", "position": "center", "order": 0},
+      {"id": "support", "label": "Risk and audit support", "position": "bottom", "order": 1}
+    ]
+  },
+  "framePolicy": {"mode": "none"},
+  "nodes": [
+    {"semanticId": "checkout", "label": "Checkout", "shapeRef": "client.web", "layoutHints": {"lane": "main", "rank": 0, "importance": "primary"}},
+    {"semanticId": "payment-api", "label": "Payment API", "shapeRef": "gateway.api", "layoutHints": {"lane": "main", "rank": 1, "importance": "primary", "keepNear": ["risk-engine", "audit-log"]}},
+    {"semanticId": "card-network", "label": "Card Network", "shapeRef": "external.system", "layoutHints": {"lane": "main", "rank": 2, "importance": "primary"}},
+    {"semanticId": "checkout-result", "label": "Approved or Declined", "shapeRef": "client.web", "layoutHints": {"lane": "main", "rank": 3, "importance": "primary"}},
+    {"semanticId": "risk-engine", "label": "Risk Engine", "shapeRef": "risk.security", "layoutHints": {"lane": "support", "rank": 1, "importance": "secondary", "keepNear": ["payment-api"]}},
+    {"semanticId": "audit-log", "label": "Approval Audit Log", "shapeRef": "database.relational", "layoutHints": {"lane": "support", "rank": 2, "importance": "support", "keepNear": ["payment-api"]}}
+  ],
+  "edges": [
+    {"semanticId": "submit-payment", "from": "checkout", "to": "payment-api", "label": "submit payment", "kind": "sync", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "authorize-card", "from": "payment-api", "to": "card-network", "label": "authorize", "kind": "sync", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "return-decision", "from": "card-network", "to": "checkout-result", "label": "approval or decline", "kind": "returns", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "risk-check", "from": "payment-api", "to": "risk-engine", "label": "risk check", "kind": "sync", "routeHints": {"direction": "down", "priority": "secondary", "labelSide": "right"}},
+    {"semanticId": "record-decision", "from": "payment-api", "to": "audit-log", "label": "record decision", "kind": "writes", "routeHints": {"direction": "down", "priority": "secondary", "labelSide": "right"}}
+  ],
+  "outputPath": "examples/dogfood/copilot-cloud-001/payment-approval.excalidraw"
+}

@@ -1,0 +1,36 @@
+{
+  "version": "2.0",
+  "diagramType": "event-flow",
+  "title": "Order Fulfillment Events",
+  "stylePreset": "professional-software",
+  "layout": {
+    "profile": "swimlane-flow",
+    "direction": "left-to-right",
+    "aspectRatio": "wide",
+    "primaryFlow": ["accepted-order", "inventory-service", "payment-service", "shipment-service", "notification-service"],
+    "lanes": [
+      {"id": "main", "label": "Fulfillment event narrative", "position": "center", "order": 0},
+      {"id": "recovery", "label": "Retry support", "position": "bottom", "order": 1}
+    ]
+  },
+  "framePolicy": {"mode": "none"},
+  "nodes": [
+    {"semanticId": "accepted-order", "label": "Order Accepted", "shapeRef": "queue.topic", "fontRole": "mono", "layoutHints": {"lane": "main", "rank": 0, "importance": "primary"}},
+    {"semanticId": "inventory-service", "label": "Inventory Service", "shapeRef": "service.worker", "layoutHints": {"lane": "main", "rank": 1, "importance": "primary"}},
+    {"semanticId": "payment-service", "label": "Payment Capture", "shapeRef": "service.worker", "layoutHints": {"lane": "main", "rank": 2, "importance": "primary"}},
+    {"semanticId": "shipment-service", "label": "Shipment Service", "shapeRef": "service.worker", "layoutHints": {"lane": "main", "rank": 3, "importance": "primary"}},
+    {"semanticId": "notification-service", "label": "Customer Notification", "shapeRef": "service.backend", "layoutHints": {"lane": "main", "rank": 4, "importance": "primary"}},
+    {"semanticId": "capture-retry", "label": "Capture Retry Topic", "shapeRef": "queue.topic", "fontRole": "mono", "layoutHints": {"lane": "recovery", "rank": 2, "importance": "secondary"}},
+    {"semanticId": "ops-alert", "label": "Operations Alert", "shapeRef": "service.backend", "layoutHints": {"lane": "recovery", "rank": 3, "importance": "support"}}
+  ],
+  "edges": [
+    {"semanticId": "reserve-inventory", "from": "accepted-order", "to": "inventory-service", "label": "reserve inventory", "kind": "subscribes", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "capture-payment", "from": "inventory-service", "to": "payment-service", "label": "inventory reserved", "kind": "publishes", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "create-shipment", "from": "payment-service", "to": "shipment-service", "label": "payment captured", "kind": "publishes", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "notify-customer", "from": "shipment-service", "to": "notification-service", "label": "shipment created", "kind": "publishes", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "retry-capture", "from": "payment-service", "to": "capture-retry", "label": "capture failed", "kind": "retries", "routeHints": {"direction": "down", "priority": "secondary", "labelSide": "right"}},
+    {"semanticId": "redeliver-capture", "from": "capture-retry", "to": "payment-service", "label": "retry capture", "kind": "publishes", "routeHints": {"direction": "up", "priority": "secondary", "labelSide": "left"}},
+    {"semanticId": "alert-ops", "from": "capture-retry", "to": "ops-alert", "label": "retries exhausted", "kind": "fails-to", "routeHints": {"priority": "secondary", "labelSide": "above"}}
+  ],
+  "outputPath": "examples/dogfood/copilot-cloud-001/order-fulfillment.excalidraw"
+}

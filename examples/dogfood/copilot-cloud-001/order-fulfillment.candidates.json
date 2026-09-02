@@ -1,0 +1,33 @@
+{
+  "version": "1.1",
+  "mode": "cognitive-candidate-portfolio",
+  "supportedFamily": "flow",
+  "sourceSpec": "/home/runner/work/excalidraw-skill/excalidraw-skill/examples/dogfood/copilot-cloud-001/order-fulfillment.diagram.json",
+  "requiresPerceptualRanking": true,
+  "candidates": [
+    {
+      "candidateId": "c01",
+      "strategy": "narrative",
+      "intent": "Preserve the clearest primary story and make secondary concerns subordinate.",
+      "scenePath": "/home/runner/work/excalidraw-skill/excalidraw-skill/examples/dogfood/copilot-cloud-001/order-fulfillment.candidate-c01.excalidraw",
+      "previewPath": "/home/runner/work/excalidraw-skill/excalidraw-skill/examples/dogfood/copilot-cloud-001/order-fulfillment.candidate-c01.preview.png",
+      "reviewPath": "/home/runner/work/excalidraw-skill/excalidraw-skill/examples/dogfood/copilot-cloud-001/order-fulfillment.candidate-c01.review.json"
+    },
+    {
+      "candidateId": "c02",
+      "strategy": "compact",
+      "intent": "Reduce eye travel and overall horizontal spread without violating hard constraints.",
+      "scenePath": "/home/runner/work/excalidraw-skill/excalidraw-skill/examples/dogfood/copilot-cloud-001/order-fulfillment.candidate-c02.excalidraw",
+      "previewPath": "/home/runner/work/excalidraw-skill/excalidraw-skill/examples/dogfood/copilot-cloud-001/order-fulfillment.candidate-c02.preview.png",
+      "reviewPath": "/home/runner/work/excalidraw-skill/excalidraw-skill/examples/dogfood/copilot-cloud-001/order-fulfillment.candidate-c02.review.json"
+    },
+    {
+      "candidateId": "c03",
+      "strategy": "structured",
+      "intent": "Emphasize the conceptual center and relationship structure instead of preserving the original lane composition.",
+      "scenePath": "/home/runner/work/excalidraw-skill/excalidraw-skill/examples/dogfood/copilot-cloud-001/order-fulfillment.candidate-c03.excalidraw",
+      "previewPath": "/home/runner/work/excalidraw-skill/excalidraw-skill/examples/dogfood/copilot-cloud-001/order-fulfillment.candidate-c03.preview.png",
+      "reviewPath": "/home/runner/work/excalidraw-skill/excalidraw-skill/examples/dogfood/copilot-cloud-001/order-fulfillment.candidate-c03.review.json"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": "0.1.0",
+  "pass": true,
+  "metrics": {
+    "endpointNodePenetrations": 0,
+    "edgeCount": 7,
+    "nodeCount": 8
+  },
+  "details": {
+    "endpointNodePenetrations": []
+  }
+}

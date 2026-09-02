@@ -1,0 +1,2592 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "excalidraw-skill",
+  "elements": [
+    {
+      "id": "accent_rectangle_application",
+      "type": "rectangle",
+      "x": 120,
+      "y": 280,
+      "width": 8,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#4f46e5",
+      "backgroundColor": "#4f46e5",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_application"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "application"
+        }
+      }
+    },
+    {
+      "id": "accent_rectangle_collector",
+      "type": "rectangle",
+      "x": 460,
+      "y": 280,
+      "width": 8,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#4f46e5",
+      "backgroundColor": "#4f46e5",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_collector"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "collector"
+        }
+      }
+    },
+    {
+      "id": "accent_rectangle_telemetry-processor",
+      "type": "rectangle",
+      "x": 800,
+      "y": 280,
+      "width": 8,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#4f46e5",
+      "backgroundColor": "#4f46e5",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_telemetry-processor"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "telemetry-processor"
+        }
+      }
+    },
+    {
+      "id": "db_top_rectangle_telemetry-store",
+      "type": "line",
+      "x": 1154,
+      "y": 310,
+      "width": 152,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#0f766e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_telemetry-store"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "telemetry-store"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          152,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "db_bottom_rectangle_telemetry-store",
+      "type": "line",
+      "x": 1154,
+      "y": 350,
+      "width": 152,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#0f766e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_telemetry-store"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "telemetry-store"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          152,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "tag_rectangle_telemetry-store_DATA",
+      "type": "rectangle",
+      "x": 1152,
+      "y": 296,
+      "width": 54,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#0f766e",
+      "backgroundColor": "#ccfbf1",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_telemetry-store"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "telemetry-store"
+        }
+      }
+    },
+    {
+      "id": "tag_text_rectangle_telemetry-store_DATA",
+      "type": "text",
+      "x": 1160,
+      "y": 298,
+      "width": 46,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#0f766e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_telemetry-store"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "telemetry-store"
+        }
+      },
+      "text": "DATA",
+      "originalText": "DATA",
+      "fontSize": 10,
+      "fontFamily": 2,
+      "textAlign": "left",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "accent_rectangle_query-service",
+      "type": "rectangle",
+      "x": 1480,
+      "y": 288,
+      "width": 8,
+      "height": 80,
+      "angle": 0,
+      "strokeColor": "#4f46e5",
+      "backgroundColor": "#4f46e5",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_query-service"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "query-service"
+        }
+      }
+    },
+    {
+      "id": "db_top_rectangle_archive-store",
+      "type": "line",
+      "x": 1154,
+      "y": 568,
+      "width": 152,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#0f766e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_archive-store"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "archive-store"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          152,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "db_bottom_rectangle_archive-store",
+      "type": "line",
+      "x": 1154,
+      "y": 624,
+      "width": 152,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#0f766e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_archive-store"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "archive-store"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          152,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "tag_rectangle_archive-store_DATA",
+      "type": "rectangle",
+      "x": 1152,
+      "y": 554,
+      "width": 54,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#0f766e",
+      "backgroundColor": "#ccfbf1",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_archive-store"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "archive-store"
+        }
+      }
+    },
+    {
+      "id": "tag_text_rectangle_archive-store_DATA",
+      "type": "text",
+      "x": 1160,
+      "y": 556,
+      "width": 46,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#0f766e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_archive-store"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "archive-store"
+        }
+      },
+      "text": "DATA",
+      "originalText": "DATA",
+      "fontSize": 10,
+      "fontFamily": 2,
+      "textAlign": "left",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "accent_rectangle_alert-manager",
+      "type": "rectangle",
+      "x": 1480,
+      "y": 466,
+      "width": 8,
+      "height": 80,
+      "angle": 0,
+      "strokeColor": "#4f46e5",
+      "backgroundColor": "#4f46e5",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_alert-manager"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "alert-manager"
+        }
+      }
+    },
+    {
+      "id": "accent_rectangle_dashboard",
+      "type": "rectangle",
+      "x": 1820,
+      "y": 466,
+      "width": 8,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#475569",
+      "backgroundColor": "#475569",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_dashboard"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "dashboard"
+        }
+      }
+    },
+    {
+      "id": "rectangle_application",
+      "type": "rectangle",
+      "x": 120,
+      "y": 280,
+      "width": 180,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#4f46e5",
+      "backgroundColor": "#eef2ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_application"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_application_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_emit-signals",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "application",
+          "role": "node",
+          "label": "Application Signals",
+          "displayLabel": "Application\nSignals",
+          "shapeRef": "service.backend",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_application_label",
+      "type": "text",
+      "x": 136,
+      "y": 305.5,
+      "width": 148,
+      "height": 45,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_application"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "application_label",
+          "role": "label",
+          "node": "application",
+          "sourceLabel": "Application Signals",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false,
+            "estimatedLineWidths": [
+              97.20000000000002,
+              62.099999999999994
+            ]
+          }
+        }
+      },
+      "text": "Application\nSignals",
+      "originalText": "Application\nSignals",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_application",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_collector",
+      "type": "rectangle",
+      "x": 460,
+      "y": 280,
+      "width": 180,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#4f46e5",
+      "backgroundColor": "#eef2ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_collector"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_collector_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_emit-signals",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_collect-signals",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "collector",
+          "role": "node",
+          "label": "OpenTelemetry Collector",
+          "displayLabel": "OpenTelemetry\nCollector",
+          "shapeRef": "service.backend",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_collector_label",
+      "type": "text",
+      "x": 476,
+      "y": 305.5,
+      "width": 148,
+      "height": 45,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_collector"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "collector_label",
+          "role": "label",
+          "node": "collector",
+          "sourceLabel": "OpenTelemetry Collector",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false,
+            "estimatedLineWidths": [
+              127.80000000000004,
+              81.9
+            ]
+          }
+        }
+      },
+      "text": "OpenTelemetry\nCollector",
+      "originalText": "OpenTelemetry\nCollector",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_collector",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_telemetry-processor",
+      "type": "rectangle",
+      "x": 800,
+      "y": 280,
+      "width": 180,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#4f46e5",
+      "backgroundColor": "#eef2ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_telemetry-processor"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_telemetry-processor_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_collect-signals",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_store-telemetry",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "telemetry-processor",
+          "role": "node",
+          "label": "Telemetry Processor",
+          "displayLabel": "Telemetry\nProcessor",
+          "shapeRef": "service.backend",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_telemetry-processor_label",
+      "type": "text",
+      "x": 816,
+      "y": 305.5,
+      "width": 148,
+      "height": 45,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_telemetry-processor"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "telemetry-processor_label",
+          "role": "label",
+          "node": "telemetry-processor",
+          "sourceLabel": "Telemetry Processor",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false,
+            "estimatedLineWidths": [
+              86.4,
+              90.9
+            ]
+          }
+        }
+      },
+      "text": "Telemetry\nProcessor",
+      "originalText": "Telemetry\nProcessor",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_telemetry-processor",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_telemetry-store",
+      "type": "rectangle",
+      "x": 1140,
+      "y": 288,
+      "width": 180,
+      "height": 80,
+      "angle": 0,
+      "strokeColor": "#0f766e",
+      "backgroundColor": "#f0fdfa",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_telemetry-store"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_telemetry-store_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_store-telemetry",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_serve-queries",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_archive-telemetry",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_evaluate-alerts",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "telemetry-store",
+          "role": "node",
+          "label": "Telemetry Store",
+          "displayLabel": "Telemetry Store",
+          "shapeRef": "database.relational",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_telemetry-store_label",
+      "type": "text",
+      "x": 1156,
+      "y": 316.5,
+      "width": 148,
+      "height": 23,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_telemetry-store"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "telemetry-store_label",
+          "role": "label",
+          "node": "telemetry-store",
+          "sourceLabel": "Telemetry Store",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false,
+            "estimatedLineWidths": [
+              143.64000000000001
+            ]
+          }
+        }
+      },
+      "text": "Telemetry Store",
+      "originalText": "Telemetry Store",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_telemetry-store",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_query-service",
+      "type": "rectangle",
+      "x": 1480,
+      "y": 288,
+      "width": 180,
+      "height": 80,
+      "angle": 0,
+      "strokeColor": "#4f46e5",
+      "backgroundColor": "#eef2ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_query-service"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_query-service_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_serve-queries",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_view-dashboard",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "query-service",
+          "role": "node",
+          "label": "Query Service",
+          "displayLabel": "Query Service",
+          "shapeRef": "service.backend",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_query-service_label",
+      "type": "text",
+      "x": 1496,
+      "y": 316.5,
+      "width": 148,
+      "height": 23,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_query-service"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "query-service_label",
+          "role": "label",
+          "node": "query-service",
+          "sourceLabel": "Query Service",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false,
+            "estimatedLineWidths": [
+              123.84000000000003
+            ]
+          }
+        }
+      },
+      "text": "Query Service",
+      "originalText": "Query Service",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_query-service",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_archive-store",
+      "type": "rectangle",
+      "x": 1140,
+      "y": 546,
+      "width": 180,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#0f766e",
+      "backgroundColor": "#f0fdfa",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_archive-store"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_archive-store_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_archive-telemetry",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "archive-store",
+          "role": "node",
+          "label": "Long-term Archive",
+          "displayLabel": "Long-term\nArchive",
+          "shapeRef": "database.relational",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_archive-store_label",
+      "type": "text",
+      "x": 1156,
+      "y": 571.5,
+      "width": 148,
+      "height": 45,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_archive-store"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "archive-store_label",
+          "role": "label",
+          "node": "archive-store",
+          "sourceLabel": "Long-term Archive",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false,
+            "estimatedLineWidths": [
+              90.9,
+              66.6
+            ]
+          }
+        }
+      },
+      "text": "Long-term\nArchive",
+      "originalText": "Long-term\nArchive",
+      "fontSize": 18,
+      "fontFamily": 3,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_archive-store",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_alert-manager",
+      "type": "rectangle",
+      "x": 1480,
+      "y": 466,
+      "width": 180,
+      "height": 80,
+      "angle": 0,
+      "strokeColor": "#4f46e5",
+      "backgroundColor": "#eef2ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_alert-manager"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_alert-manager_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_evaluate-alerts",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "alert-manager",
+          "role": "node",
+          "label": "Alert Manager",
+          "displayLabel": "Alert Manager",
+          "shapeRef": "service.backend",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_alert-manager_label",
+      "type": "text",
+      "x": 1496,
+      "y": 494.5,
+      "width": 148,
+      "height": 23,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_alert-manager"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "alert-manager_label",
+          "role": "label",
+          "node": "alert-manager",
+          "sourceLabel": "Alert Manager",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false,
+            "estimatedLineWidths": [
+              123.84000000000003
+            ]
+          }
+        }
+      },
+      "text": "Alert Manager",
+      "originalText": "Alert Manager",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_alert-manager",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_dashboard",
+      "type": "rectangle",
+      "x": 1820,
+      "y": 466,
+      "width": 180,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#475569",
+      "backgroundColor": "#f8fafc",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_dashboard"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_dashboard_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_view-dashboard",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "dashboard",
+          "role": "node",
+          "label": "Dashboard Users",
+          "displayLabel": "Dashboard\nUsers",
+          "shapeRef": "client.web",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_dashboard_label",
+      "type": "text",
+      "x": 1836,
+      "y": 491.5,
+      "width": 148,
+      "height": 45,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_dashboard"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "dashboard_label",
+          "role": "label",
+          "node": "dashboard",
+          "sourceLabel": "Dashboard Users",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false,
+            "estimatedLineWidths": [
+              90.9,
+              51.3
+            ]
+          }
+        }
+      },
+      "text": "Dashboard\nUsers",
+      "originalText": "Dashboard\nUsers",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_dashboard",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "arrow_emit-signals",
+      "type": "arrow",
+      "x": 300,
+      "y": 328,
+      "width": 160,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "emit-signals",
+          "role": "edge",
+          "from": "application",
+          "to": "collector",
+          "label": "logs, metrics, traces",
+          "kind": "transfers",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "right",
+            "targetSide": "left",
+            "axisLock": "horizontal",
+            "bends": 0
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          160,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_application",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_collector",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "arrow_collect-signals",
+      "type": "arrow",
+      "x": 640,
+      "y": 328,
+      "width": 160,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "collect-signals",
+          "role": "edge",
+          "from": "collector",
+          "to": "telemetry-processor",
+          "label": "OTLP",
+          "kind": "transfers",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "right",
+            "targetSide": "left",
+            "axisLock": "horizontal",
+            "bends": 0
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          160,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_collector",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_telemetry-processor",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "arrow_store-telemetry",
+      "type": "arrow",
+      "x": 980,
+      "y": 328,
+      "width": 160,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "store-telemetry",
+          "role": "edge",
+          "from": "telemetry-processor",
+          "to": "telemetry-store",
+          "label": "processed telemetry",
+          "kind": "writes",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "right",
+            "targetSide": "left",
+            "axisLock": "horizontal",
+            "bends": 0
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          160,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_telemetry-processor",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_telemetry-store",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "arrow_serve-queries",
+      "type": "arrow",
+      "x": 1320,
+      "y": 320,
+      "width": 160,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "serve-queries",
+          "role": "edge",
+          "from": "telemetry-store",
+          "to": "query-service",
+          "label": "query data",
+          "kind": "reads",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "right",
+            "targetSide": "left",
+            "axisLock": "horizontal",
+            "bends": 0
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          160,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_telemetry-store",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_query-service",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "arrow_archive-telemetry",
+      "type": "arrow",
+      "x": 1230,
+      "y": 368,
+      "width": 0,
+      "height": 178,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "archive-telemetry",
+          "role": "edge",
+          "from": "telemetry-store",
+          "to": "archive-store",
+          "label": "archive",
+          "kind": "writes",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "down",
+            "targetSide": "up",
+            "axisLock": "vertical",
+            "bends": 0
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          178
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_telemetry-store",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_archive-store",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "arrow_evaluate-alerts",
+      "type": "arrow",
+      "x": 1320,
+      "y": 336,
+      "width": 160,
+      "height": 170,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "evaluate-alerts",
+          "role": "edge",
+          "from": "telemetry-store",
+          "to": "alert-manager",
+          "label": "alert rules",
+          "kind": "transfers",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "right",
+            "targetSide": "left",
+            "axisLock": null,
+            "bends": 2
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          102,
+          0
+        ],
+        [
+          102,
+          170
+        ],
+        [
+          160,
+          170
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_telemetry-store",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_alert-manager",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "arrow_view-dashboard",
+      "type": "arrow",
+      "x": 1570,
+      "y": 368,
+      "width": 340,
+      "height": 98,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "view-dashboard",
+          "role": "edge",
+          "from": "query-service",
+          "to": "dashboard",
+          "label": "dashboards",
+          "kind": "transfers",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "down",
+            "targetSide": "up",
+            "axisLock": null,
+            "bends": 2
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          49
+        ],
+        [
+          340,
+          49
+        ],
+        [
+          340,
+          98
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_query-service",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_dashboard",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "text_emit-signals_label",
+      "type": "text",
+      "x": 309,
+      "y": 292,
+      "width": 142,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "logs, metrics, traces",
+      "originalText": "logs, metrics, traces",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "emit-signals_label",
+          "role": "edge-label",
+          "edge": "emit-signals",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 152,
+            "estimatedLineWidths": [
+              131.4
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "above",
+            "preferred": "above",
+            "ownDistance": 14,
+            "nearestOtherDistance": 189.5,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    },
+    {
+      "id": "text_collect-signals_label",
+      "type": "text",
+      "x": 698,
+      "y": 292,
+      "width": 44,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "OTLP",
+      "originalText": "OTLP",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "collect-signals_label",
+          "role": "edge-label",
+          "edge": "collect-signals",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 152,
+            "estimatedLineWidths": [
+              33.8
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "above",
+            "preferred": "above",
+            "ownDistance": 14,
+            "nearestOtherDistance": 238.4,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    },
+    {
+      "id": "text_store-telemetry_label",
+      "type": "text",
+      "x": 990,
+      "y": 292,
+      "width": 140,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "processed telemetry",
+      "originalText": "processed telemetry",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "store-telemetry_label",
+          "role": "edge-label",
+          "edge": "store-telemetry",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 152,
+            "estimatedLineWidths": [
+              129.7
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "above",
+            "preferred": "above",
+            "ownDistance": 14,
+            "nearestOtherDistance": 113.6,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    },
+    {
+      "id": "text_serve-queries_label",
+      "type": "text",
+      "x": 1361,
+      "y": 284,
+      "width": 79,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "query data",
+      "originalText": "query data",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "serve-queries_label",
+          "role": "edge-label",
+          "edge": "serve-queries",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 152,
+            "estimatedLineWidths": [
+              68.6
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "above",
+            "preferred": "above",
+            "ownDistance": 14,
+            "nearestOtherDistance": 30,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    },
+    {
+      "id": "text_archive-telemetry_label",
+      "type": "text",
+      "x": 1244,
+      "y": 446,
+      "width": 57,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "archive",
+      "originalText": "archive",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "archive-telemetry_label",
+          "role": "edge-label",
+          "edge": "archive-telemetry",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 96,
+            "estimatedLineWidths": [
+              46.8
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "right",
+            "preferred": "right",
+            "ownDistance": 14,
+            "nearestOtherDistance": 111.6,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    },
+    {
+      "id": "text_evaluate-alerts_label",
+      "type": "text",
+      "x": 1436,
+      "y": 410,
+      "width": 80,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "alert rules",
+      "originalText": "alert rules",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "evaluate-alerts_label",
+          "role": "edge-label",
+          "edge": "evaluate-alerts",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 96,
+            "estimatedLineWidths": [
+              69.3
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "right",
+            "preferred": "right",
+            "ownDistance": 14,
+            "nearestOtherDistance": 54,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    },
+    {
+      "id": "text_view-dashboard_label",
+      "type": "text",
+      "x": 1584,
+      "y": 394,
+      "width": 82,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "dashboards",
+      "originalText": "dashboards",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "view-dashboard_label",
+          "role": "edge-label",
+          "edge": "view-dashboard",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 180,
+            "estimatedLineWidths": [
+              71.5
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "right",
+            "preferred": "right",
+            "ownDistance": 1.3,
+            "nearestOtherDistance": 127.5,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    }
+  ],
+  "appState": {
+    "gridSize": null,
+    "viewBackgroundColor": "#ffffff"
+  },
+  "files": {},
+  "customData": {
+    "excalidrawSkill": {
+      "diagramType": "data-flow",
+      "title": "Application Observability Pipeline",
+      "stylePreset": "professional-software",
+      "layout": {
+        "engine": "flow-v0.4.2",
+        "family": "flow",
+        "subtype": "data-flow",
+        "profile": "layered-flow",
+        "placedNodes": 8
+      },
+      "flowOptimization": {
+        "version": "0.3.0",
+        "groupsConsidered": 0,
+        "groupsChanged": 0
+      },
+      "positionRefinement": {
+        "version": "0.2.0",
+        "strategy": "bounded-cross-axis-local-search",
+        "scoring": "shared-post-route-quality-score",
+        "candidates": 3,
+        "nodesChanged": 1,
+        "baselineCost": 84.29,
+        "selectedCost": 74.8,
+        "improvement": 9.49,
+        "moves": {
+          "archive-store": {
+            "dx": 0,
+            "dy": 80,
+            "improvement": 9.49
+          }
+        },
+        "decisions": [
+          {
+            "pass": 0,
+            "node": "archive-store",
+            "dx": 0,
+            "dy": 80,
+            "costBefore": 84.29,
+            "costAfter": 74.8,
+            "improvement": 9.49
+          }
+        ]
+      },
+      "primarySpineRefinement": {
+        "version": "0.1.0",
+        "strategy": "median-center-alignment",
+        "profile": "layered-flow",
+        "direction": "left-to-right",
+        "axis": "y",
+        "targetCenter": 328,
+        "moved": 2,
+        "moves": [
+          {
+            "node": "telemetry-store",
+            "axis": "y",
+            "delta": 8,
+            "previousCenter": 320,
+            "targetCenter": 328
+          },
+          {
+            "node": "query-service",
+            "axis": "y",
+            "delta": 8,
+            "previousCenter": 320,
+            "targetCenter": 328
+          }
+        ]
+      },
+      "routeRepair": {
+        "engine": "route-repair-v0.1",
+        "nodeCrossingsRepaired": 0,
+        "endpointOverlapsRepaired": 0
+      },
+      "routeSimplification": {
+        "engine": "route-simplify-v0.2",
+        "simplified": 0
+      },
+      "routeOptimization": {
+        "version": "0.5.0",
+        "strategy": "routing-strategy-portfolio",
+        "selectedStrategy": "bundle-then-edge",
+        "scoring": "shared-post-route-quality-score",
+        "bundlesConsidered": 1,
+        "bundlesChanged": 1,
+        "bundleDecisions": [
+          {
+            "kind": "fan-out",
+            "node": "telemetry-store",
+            "edgeIds": [
+              "archive-telemetry",
+              "evaluate-alerts"
+            ],
+            "accepted": true,
+            "strategy": "auto",
+            "selectedDirection": null,
+            "originalDirections": {
+              "archive-telemetry": "down",
+              "evaluate-alerts": "down"
+            },
+            "costBefore": 46,
+            "costAfter": 32,
+            "improvement": 14
+          }
+        ],
+        "edgesConsidered": 3,
+        "edgesChanged": 2,
+        "baselineCost": 46,
+        "selectedCost": 32,
+        "improvement": 14,
+        "candidates": [
+          {
+            "strategy": "bundle-then-edge",
+            "cost": 32,
+            "hardPenalty": 0,
+            "acceptedBundles": 1,
+            "acceptedEdges": 0
+          },
+          {
+            "strategy": "edge-only",
+            "cost": 32,
+            "hardPenalty": 0,
+            "acceptedBundles": 0,
+            "acceptedEdges": 1
+          }
+        ],
+        "decisions": [
+          {
+            "edge": "archive-telemetry",
+            "preferredDirection": null,
+            "selectedDirection": null,
+            "accepted": false,
+            "costBefore": 32,
+            "costAfter": 32,
+            "improvement": 0
+          },
+          {
+            "edge": "evaluate-alerts",
+            "preferredDirection": null,
+            "selectedDirection": null,
+            "accepted": false,
+            "costBefore": 32,
+            "costAfter": 32,
+            "improvement": 0
+          },
+          {
+            "edge": "view-dashboard",
+            "preferredDirection": "down",
+            "selectedDirection": "down",
+            "accepted": false,
+            "costBefore": 32,
+            "costAfter": 32,
+            "improvement": 0
+          }
+        ]
+      },
+      "flowBundleRepair": {
+        "version": "0.4.0",
+        "strategy": "topology-ordered-bundle-geometry-portfolio",
+        "considered": 0,
+        "accepted": 0,
+        "finalCost": 32,
+        "decisions": []
+      },
+      "endpointIntegrityRepair": {
+        "version": "0.1.0",
+        "repaired": 0,
+        "unresolved": 0,
+        "decisions": []
+      },
+      "framePolicy": {
+        "budget": 0,
+        "candidateCount": 0,
+        "renderedCount": 0,
+        "suppressedSmallGroups": 0,
+        "suppressedUnspecifiedGroups": 0,
+        "suppressedFullScene": 0,
+        "titleReserveMode": "native-100pct-estimate",
+        "titleReserveHeight": 32,
+        "adjustedFrameCollisions": 0,
+        "unresolvedFrameCollisions": 0,
+        "suppressedByBudget": 0
+      }
+    }
+  }
+}

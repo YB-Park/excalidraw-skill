@@ -1,0 +1,37 @@
+{
+  "version": "2.0",
+  "diagramType": "data-flow",
+  "title": "Application Observability Pipeline",
+  "stylePreset": "professional-software",
+  "layout": {
+    "profile": "layered-flow",
+    "direction": "left-to-right",
+    "aspectRatio": "wide",
+    "primaryFlow": ["application", "collector", "telemetry-processor", "telemetry-store", "query-service"],
+    "lanes": [
+      {"id": "main", "label": "Telemetry data flow", "position": "center", "order": 0},
+      {"id": "consumers", "label": "Secondary storage and consumers", "position": "bottom", "order": 1}
+    ]
+  },
+  "framePolicy": {"mode": "none"},
+  "nodes": [
+    {"semanticId": "application", "label": "Application Signals", "shapeRef": "service.backend", "layoutHints": {"lane": "main", "rank": 0, "importance": "primary"}},
+    {"semanticId": "collector", "label": "OpenTelemetry Collector", "shapeRef": "service.backend", "layoutHints": {"lane": "main", "rank": 1, "importance": "primary"}},
+    {"semanticId": "telemetry-processor", "label": "Telemetry Processor", "shapeRef": "service.backend", "layoutHints": {"lane": "main", "rank": 2, "importance": "primary"}},
+    {"semanticId": "telemetry-store", "label": "Telemetry Store", "shapeRef": "database.relational", "layoutHints": {"lane": "main", "rank": 3, "importance": "primary"}},
+    {"semanticId": "query-service", "label": "Query Service", "shapeRef": "service.backend", "layoutHints": {"lane": "main", "rank": 4, "importance": "primary"}},
+    {"semanticId": "archive-store", "label": "Long-term Archive", "shapeRef": "database.relational", "layoutHints": {"lane": "consumers", "rank": 3, "importance": "secondary"}},
+    {"semanticId": "alert-manager", "label": "Alert Manager", "shapeRef": "service.backend", "layoutHints": {"lane": "consumers", "rank": 4, "importance": "secondary"}},
+    {"semanticId": "dashboard", "label": "Dashboard Users", "shapeRef": "client.web", "layoutHints": {"lane": "consumers", "rank": 5, "importance": "support"}}
+  ],
+  "edges": [
+    {"semanticId": "emit-signals", "from": "application", "to": "collector", "label": "logs, metrics, traces", "kind": "transfers", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "collect-signals", "from": "collector", "to": "telemetry-processor", "label": "OTLP", "kind": "transfers", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "store-telemetry", "from": "telemetry-processor", "to": "telemetry-store", "label": "processed telemetry", "kind": "writes", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "serve-queries", "from": "telemetry-store", "to": "query-service", "label": "query data", "kind": "reads", "routeHints": {"priority": "primary", "labelSide": "above"}},
+    {"semanticId": "archive-telemetry", "from": "telemetry-store", "to": "archive-store", "label": "archive", "kind": "writes", "routeHints": {"direction": "down", "priority": "secondary", "labelSide": "right"}},
+    {"semanticId": "evaluate-alerts", "from": "telemetry-store", "to": "alert-manager", "label": "alert rules", "kind": "transfers", "routeHints": {"direction": "down", "priority": "secondary", "labelSide": "right"}},
+    {"semanticId": "view-dashboard", "from": "query-service", "to": "dashboard", "label": "dashboards", "kind": "transfers", "routeHints": {"direction": "down", "priority": "secondary", "labelSide": "right"}}
+  ],
+  "outputPath": "examples/dogfood/copilot-cloud-001/observability-pipeline.excalidraw"
+}
