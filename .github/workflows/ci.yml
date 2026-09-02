@@ -61,6 +61,11 @@ jobs:
             cp "examples/evaluation/outputs/${id}.excalidraw.editability.json" "artifacts/stress-scenes/${id}.editability.json"
             cp "examples/evaluation/outputs/${id}.excalidraw.route-integrity.json" "artifacts/stress-scenes/${id}.route-integrity.json"
           done
+      - name: Collect PR5 dogfood previews for blind review
+        run: |
+          mkdir -p artifacts/dogfood-pr5
+          cp examples/dogfood/copilot-cloud-001/*.preview.png artifacts/dogfood-pr5/
+          cp examples/dogfood/copilot-cloud-001/*.candidates.json artifacts/dogfood-pr5/
       - name: Install Chromium for actual-render review
         run: npx playwright install --with-deps chromium
       - name: Generate patch round-trip review scenes
