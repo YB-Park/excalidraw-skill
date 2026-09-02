@@ -33,4 +33,4 @@ Hard rules:
 - Do not treat readabilityCost or any scalar metric as visual truth.
 - Do not claim visual approval without inspecting image content returned by `excalidraw/diagram_review_image`.
 - Structural defects become deterministic tests. Perceptual preferences become preference evidence, not automatic hard rules.
-- Use only the cheap model list declared in this file and the declared cheap subagents. Never request or hand off to a more expensive model.
+- Use only the cheap model list declared in this file and the declared cheap subagents. Never request a more expensive model. Never hand off to one either.
