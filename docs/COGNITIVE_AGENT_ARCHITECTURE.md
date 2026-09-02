@@ -30,11 +30,13 @@ A recurring perceptual preference should become preference evidence, a candidate
 
 ## Candidate portfolio
 
-Important new diagrams are explored through a deliberately small portfolio of meaningfully different strategies:
+The first vertical slice exposes a three-candidate portfolio **only for currently supported flow-family DiagramSpecs** (`flow`, `service-flow`, `event-flow`, `data-flow`). System and module architecture remain on the deterministic build/review path until they have their own three proven distinct strategies.
+
+The flow strategies are:
 
 - `narrative` — preserve the clearest primary story and subordinate secondary concerns.
 - `compact` — reduce eye travel and spread while preserving correctness.
-- `structured` — emphasize the conceptual center and relationship structure rather than preserving the original lane composition. For supported flow families, the first vertical slice explores this through the existing `hub-and-spoke` profile.
+- `structured` — emphasize the conceptual center and relationship structure rather than preserving the original lane composition; the first slice explores this through the existing `hub-and-spoke` profile.
 
 The first implementation keeps the portfolio at three candidates to control cost and judge instability. Random coordinate jitter is not a strategy.
 
@@ -46,6 +48,8 @@ Each candidate must pass deterministic build/review gates before perceptual rank
 
 The critic is a noisy sensor, not an oracle.
 
+Generation strategy is coordinator-only metadata. Candidate scene filenames use opaque IDs (`c01`, `c02`, `c03`) and the coordinator hands the Critic only the `blindCandidates` view. The Critic has no repository read/search tools and is explicitly instructed not to infer strategy from IDs, order, filenames, or scalar metrics. If strategy metadata leaks into the handoff, the Critic must mark the evaluation as not fully blind and recommend human judgment when that leakage could affect confidence.
+
 For every candidate it independently inspects the actual PNG and evaluates exactly five dimensions before doing any ranking:
 
 1. Narrative clarity.
@@ -54,7 +58,7 @@ For every candidate it independently inspects the actual PNG and evaluates exact
 4. Visual economy.
 5. Task comprehension.
 
-The critic must expose confidence. Low confidence, close candidates, or presentation-critical tasks escalate to the human instead of forcing an automated winner.
+The critic must expose confidence. Low confidence, close candidates, non-blind handoff, or presentation-critical tasks escalate to the human instead of forcing an automated winner.
 
 The generator/coordinator and critic are separate agent roles so that generation intent does not become hidden ranking evidence.
 
@@ -84,6 +88,8 @@ The MCP surface begins with:
 - `diagram_apply_layout_state`
 
 `diagram_review_image` returns the actual PNG as MCP image content plus structured review evidence. The agent must not claim visual approval from JSON metrics alone.
+
+The MCP server uses the current v2 `serveStdio(factory)` serving path and is integration-tested with the official MCP client through a real child-process stdio handshake, `tools/list`, and a real tool call. Every filesystem path accepted by the server is restricted to the current workspace; the agent does not need arbitrary host-filesystem access for this workflow.
 
 ## Model-cost policy
 
@@ -117,7 +123,7 @@ Mixed deterministic/perceptual. A human arrangement is captured, semantics are c
 
 This first slice intentionally does not rewrite every family renderer or remove existing heuristic passes. It creates the architectural seams needed to measure the new approach without destabilizing the proven kernel.
 
-Candidate strategy behavior is initially most differentiated for flow families. Broader family-specific strategy portfolios should be added only after preference evidence shows what diversity is useful.
+The flow-family candidate portfolio is intentionally narrower than the renderer support surface. Broader family-specific strategy portfolios should be added only after each family has genuinely distinct strategies and preference evidence showing that the additional exploration is useful.
 
 The VS Code agents and `.mcp.json` in this slice are repository/workspace-native dogfood integration. General project installation/distribution of the agent/MCP layer is a separate concern and must not be claimed complete merely because the kernel's global installer exists.
 
