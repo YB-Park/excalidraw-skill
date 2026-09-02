@@ -17,6 +17,7 @@ const invocationCwd = process.cwd();
 
 const runners = {
   render: 'src/render.mjs',
+  preview: 'src/export-preview-png.mjs',
   inspect: 'src/inspect-scene.mjs',
   validate: 'src/validate.mjs',
   patch: 'src/quality-patch.mjs',
@@ -38,6 +39,7 @@ const runners = {
 const ARG_REQUIRED_COMMANDS = new Set([
   'build',
   'render',
+  'preview',
   'inspect',
   'validate',
   'patch',
@@ -92,7 +94,9 @@ New diagram, no existing .excalidraw path:
   3. Run: node <runtimeEntry> build <spec.json>
   4. Run: node <runtimeEntry> inspect <output.excalidraw>
   5. Read the generated editability and quality reports.
-  6. Return the output path and quality summary.
+  6. Run: node <runtimeEntry> preview <output.excalidraw> -o <preview.png>
+  7. Visually inspect the preview when the host supports image vision.
+  8. Return the output path and quality summary.
 
 Existing diagram edit, existing .excalidraw path provided:
   1. Run: node <runtimeEntry> inspect <scene.excalidraw>
@@ -101,9 +105,11 @@ Existing diagram edit, existing .excalidraw path provided:
   4. Run: node <runtimeEntry> editability-report <output.excalidraw>
   5. Run: node <runtimeEntry> validate <output.excalidraw>
   6. Run: node <runtimeEntry> quality-report <output.excalidraw> [spec.json]
+  7. Run: node <runtimeEntry> preview <output.excalidraw> -o <preview.png> and visually inspect it.
 
 Primary commands:
   build <spec.json>                         Build a new diagram from DiagramSpec.
+  preview <scene.excalidraw> [-o file.png] Create a portable PNG for visual review.
   inspect <scene.excalidraw>                Summarize semantic nodes, edges, frames, and edit warnings.
   validate <scene.excalidraw>               Check basic Excalidraw file validity.
   editability-report <scene.excalidraw>     Check native text, arrow, frame, and group editability.
@@ -125,7 +131,8 @@ Rules for LLM agents:
   - For new diagrams, prefer build. Do not call patch.
   - Use patch only after inspecting an existing .excalidraw file.
   - Treat editability failures as release blockers.
-  - Do not call render directly unless debugging the renderer pipeline.
+  - Use preview for image-based visual review after build or patch.
+  - Never use render to create a PNG; render writes Excalidraw JSON only and is a low-level developer step.
   - Do not repeatedly probe --help during normal diagram generation; follow the recipes above.
   - PATH installation is optional. The installed skill should use node <runtimeEntry> ... directly.
 
@@ -136,8 +143,9 @@ Use: excalidraw-skill help debug for developer helper commands.`;
 function commandHelp(name) {
   const commonFooter = '\n\nLLM rule: follow the router recipes instead of probing multiple --help commands.';
   const help = {
-    build: `Usage: excalidraw-skill build <spec.json>\n\nBuild a new diagram from a DiagramSpec file. Build now gates native editability before validation and quality reporting.`,
-    render: `Usage: excalidraw-skill render <spec.json> [-o output.excalidraw]\n\nDeveloper renderer step. For new diagrams, use build instead.`,
+    build: `Usage: excalidraw-skill build <spec.json>\n\nBuild a new diagram from a DiagramSpec file. Build gates native editability before validation and quality reporting.`,
+    render: `Usage: excalidraw-skill render <spec.json> [-o output.excalidraw]\n\nLow-level developer scene renderer. It writes Excalidraw JSON only and refuses PNG output paths. For a visual image, build first and use preview.`,
+    preview: `Usage: excalidraw-skill preview <scene.excalidraw> [-o preview.png]\n\nCreate a valid portable PNG from the final scene for geometry, label, composition, and LLM visual review. This preview is not pixel-identical to Excalidraw's native renderer.`,
     inspect: `Usage: excalidraw-skill inspect <scene.excalidraw>\n\nRead an existing generated scene and print semantic nodes, edges, frames, layout hints, and editability warnings.`,
     validate: `Usage: excalidraw-skill validate <scene.excalidraw>\n\nChecks basic Excalidraw file validity only. Use editability-report and quality-report for usable diagram quality.`,
     patch: `Usage: excalidraw-skill patch <scene.excalidraw> <patch.json> [-o output.excalidraw]\n\nPatch is only for editing an existing .excalidraw scene. Patch output is re-routed locally and must pass editability and structural quality gates.`,
@@ -153,7 +161,7 @@ function commandHelp(name) {
     uninstall: `Usage: excalidraw-skill uninstall --global [--force]\n\nRemove the managed global skill bundle and managed runtime.`,
     evaluate: `Usage: excalidraw-skill evaluate [--family <family>] [--case <id>] [--no-build]\n\nRun the evaluation suite.`,
     'list-shapes': `Usage: excalidraw-skill list-shapes\n\nPrint the shape catalog index for selecting semantic shapeRef values.`,
-    debug: `Developer helper commands:\n  render\n  style-by-kind\n  layout-service-flow\n  layout-system-architecture\n  layout-module-architecture\n  check-refs\n  label-edges\n\nNormal agents should prefer build, inspect, patch, editability-report, quality-report, capabilities, schema, examples, and explain.`
+    debug: `Developer helper commands:\n  render\n  style-by-kind\n  layout-service-flow\n  layout-system-architecture\n  layout-module-architecture\n  check-refs\n  label-edges\n\nNormal agents should prefer build, preview, inspect, patch, editability-report, quality-report, capabilities, schema, examples, and explain.`
   };
   return (help[name] ?? `Unknown command: ${name}\n\n${generalHelp()}`) + commonFooter;
 }
