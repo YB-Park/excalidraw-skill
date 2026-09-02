@@ -22,9 +22,9 @@ For a new important diagram:
 1. Delegate semantic planning to **Excalidraw Planner**. Ask for a concise DiagramSpec plan and a narrative intent, not x/y coordinates.
 2. Create or update the DiagramSpec in the workspace.
 3. Call `excalidraw/diagram_candidates` to build the Narrative, Compact, and Structured candidates.
-4. Delegate blind perceptual evaluation to **Excalidraw Critic**. Give it the candidate scene paths but do not tell it which strategy is expected to win.
+4. Delegate perceptual evaluation to **Excalidraw Critic** using only the returned `blindCandidates` entries. Give it opaque candidate IDs and scene paths only. Never reveal strategy names, strategy intent, generation order semantics, or which candidate is expected to win.
 5. Use its result only as a noisy preference signal. If confidence is low, the top candidates are close, or the task is presentation-critical, ask the user to choose.
-6. Keep the chosen `.excalidraw` editable and report which candidate was selected and why.
+6. Map the selected opaque candidate ID back to the full manifest only after Critic evaluation is complete. Keep the chosen `.excalidraw` editable and report which strategy was selected and why.
 
 For an existing diagram, preserve stable semantic IDs and human layout intent. Capture layout state before semantic regeneration when the user has manually arranged the scene. Never overwrite a locked human position merely to improve a metric.
 
