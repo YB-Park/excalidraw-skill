@@ -11,7 +11,6 @@
         "version": "2.0",
         "diagramType": "service-flow",
         "title": "Vertical Service Flow",
-        "stylePreset": "default-software",
         "outputPath": "diagrams/vertical-service-flow.excalidraw",
         "layout": {
           "profile": "swimlane-flow",
@@ -35,7 +34,6 @@
         "version": "2.0",
         "diagramType": "service-flow",
         "title": "Horizontal Service Flow",
-        "stylePreset": "default-software",
         "outputPath": "diagrams/horizontal-service-flow.excalidraw",
         "layout": {
           "profile": "swimlane-flow",
