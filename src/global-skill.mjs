@@ -41,6 +41,7 @@ const RUNTIME_ENTRIES = Object.freeze([
 const REQUIRED_RUNTIME_FILES = Object.freeze([
   'bin/excalidraw-skill.mjs',
   'src/build.mjs',
+  'src/review.mjs',
   'src/export-preview-png.mjs',
   'src/global-skill.mjs',
   'src/init.mjs',

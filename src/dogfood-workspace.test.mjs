@@ -38,7 +38,7 @@ function assertValidPng(filePath) {
   assert.equal(buffer.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE), true, `${filePath} is not a PNG`);
 }
 
-test('installed managed runtime completes build, preview, patch, and validation in a clean workspace', (t) => {
+test('installed managed runtime completes build, review, patch, and validation in a clean workspace', (t) => {
   const home = tempDir(t, 'excalidraw-dogfood-home-');
   const workspace = tempDir(t, 'excalidraw-dogfood-workspace-');
   const targetDir = path.join(home, '.copilot', 'skills', 'excalidraw-skill');
@@ -61,14 +61,19 @@ test('installed managed runtime completes build, preview, patch, and validation 
   runRuntime(runtimeEntry, workspace, ['build', path.basename(specPath)]);
   const scenePath = path.join(workspace, spec.outputPath);
   assert.equal(fs.existsSync(scenePath), true);
-  const editability = JSON.parse(fs.readFileSync(`${scenePath}.editability.json`, 'utf8'));
-  const quality = JSON.parse(fs.readFileSync(`${scenePath}.quality.json`, 'utf8'));
+
+  runRuntime(runtimeEntry, workspace, ['review', spec.outputPath, path.basename(specPath)]);
+  const review = JSON.parse(fs.readFileSync(path.join(workspace, 'dogfood-payment.review.json'), 'utf8'));
+  assert.equal(review.ok, true);
+  assert.equal(review.previewValidPng, true);
+  assert.equal(review.requiresVisualReview, true);
+  assert.equal(review.visualApprovalPerformed, false);
+  assertValidPng(path.join(workspace, 'dogfood-payment.preview.png'));
+
+  const editability = JSON.parse(fs.readFileSync(path.join(workspace, 'dogfood-payment.editability.json'), 'utf8'));
+  const quality = JSON.parse(fs.readFileSync(path.join(workspace, 'dogfood-payment.quality.json'), 'utf8'));
   assert.equal(editability.pass, true);
   assert.equal(quality.structuralPass, true);
-
-  const previewPath = path.join(workspace, 'dogfood-payment.preview.png');
-  runRuntime(runtimeEntry, workspace, ['preview', spec.outputPath, '-o', path.basename(previewPath)]);
-  assertValidPng(previewPath);
 
   runRuntime(runtimeEntry, workspace, ['inspect', spec.outputPath]);
 
@@ -85,9 +90,12 @@ test('installed managed runtime completes build, preview, patch, and validation 
   runRuntime(runtimeEntry, workspace, ['patch', spec.outputPath, path.basename(patchPath), '-o', editedPath]);
   assert.equal(fs.existsSync(path.join(workspace, editedPath)), true);
 
-  const editedPreviewPath = path.join(workspace, 'dogfood-payment.edited.preview.png');
-  runRuntime(runtimeEntry, workspace, ['preview', editedPath, '-o', path.basename(editedPreviewPath)]);
-  assertValidPng(editedPreviewPath);
+  runRuntime(runtimeEntry, workspace, ['review', editedPath, path.basename(specPath)]);
+  const editedReview = JSON.parse(fs.readFileSync(path.join(workspace, 'dogfood-payment.edited.review.json'), 'utf8'));
+  assert.equal(editedReview.ok, true);
+  assert.equal(editedReview.previewValidPng, true);
+  assert.equal(editedReview.requiresVisualReview, true);
+  assertValidPng(path.join(workspace, 'dogfood-payment.edited.preview.png'));
 
   runRuntime(runtimeEntry, workspace, ['validate', editedPath]);
   runRuntime(runtimeEntry, workspace, ['editability-report', editedPath]);

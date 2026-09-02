@@ -20,23 +20,17 @@ node <runtimeEntry> inspect <scene.excalidraw>
 node <runtimeEntry> patch <scene.excalidraw> <patch.json> [-o output.excalidraw]
 ```
 
-5. Validate native editability and structural/family quality:
+5. Run the agent-facing review happy path:
 
 ```text
-node <runtimeEntry> editability-report <output.excalidraw>
-node <runtimeEntry> validate <output.excalidraw>
-node <runtimeEntry> quality-report <output.excalidraw> [spec.json]
+node <runtimeEntry> review <output.excalidraw> [spec.json]
 ```
 
-6. Read `visual-review.md`, create a PNG, and inspect it when the host supports image vision:
+`review` runs deterministic validity/editability/quality checks, creates a portable PNG, verifies its PNG signature, and emits a `.review.json` handoff with `requiresVisualReview: true`. Prefer this command over manually composing `validate`, `editability-report`, `quality-report`, and `preview` during normal agent work.
 
-```text
-node <runtimeEntry> preview <output.excalidraw> -o <output.preview.png>
-```
+6. Read `visual-review.md` and inspect the PNG reported by `review` when the host supports image vision. Inspect the image before reading suggested fixes. Verify that the requested change is visually local, the reading path still works, affected routes/labels remain clear, and unrelated manual layout did not move.
 
-Inspect the image before reading suggested patches. Verify that the requested change is visually local, the reading path still works, affected routes/labels remain clear, and unrelated manual layout did not move.
-
-If a blocker/major defect remains, make the smallest additional semantic patch. Prefer at most two visual refinement passes. If the host cannot inspect images, still create the preview and explicitly say that visual approval was not performed.
+If a blocker/major defect remains, make the smallest additional semantic patch and run `review` again. Prefer at most two visual refinement passes. If the host cannot inspect images, still run `review` and explicitly say that visual approval was not performed.
 
 Patch itself runs native editability and structural safety gates. A passing gate is not aesthetic approval.
 
@@ -69,7 +63,7 @@ There is no separate `updateEdge`; rewire by removing the semantic edge and addi
 node <runtimeEntry> patch existing.excalidraw change.patch.json -o updated.excalidraw
 ```
 
-Never use low-level `render` to create a PNG. `render` writes Excalidraw JSON only. Use `preview` after the patch for visual review.
+Never use low-level `render` to create a PNG. `render` writes Excalidraw JSON only. Use `review` after the patch for deterministic checks plus visual-review handoff; use `preview` directly only when a standalone portable PNG is specifically needed.
 
 ## When in doubt
 

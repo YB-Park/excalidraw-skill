@@ -25,9 +25,9 @@ Keep this file small. Read only the guide files needed for the current task.
 
 Choose the workflow from the user's request before running commands.
 
-- New diagram: read `guides/create.md`, write a `DiagramSpec`, run `build`, then visually review the generated preview.
-- Existing diagram update: read `guides/edit.md`, run `inspect`, write a `DiagramPatch`, run `patch`, then visually review the generated preview.
-- Visual review: read `guides/visual-review.md` after structural/editability checks pass.
+- New diagram: read `guides/create.md`, write a `DiagramSpec`, run `build`, then run `review` and visually inspect its PNG when image vision is available.
+- Existing diagram update: read `guides/edit.md`, run `inspect`, write a `DiagramPatch`, run `patch`, then run `review` and visually inspect its PNG when image vision is available.
+- Visual review: read `guides/visual-review.md`; `review` is the normal deterministic-check + verified-PNG handoff.
 - Visual polish of an existing diagram: read `guides/style.md` after inspecting the scene.
 - Shape selection: read `catalog/shapes.index.json` only when choosing `shapeRef` values.
 
@@ -41,28 +41,23 @@ Use this for `system-architecture`, `module-architecture`, `flow`, `service-flow
 
 1. Write a compact `DiagramSpec` JSON file in the workspace.
 2. Set `outputPath` to the target `.excalidraw` file.
-3. Run:
+3. Build:
 
 ```text
 node <runtimeEntry> build <spec.json>
 ```
 
-4. Inspect and verify the scene:
+4. Inspect when useful, then run the normal review happy path:
 
 ```text
 node <runtimeEntry> inspect <output.excalidraw>
-node <runtimeEntry> editability-report <output.excalidraw>
-node <runtimeEntry> quality-report <output.excalidraw> <spec.json>
+node <runtimeEntry> review <output.excalidraw> <spec.json>
 ```
 
-5. Create a portable PNG and read `guides/visual-review.md`:
+`review` runs validity, native editability, and structural/family quality checks, creates a portable PNG, verifies that it is a real PNG, and writes a `.review.json` handoff with `requiresVisualReview: true`.
 
-```text
-node <runtimeEntry> preview <output.excalidraw> -o <output.preview.png>
-```
-
-6. If the host can inspect images, visually inspect the PNG before reading suggested patches. Fix blocker/major visual defects by revising the `DiagramSpec` or Visual Plan and rebuilding. Prefer at most two visual refinement passes.
-7. Return the `.excalidraw` path, preview path, and quality/visual-review summary.
+5. Read `guides/visual-review.md`. If the host can inspect images, visually inspect the PNG reported by `review` before reading suggested fixes. Fix blocker/major visual defects by revising the `DiagramSpec` or Visual Plan and rebuilding, then run `review` again. Prefer at most two visual refinement passes.
+6. Return the `.excalidraw` path, `.review.json` path, preview path, quality summary, and whether visual approval was actually performed.
 
 Do not use `render` directly for normal work. `render` is a low-level scene writer and produces Excalidraw JSON only; it never creates PNG images.
 
@@ -75,27 +70,21 @@ node <runtimeEntry> inspect <scene.excalidraw>
 ```
 
 2. Write a `DiagramPatch` using semantic ids from the summary.
-3. Run:
+3. Apply the smallest semantic patch:
 
 ```text
 node <runtimeEntry> patch <scene.excalidraw> <patch.json> [-o output.excalidraw]
 ```
 
-4. Verify editability and structural quality:
+4. Run the normal review happy path:
 
 ```text
-node <runtimeEntry> editability-report <output.excalidraw>
-node <runtimeEntry> validate <output.excalidraw>
-node <runtimeEntry> quality-report <output.excalidraw> [spec.json]
+node <runtimeEntry> review <output.excalidraw> [spec.json]
 ```
 
-5. Create and visually inspect a preview:
+5. Read `guides/visual-review.md` and visually inspect the PNG reported by `review` when image vision is available. Verify locality, routing, labels, composition, and preservation of unrelated manual layout.
 
-```text
-node <runtimeEntry> preview <output.excalidraw> -o <output.preview.png>
-```
-
-If a blocker/major visual defect remains, make the smallest semantic patch that addresses it. Do not rewrite unrelated manual layout.
+If a blocker/major visual defect remains, make the smallest semantic patch that addresses it and run `review` again. Do not rewrite unrelated manual layout. Prefer at most two visual refinement passes.
 
 ### Sequence requests
 
@@ -134,7 +123,8 @@ Legacy helper: `diagram-types/c4-container-lite.md` for old lightweight C4-compa
 - Existing scene update: `DiagramPatch`
 - Native-editability review: `EditabilityReport`
 - Structural review: `QualityReport`
-- Human/LLM visual review: portable PNG plus `guides/visual-review.md`
+- Agent review handoff: `.review.json` plus verified portable PNG
+- Human/LLM visual review: the PNG plus `guides/visual-review.md`
 
 ## Hard rules
 
@@ -147,9 +137,11 @@ Legacy helper: `diagram-types/c4-container-lite.md` for old lightweight C4-compa
 - Express layout intent with semantic hints instead of raw coordinates.
 - Treat editability failures as release blockers.
 - Treat a passing `QualityReport` as structural evidence, not aesthetic approval.
-- For important/dogfood output, generate a PNG with `preview` and visually inspect it when the host supports image vision.
-- Inspect the image before reading suggested patches to reduce confirmation bias.
+- For normal important/dogfood output, run `review` and visually inspect its verified PNG when the host supports image vision.
+- `review` does not perform visual approval itself; `visualApprovalPerformed` remains false until the image-capable host actually inspects the PNG.
+- Inspect the image before reading suggested fixes to reduce confirmation bias.
 - Never use low-level `render` to create a PNG. It writes Excalidraw JSON only.
+- Use `preview` directly only when a standalone portable PNG is specifically needed; prefer `review` for normal agent QA.
 - Keep visual refinement bounded; prefer at most two passes.
 - Turn recurring visual defects into deterministic metrics, repair logic, or regression fixtures.
 - Use Mermaid only as a temporary helper for simple flow-like reasoning.
