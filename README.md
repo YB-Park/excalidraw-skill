@@ -2,7 +2,11 @@
 
 LLM 에이전트와 함께 **편집 가능한 네이티브 Excalidraw 소프트웨어 다이어그램**을 생성하고, 기존 다이어그램을 의미 단위로 수정하는 도구입니다.
 
-> 현재 단계: contained dogfood / pre-release. 품질 게이트와 실제 Excalidraw 렌더 회귀 테스트를 운영하고 있지만, 아직 모든 다이어그램 패밀리를 렌더링하는 범용 도구는 아닙니다.
+> 현재 단계: cognitive-agent contained dogfood / pre-release. 기존 deterministic kernel의 품질 게이트와 실제 Excalidraw 렌더 회귀를 유지하면서, VS Code native agent + MCP + human-in-the-loop를 이용한 시각 품질 탐색을 검증하고 있습니다. 아직 모든 다이어그램 패밀리를 렌더링하는 범용 도구는 아닙니다.
+
+핵심 방향은 다음과 같습니다.
+
+> **The kernel prevents invalid diagrams. The agent explores understandable diagrams. The human owns final visual intent.**
 
 ## 지금 바로 써보기
 
@@ -41,7 +45,7 @@ npm run skill:doctor:global
 ```text
 결제 승인 흐름을 Excalidraw 다이어그램으로 만들어줘.
 excalidraw-skill을 사용하고 결과는 diagrams/payment-approval.excalidraw에 저장해줘.
-완성 후 PNG preview를 열어 실제 화면을 검토하고, 큰 시각적 문제가 있으면 한두 번만 수정해줘.
+완성 후 review PNG를 실제로 검토하고, 큰 시각적 문제가 있으면 한두 번만 수정해줘.
 ```
 
 기존 다이어그램 수정도 같은 방식입니다.
@@ -50,22 +54,57 @@ excalidraw-skill을 사용하고 결과는 diagrams/payment-approval.excalidraw�
 diagrams/payment-approval.excalidraw을 수정해줘.
 Payment Service 이름을 Payment Authorization Service로 바꾸고
 기존 수동 배치는 최대한 유지해줘.
-수정 후 PNG preview도 확인해줘.
+수정 후 fresh review PNG도 확인해줘.
 ```
 
-새 다이어그램은 `build`, 기존 `.excalidraw` 수정은 `inspect → patch` 흐름을 사용합니다. 그 뒤 editability/quality 검사를 통과시키고 **portable PNG preview를 실제로 눈으로 검토**하는 것이 dogfood 기본 흐름입니다.
+새 다이어그램은 `build`, 기존 `.excalidraw` 수정은 `inspect → patch` 흐름을 사용합니다. 그 뒤 `review`가 deterministic 검증과 verified PNG 생성을 묶어서 수행하며, **이미지 자체를 사람/vision-capable host가 실제로 보는 것**이 dogfood 기본 흐름입니다.
+
+## VS Code cognitive-agent dogfood
+
+이 저장소 자체를 VS Code로 열면 experimental cognitive-agent vertical slice를 dogfood할 수 있습니다.
+
+구성:
+
+- `.github/agents/excalidraw-designer.agent.md`: 사용자-facing coordinator
+- `.github/agents/excalidraw-planner.agent.md`: semantic planning 전용 subagent
+- `.github/agents/excalidraw-critic.agent.md`: actual PNG를 보는 perceptual critic
+- `.mcp.json` + `mcp/server.mjs`: renderer 내부 명령 대신 typed semantic tools 제공
+
+중요한 새 다이어그램은 한 장을 바로 정답으로 간주하지 않고 세 가지 deterministic strategy를 탐색합니다.
+
+- `narrative`: primary story continuity
+- `compact`: eye travel / spread 감소
+- `structured`: conceptual center와 relationship structure 탐색; 현재 flow dogfood에서는 `hub-and-spoke` 사용
+
+후보들은 모두 기존 hard quality gate를 먼저 통과해야 하며, CI는 이름만 다르고 실제 composition은 같은 near-duplicate 후보 portfolio도 거부합니다. **candidate diversity는 품질 점수가 아니라 탐색할 가치가 있는 서로 다른 해가 존재하는지 확인하는 gate**입니다. 최종 선호는 이미지 기반 critic과 사람의 판단 영역입니다.
+
+현재 agent 모델은 비용 정책을 코드로 고정해 두었습니다. 허용 목록은 `GPT-5.6 Luna`, `MAI-Code-1.1-Flash`, `Kimi K2.7 Code`뿐입니다. Designer/Planner는 Luna를 우선하고, Critic은 image review 역할 때문에 MAI-Code-1.1-Flash를 우선합니다. agent는 더 비싼 모델로 자동 승격하거나 handoff하면 안 됩니다.
+
+이 agent/MCP 경로는 **현재 저장소/workspace에서의 dogfood integration**입니다. 전역 skill installer가 arbitrary external workspace에 custom agent와 MCP 설정까지 자동 배포한다고 아직 주장하지 않습니다. 먼저 이 workflow가 실제 품질을 개선하는지 사람의 선택 데이터로 검증합니다.
+
+## Human-in-the-loop와 LayoutState
+
+사람이 Excalidraw에서 직접 배치를 고친 것은 자동화 실패로 취급하지 않습니다. semantic source와 presentation intent를 분리하기 위해 stable semantic ID 기반 `LayoutState`를 도입하고 있습니다.
+
+현재 vertical slice는 semantic node 위치와 bound label을 capture/reapply할 수 있습니다. 다만 arbitrary human move 뒤 edge routing까지 자동으로 완전히 reconciled된다고 아직 주장하지 않습니다. reapply 후에는 fresh review가 필요하며, 실제 interaction dogfood로 routing reconciliation을 별도로 증명할 예정입니다.
 
 ## PNG preview와 `render`의 차이
 
-PNG를 만들 때는 `preview`를 사용합니다.
+일반 agent workflow에서는 `review`를 우선합니다.
+
+```text
+node ./bin/excalidraw-skill.mjs review diagrams/payment-approval.excalidraw
+```
+
+portable PNG만 별도로 필요하면 `preview`를 사용할 수 있습니다.
 
 ```text
 node ./bin/excalidraw-skill.mjs preview diagrams/payment-approval.excalidraw -o diagrams/payment-approval.preview.png
 ```
 
-`preview`는 최종 scene의 geometry, label, routing, composition을 LLM/사람이 검토하기 위한 유효한 PNG를 만듭니다. portable preview이므로 native Excalidraw renderer와 픽셀 단위로 동일하다는 의미는 아닙니다. CI에서는 별도의 실제 Excalidraw renderer regression을 최종 ground truth로 유지합니다.
+`preview`는 최종 scene의 geometry, label, routing, composition을 LLM/사람이 검토하기 위한 유효한 PNG를 만듭니다. portable preview이므로 native Excalidraw renderer와 픽셀 단위로 동일하다는 의미는 아닙니다. CI에서는 별도의 실제 Excalidraw renderer regression을 renderer ground truth로 유지합니다.
 
-**`render`는 PNG 변환 명령이 아닙니다.** `render`는 DiagramSpec을 저수준 Excalidraw JSON scene으로 만드는 developer 단계이며 `.excalidraw` 출력만 허용합니다. `render ... -o something.png`는 이제 오류로 종료되며 가짜/깨진 PNG를 만들지 않습니다.
+**`render`는 PNG 변환 명령이 아닙니다.** `render`는 DiagramSpec을 저수준 Excalidraw JSON scene으로 만드는 developer 단계이며 `.excalidraw` 출력만 허용합니다. `render ... -o something.png`는 오류로 종료되며 가짜/깨진 PNG를 만들지 않습니다.
 
 ## 현재 렌더 가능한 범위
 
@@ -106,15 +145,16 @@ npm run doctor
 npm run init
 ```
 
-이 명령은 현재 workspace의 `.opencode/commands/excalidraw.md`와 `.github/prompts/excalidraw.prompt.md`를 생성하며 `~/.copilot`에는 설치하지 않습니다.
+이 명령은 현재 workspace의 `.opencode/commands/excalidraw.md`와 `.github/prompts/excalidraw.prompt.md`를 생성하며 `~/.copilot`에는 설치하지 않습니다. 이전 버전에서 생성된 managed prompt를 최신 canonical workflow로 올릴 때는 `init --upgrade`를 사용합니다. 사용자가 소유한 unmanaged prompt는 보존합니다.
 
 ## CLI로 직접 사용
 
 ```text
 node ./bin/excalidraw-skill.mjs build examples/service-flow/payment-flow.visual-plan.diagram.json
+node ./bin/excalidraw-skill.mjs review examples/service-flow/payment-flow.visual-plan.excalidraw examples/service-flow/payment-flow.visual-plan.diagram.json
 node ./bin/excalidraw-skill.mjs inspect examples/service-flow/payment-flow.visual-plan.excalidraw
 node ./bin/excalidraw-skill.mjs quality-report examples/service-flow/payment-flow.visual-plan.excalidraw examples/service-flow/payment-flow.visual-plan.diagram.json
-node ./bin/excalidraw-skill.mjs preview examples/service-flow/payment-flow.visual-plan.excalidraw -o payment.preview.png
+npm run candidates -- examples/service-flow/payment-flow.visual-plan.diagram.json
 ```
 
 터미널의 `excalidraw-skill` convenience command를 위한 `npm install -g .`는 선택 사항입니다.
@@ -144,12 +184,18 @@ npm run smoke
 npm run smoke:system
 npm run smoke:module
 npm run evaluate:strict
+npm run candidates -- examples/service-flow/payment-flow.visual-plan.diagram.json
+node ./src/candidate-diversity.mjs examples/service-flow/payment-flow.visual-plan.candidates.json
 ```
 
-CI는 native editability, structural/perceptual quality, 실제 Excalidraw 렌더 signature, patch round-trip regression을 함께 검사합니다. 품질 점수는 시각적 승인과 동일하지 않으므로 dogfood에서는 PNG visual review도 병행합니다.
+CI는 native editability, structural/perceptual quality, candidate composition diversity, 실제 Excalidraw 렌더 signature, patch round-trip regression을 함께 검사합니다. 품질 점수는 시각적 승인과 동일하지 않으므로 dogfood에서는 actual PNG visual review도 병행합니다.
+
+사람 선호 평가 corpus는 의도적으로 실제 사람이 후보 이미지를 보고 선택한 뒤에만 채웁니다. LLM이나 테스트가 human ranking을 날조해서는 안 됩니다.
 
 ## 문서
 
+- cognitive-agent 아키텍처: `docs/COGNITIVE_AGENT_ARCHITECTURE.md`
+- 현재 개발 handoff: `docs/HANDOFF.md`
 - 설치/업데이트/제거: `docs/GLOBAL_INSTALL.md`
 - 실제 사용법: `docs/USAGE.md`
 - LLM 설치 런북: `docs/AGENT_SETUP.md`
