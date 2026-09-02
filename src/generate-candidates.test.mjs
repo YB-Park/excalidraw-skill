@@ -17,6 +17,17 @@ test('candidateSpecs produces three meaningfully different flow strategies behin
   assert.equal(source.layout.profile, 'swimlane-flow');
 });
 
+test('candidate portfolio refuses families without three proven distinct strategies', () => {
+  assert.throws(
+    () => candidateSpecs({ diagramType: 'system-architecture', outputPath: 'system.excalidraw', layout: { profile: 'layered-system' } }),
+    /flow families only/i
+  );
+  assert.throws(
+    () => candidateSpecs({ diagramType: 'module-architecture', outputPath: 'module.excalidraw', layout: { profile: 'component-view' } }),
+    /flow families only/i
+  );
+});
+
 test('blindCandidateView removes strategy and intent metadata from critic handoff', () => {
   const blind = blindCandidateView({
     candidates: [{
