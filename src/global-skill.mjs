@@ -13,6 +13,7 @@ const REQUIRED_FILES = Object.freeze([
   'guides/create.md',
   'guides/edit.md',
   'guides/style.md',
+  'guides/visual-review.md',
   'catalog/shapes.index.json',
   'contracts/diagram-spec.md',
   'contracts/visual-plan.md',
@@ -33,14 +34,17 @@ const RUNTIME_ENTRIES = Object.freeze([
   'skills',
   '.opencode',
   '.github/prompts',
+  'node_modules/@resvg',
   'package.json'
 ]);
 
 const REQUIRED_RUNTIME_FILES = Object.freeze([
   'bin/excalidraw-skill.mjs',
   'src/build.mjs',
+  'src/export-preview-png.mjs',
   'src/global-skill.mjs',
   'src/init.mjs',
+  'node_modules/@resvg/resvg-js/index.js',
   'skills/excalidraw-skill/SKILL.md',
   'package.json'
 ]);
