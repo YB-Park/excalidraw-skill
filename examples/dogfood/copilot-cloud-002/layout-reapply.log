@@ -1,0 +1,15 @@
+{
+  "scenePath": "examples/dogfood/copilot-cloud-002/regenerated.excalidraw",
+  "moves": [
+    {
+      "semanticId": "payment-service",
+      "dx": -40,
+      "dy": -50
+    },
+    {
+      "semanticId": "payment-events",
+      "dx": 40,
+      "dy": 34
+    }
+  ]
+}

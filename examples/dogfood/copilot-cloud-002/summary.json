@@ -1,0 +1,21 @@
+{
+  "layoutRestored": true,
+  "labelsPreserved": true,
+  "semanticEditValid": true,
+  "routingAcceptable": false,
+  "hardGatesPassed": false,
+  "visualInspectionPerformed": false,
+  "movedNodes": {
+    "payment-service": {
+      "captured": { "x": 680, "y": 190 },
+      "reapplyDelta": { "dx": -40, "dy": -50 }
+    },
+    "payment-events": {
+      "captured": { "x": 1060, "y": 545 },
+      "reapplyDelta": { "dx": 40, "dy": 34 }
+    }
+  },
+  "newSemanticNode": "fraud-review-worker",
+  "knownGap": "LayoutState restores semantic node placement and bound labels but does not reroute arbitrary affected edges; fresh deterministic review exposes routing and family-invariant failures.",
+  "preferenceEvidenceRecorded": false
+}

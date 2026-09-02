@@ -1,0 +1,249 @@
+{
+  "version": "0.4.2",
+  "pass": false,
+  "structuralPass": false,
+  "familyPass": false,
+  "diagramType": "service-flow",
+  "layoutProfile": "swimlane-flow",
+  "metrics": {
+    "nodeOverlaps": 0,
+    "edgeNodeCrossings": 0,
+    "edgeCrossings": 0,
+    "endpointOverlaps": 0,
+    "endpointApproachViolations": 7,
+    "endpointNodePenetrations": 1,
+    "labelOverlaps": 0,
+    "labelNodeOverlaps": 1,
+    "textOverflows": 0,
+    "edgeVisualMismatches": 0,
+    "unresolvedFrameCollisions": 0,
+    "aspectRatio": 3.18,
+    "nodeCount": 9,
+    "edgeCount": 8,
+    "edgeLabelCount": 8,
+    "visibleFrames": 1,
+    "singletonFrames": 0,
+    "allowedSingletonFrames": 0,
+    "policySingletonFrames": 0,
+    "suspiciousSingletonFrames": 0,
+    "excessiveSingletonFrames": 0,
+    "fullSceneFrames": 0,
+    "frameBudgetExceeded": 0,
+    "primaryFlowMissing": 0,
+    "primaryFlowOrderViolations": 0,
+    "centerAxisViolations": 1
+  },
+  "details": {
+    "nodeOverlaps": [],
+    "edgeNodeCrossings": [],
+    "edgeCrossings": [],
+    "endpointOverlaps": [],
+    "endpointApproachViolations": [
+      {
+        "edge": "gateway-to-payment",
+        "endpoint": "target",
+        "side": null
+      },
+      {
+        "edge": "payment-to-network",
+        "endpoint": "source",
+        "side": null
+      },
+      {
+        "edge": "payment-to-fraud",
+        "endpoint": "source",
+        "side": null
+      },
+      {
+        "edge": "payment-to-db",
+        "endpoint": "source",
+        "side": null
+      },
+      {
+        "edge": "payment-to-events",
+        "endpoint": "source",
+        "side": null
+      },
+      {
+        "edge": "payment-to-events",
+        "endpoint": "target",
+        "side": null
+      },
+      {
+        "edge": "events-to-worker",
+        "endpoint": "source",
+        "side": null
+      }
+    ],
+    "endpointNodePenetrations": [
+      {
+        "edge": "events-to-worker",
+        "endpoint": "source",
+        "node": "payment-events",
+        "side": null
+      }
+    ],
+    "labelOverlaps": [],
+    "labelNodeOverlaps": [
+      {
+        "edge": "events-to-worker",
+        "node": "payment-events"
+      }
+    ],
+    "textOverflows": [],
+    "edgeVisualMismatches": [],
+    "unresolvedFrameCollisions": 0,
+    "family": {
+      "frames": {
+        "allowedSingletonFrames": [],
+        "policySingletonFrames": [],
+        "suspiciousSingletonFrames": [],
+        "excessiveSingletonFrames": [],
+        "fullSceneFrames": [],
+        "frameBudget": 2,
+        "allowSingletons": false,
+        "unresolvedFrameCollisions": 0
+      },
+      "primaryFlowMissing": [],
+      "primaryFlowOrderViolations": [],
+      "centerAxisViolations": [
+        {
+          "node": "payment-service",
+          "direction": "left-to-right",
+          "axis": 280,
+          "value": 230
+        }
+      ],
+      "primaryFlow": [
+        "web-app",
+        "api-gateway",
+        "payment-service",
+        "card-network"
+      ]
+    }
+  },
+  "familyQuality": {
+    "version": "0.2.2",
+    "family": "flow",
+    "diagramType": "service-flow",
+    "profile": "swimlane-flow",
+    "supported": true,
+    "reason": null,
+    "pass": false,
+    "metrics": {
+      "visibleFrames": 1,
+      "singletonFrames": 0,
+      "allowedSingletonFrames": 0,
+      "policySingletonFrames": 0,
+      "suspiciousSingletonFrames": 0,
+      "excessiveSingletonFrames": 0,
+      "fullSceneFrames": 0,
+      "frameBudgetExceeded": 0,
+      "unresolvedFrameCollisions": 0,
+      "primaryFlowMissing": 0,
+      "primaryFlowOrderViolations": 0,
+      "centerAxisViolations": 1
+    },
+    "details": {
+      "frames": {
+        "allowedSingletonFrames": [],
+        "policySingletonFrames": [],
+        "suspiciousSingletonFrames": [],
+        "excessiveSingletonFrames": [],
+        "fullSceneFrames": [],
+        "frameBudget": 2,
+        "allowSingletons": false,
+        "unresolvedFrameCollisions": 0
+      },
+      "primaryFlowMissing": [],
+      "primaryFlowOrderViolations": [],
+      "centerAxisViolations": [
+        {
+          "node": "payment-service",
+          "direction": "left-to-right",
+          "axis": 280,
+          "value": 230
+        }
+      ],
+      "primaryFlow": [
+        "web-app",
+        "api-gateway",
+        "payment-service",
+        "card-network"
+      ]
+    },
+    "suggestedPatches": [
+      {
+        "operation": "restore-center-axis",
+        "node": "payment-service",
+        "direction": "left-to-right",
+        "axis": 280,
+        "value": 230
+      }
+    ]
+  },
+  "suggestedPatches": [
+    {
+      "operation": "fix-endpoint-approach",
+      "edge": "gateway-to-payment",
+      "endpoint": "target",
+      "side": null
+    },
+    {
+      "operation": "fix-endpoint-approach",
+      "edge": "payment-to-network",
+      "endpoint": "source",
+      "side": null
+    },
+    {
+      "operation": "fix-endpoint-approach",
+      "edge": "payment-to-fraud",
+      "endpoint": "source",
+      "side": null
+    },
+    {
+      "operation": "fix-endpoint-approach",
+      "edge": "payment-to-db",
+      "endpoint": "source",
+      "side": null
+    },
+    {
+      "operation": "fix-endpoint-approach",
+      "edge": "payment-to-events",
+      "endpoint": "source",
+      "side": null
+    },
+    {
+      "operation": "fix-endpoint-approach",
+      "edge": "payment-to-events",
+      "endpoint": "target",
+      "side": null
+    },
+    {
+      "operation": "fix-endpoint-approach",
+      "edge": "events-to-worker",
+      "endpoint": "source",
+      "side": null
+    },
+    {
+      "operation": "reroute-endpoint-outside-node",
+      "edge": "events-to-worker",
+      "endpoint": "source",
+      "node": "payment-events",
+      "side": null
+    },
+    {
+      "operation": "move-edge-label",
+      "edge": "events-to-worker",
+      "node": "payment-events",
+      "labelSide": "auto"
+    },
+    {
+      "operation": "restore-center-axis",
+      "node": "payment-service",
+      "direction": "left-to-right",
+      "axis": 280,
+      "value": 230
+    }
+  ]
+}

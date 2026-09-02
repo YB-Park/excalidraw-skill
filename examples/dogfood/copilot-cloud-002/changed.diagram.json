@@ -1,0 +1,264 @@
+{
+  "version": "2.0",
+  "diagramType": "service-flow",
+  "title": "Payment Approval Flow with Fraud Review",
+  "stylePreset": "professional-software",
+  "layout": {
+    "profile": "swimlane-flow",
+    "direction": "left-to-right",
+    "aspectRatio": "balanced",
+    "primaryFlow": [
+      "web-app",
+      "api-gateway",
+      "payment-service",
+      "card-network"
+    ],
+    "lanes": [
+      {
+        "id": "main",
+        "label": "Primary Request",
+        "position": "center",
+        "order": 1
+      },
+      {
+        "id": "support",
+        "label": "Supporting Systems",
+        "position": "bottom",
+        "order": 2
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "semanticId": "web-app",
+      "label": "Web App",
+      "kind": "client",
+      "shapeRef": "client.web",
+      "group": "Client",
+      "layoutHints": {
+        "lane": "main",
+        "rank": 1,
+        "importance": "primary"
+      }
+    },
+    {
+      "semanticId": "api-gateway",
+      "label": "API Gateway",
+      "kind": "gateway",
+      "shapeRef": "gateway.api",
+      "group": "Edge",
+      "layoutHints": {
+        "lane": "main",
+        "rank": 2,
+        "importance": "primary"
+      }
+    },
+    {
+      "semanticId": "payment-service",
+      "label": "Payment Service",
+      "kind": "service",
+      "shapeRef": "service.backend",
+      "group": "Services",
+      "layoutHints": {
+        "lane": "main",
+        "rank": 3,
+        "importance": "primary",
+        "keepNear": [
+          "fraud-check",
+          "payment-db",
+          "payment-events"
+        ]
+      }
+    },
+    {
+      "semanticId": "card-network",
+      "label": "Card Network",
+      "kind": "external",
+      "shapeRef": "external.system",
+      "group": "External",
+      "layoutHints": {
+        "lane": "main",
+        "rank": 4,
+        "importance": "primary"
+      }
+    },
+    {
+      "semanticId": "fraud-check",
+      "label": "Fraud Check",
+      "kind": "risk",
+      "shapeRef": "risk.security",
+      "group": "Services",
+      "layoutHints": {
+        "lane": "support",
+        "rank": 3,
+        "importance": "secondary",
+        "keepNear": [
+          "payment-service"
+        ]
+      }
+    },
+    {
+      "semanticId": "payment-db",
+      "label": "Payment DB",
+      "kind": "database",
+      "shapeRef": "database.relational",
+      "group": "Data",
+      "layoutHints": {
+        "lane": "support",
+        "rank": 3,
+        "importance": "secondary",
+        "keepNear": [
+          "payment-service"
+        ]
+      }
+    },
+    {
+      "semanticId": "payment-events",
+      "label": "Payment Events",
+      "kind": "queue",
+      "shapeRef": "queue.topic",
+      "group": "Async",
+      "fontRole": "mono",
+      "layoutHints": {
+        "lane": "support",
+        "rank": 4,
+        "importance": "support",
+        "keepNear": [
+          "settlement-worker"
+        ]
+      }
+    },
+    {
+      "semanticId": "settlement-worker",
+      "label": "Settlement Worker",
+      "kind": "worker",
+      "shapeRef": "service.worker",
+      "group": "Async",
+      "layoutHints": {
+        "lane": "support",
+        "rank": 5,
+        "importance": "support",
+        "keepNear": [
+          "payment-events"
+        ]
+      }
+    },
+    {
+      "semanticId": "fraud-review-worker",
+      "label": "Fraud Review Worker",
+      "kind": "worker",
+      "shapeRef": "service.worker",
+      "group": "Services",
+      "layoutHints": {
+        "lane": "support",
+        "rank": 6,
+        "importance": "support",
+        "keepNear": [
+          "fraud-check"
+        ]
+      }
+    }
+  ],
+  "edges": [
+    {
+      "semanticId": "web-to-gateway",
+      "from": "web-app",
+      "to": "api-gateway",
+      "label": "HTTPS",
+      "kind": "sync",
+      "routeHints": {
+        "direction": "right",
+        "priority": "primary",
+        "labelSide": "above"
+      }
+    },
+    {
+      "semanticId": "gateway-to-payment",
+      "from": "api-gateway",
+      "to": "payment-service",
+      "label": "authorize",
+      "kind": "sync",
+      "routeHints": {
+        "direction": "right",
+        "priority": "primary",
+        "labelSide": "above"
+      }
+    },
+    {
+      "semanticId": "payment-to-network",
+      "from": "payment-service",
+      "to": "card-network",
+      "label": "authorize",
+      "kind": "sync",
+      "routeHints": {
+        "direction": "right",
+        "priority": "primary",
+        "labelSide": "above"
+      }
+    },
+    {
+      "semanticId": "payment-to-fraud",
+      "from": "payment-service",
+      "to": "fraud-check",
+      "label": "risk check",
+      "kind": "optional",
+      "routeHints": {
+        "direction": "down",
+        "priority": "secondary",
+        "labelSide": "right"
+      }
+    },
+    {
+      "semanticId": "payment-to-db",
+      "from": "payment-service",
+      "to": "payment-db",
+      "label": "persist",
+      "kind": "sync",
+      "routeHints": {
+        "direction": "down",
+        "priority": "secondary",
+        "labelSide": "right"
+      }
+    },
+    {
+      "semanticId": "payment-to-events",
+      "from": "payment-service",
+      "to": "payment-events",
+      "label": "publish",
+      "kind": "async",
+      "fontRole": "mono",
+      "routeHints": {
+        "direction": "down",
+        "priority": "secondary",
+        "labelSide": "below"
+      }
+    },
+    {
+      "semanticId": "events-to-worker",
+      "from": "payment-events",
+      "to": "settlement-worker",
+      "label": "consume",
+      "kind": "async",
+      "fontRole": "mono",
+      "routeHints": {
+        "direction": "right",
+        "priority": "secondary",
+        "labelSide": "above"
+      }
+    },
+    {
+      "semanticId": "fraud-check-to-review-worker",
+      "from": "fraud-check",
+      "to": "fraud-review-worker",
+      "label": "review queue",
+      "kind": "async",
+      "fontRole": "mono",
+      "routeHints": {
+        "direction": "right",
+        "priority": "secondary",
+        "labelSide": "above"
+      }
+    }
+  ],
+  "outputPath": "examples/dogfood/copilot-cloud-002/regenerated.excalidraw"
+}

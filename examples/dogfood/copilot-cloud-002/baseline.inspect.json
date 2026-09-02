@@ -1,0 +1,148 @@
+{
+  "sceneTitle": "baseline.excalidraw",
+  "diagramType": "service-flow",
+  "stylePreset": "professional-software",
+  "nodes": [
+    {
+      "semanticId": "web-app",
+      "label": "Web App",
+      "shapeRef": "client.web",
+      "frameId": null,
+      "positionHint": {
+        "x": 120,
+        "y": 240
+      },
+      "manualLayout": false
+    },
+    {
+      "semanticId": "api-gateway",
+      "label": "API Gateway",
+      "shapeRef": "gateway.api",
+      "frameId": null,
+      "positionHint": {
+        "x": 420,
+        "y": 240
+      },
+      "manualLayout": false
+    },
+    {
+      "semanticId": "payment-service",
+      "label": "Payment Service",
+      "shapeRef": "service.backend",
+      "frameId": null,
+      "positionHint": {
+        "x": 720,
+        "y": 240
+      },
+      "manualLayout": false
+    },
+    {
+      "semanticId": "card-network",
+      "label": "Card Network",
+      "shapeRef": "external.system",
+      "frameId": null,
+      "positionHint": {
+        "x": 1020,
+        "y": 240
+      },
+      "manualLayout": false
+    },
+    {
+      "semanticId": "fraud-check",
+      "label": "Fraud Check",
+      "shapeRef": "risk.security",
+      "frameId": null,
+      "positionHint": {
+        "x": 720,
+        "y": 454
+      },
+      "manualLayout": false
+    },
+    {
+      "semanticId": "payment-db",
+      "label": "Payment DB",
+      "shapeRef": "database.relational",
+      "frameId": null,
+      "positionHint": {
+        "x": 720,
+        "y": 568
+      },
+      "manualLayout": false
+    },
+    {
+      "semanticId": "payment-events",
+      "label": "Payment Events",
+      "shapeRef": "queue.topic",
+      "frameId": null,
+      "positionHint": {
+        "x": 1020,
+        "y": 511
+      },
+      "manualLayout": false
+    },
+    {
+      "semanticId": "settlement-worker",
+      "label": "Settlement Worker",
+      "shapeRef": "service.worker",
+      "frameId": null,
+      "positionHint": {
+        "x": 1320,
+        "y": 503
+      },
+      "manualLayout": false
+    }
+  ],
+  "edges": [
+    {
+      "semanticId": "web-to-gateway",
+      "from": "web-app",
+      "to": "api-gateway",
+      "label": "HTTPS",
+      "kind": "sync"
+    },
+    {
+      "semanticId": "gateway-to-payment",
+      "from": "api-gateway",
+      "to": "payment-service",
+      "label": "authorize",
+      "kind": "sync"
+    },
+    {
+      "semanticId": "payment-to-network",
+      "from": "payment-service",
+      "to": "card-network",
+      "label": "authorize",
+      "kind": "sync"
+    },
+    {
+      "semanticId": "payment-to-fraud",
+      "from": "payment-service",
+      "to": "fraud-check",
+      "label": "risk check",
+      "kind": "optional"
+    },
+    {
+      "semanticId": "payment-to-db",
+      "from": "payment-service",
+      "to": "payment-db",
+      "label": "persist",
+      "kind": "sync"
+    },
+    {
+      "semanticId": "payment-to-events",
+      "from": "payment-service",
+      "to": "payment-events",
+      "label": "publish",
+      "kind": "async"
+    },
+    {
+      "semanticId": "events-to-worker",
+      "from": "payment-events",
+      "to": "settlement-worker",
+      "label": "consume",
+      "kind": "async"
+    }
+  ],
+  "frames": [],
+  "warnings": []
+}

@@ -1,0 +1,241 @@
+{
+  "version": "0.5.0",
+  "mode": "advisory",
+  "metrics": {
+    "readabilityCost": 71.65,
+    "totalBends": 7,
+    "averageBendsPerEdge": 0.88,
+    "highBendEdges": 1,
+    "edgeCrossings": 0,
+    "minCrossingAngle": 90,
+    "lowAngleCrossings": 0,
+    "crossingCost": 0,
+    "edgeLabelCount": 8,
+    "ambiguousEdgeLabels": 0,
+    "distantEdgeLabels": 1,
+    "averageEdgeLabelDistance": 23.8,
+    "edgeLabelAssociationCost": 8.75,
+    "primaryFlowBends": 0,
+    "primaryFlowAverageBends": 0,
+    "averageDetourRatio": 1.03,
+    "maxDetourRatio": 1.24,
+    "primaryFlowAverageDetourRatio": 1,
+    "severeDetours": 0,
+    "moderateDetours": 0,
+    "compositionDensity": 0.168,
+    "compositionBalanceOffset": 0.017
+  },
+  "details": {
+    "edgeLabelDistanceModel": "label-box-to-edge",
+    "edges": [
+      {
+        "edge": "web-to-gateway",
+        "from": "web-app",
+        "to": "api-gateway",
+        "primary": true,
+        "bends": 0,
+        "routeLength": 120,
+        "idealOrthogonalLength": 120,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "gateway-to-payment",
+        "from": "api-gateway",
+        "to": "payment-service",
+        "primary": true,
+        "bends": 0,
+        "routeLength": 120,
+        "idealOrthogonalLength": 120,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "payment-to-network",
+        "from": "payment-service",
+        "to": "card-network",
+        "primary": true,
+        "bends": 0,
+        "routeLength": 120,
+        "idealOrthogonalLength": 120,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "payment-to-fraud",
+        "from": "payment-service",
+        "to": "fraud-check",
+        "primary": false,
+        "bends": 0,
+        "routeLength": 134,
+        "idealOrthogonalLength": 134,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "payment-to-db",
+        "from": "payment-service",
+        "to": "payment-db",
+        "primary": false,
+        "bends": 2,
+        "routeLength": 377.6,
+        "idealOrthogonalLength": 305.6,
+        "extraLength": 72,
+        "detourRatio": 1.24,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "payment-to-events",
+        "from": "payment-service",
+        "to": "payment-events",
+        "primary": false,
+        "bends": 2,
+        "routeLength": 376.6,
+        "idealOrthogonalLength": 376.6,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "events-to-worker",
+        "from": "payment-events",
+        "to": "settlement-worker",
+        "primary": false,
+        "bends": 0,
+        "routeLength": 120,
+        "idealOrthogonalLength": 120,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "fraud-check-to-review-worker",
+        "from": "fraud-check",
+        "to": "fraud-review-worker",
+        "primary": false,
+        "bends": 3,
+        "routeLength": 897,
+        "idealOrthogonalLength": 897,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": true
+      }
+    ],
+    "crossings": [],
+    "edgeLabels": [
+      {
+        "edge": "web-to-gateway",
+        "ownDistance": 14,
+        "nearestOtherEdge": "gateway-to-payment",
+        "nearestOtherDistance": 213.5,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "gateway-to-payment",
+        "ownDistance": 106,
+        "nearestOtherEdge": "payment-to-db",
+        "nearestOtherDistance": 129.7,
+        "ambiguous": false,
+        "distant": true
+      },
+      {
+        "edge": "payment-to-network",
+        "ownDistance": 14,
+        "nearestOtherEdge": "payment-to-events",
+        "nearestOtherDistance": 28.4,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "payment-to-fraud",
+        "ownDistance": 14,
+        "nearestOtherEdge": "payment-to-events",
+        "nearestOtherDistance": 38,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "payment-to-db",
+        "ownDistance": 14,
+        "nearestOtherEdge": "payment-to-fraud",
+        "nearestOtherDistance": 55,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "payment-to-events",
+        "ownDistance": 0,
+        "nearestOtherEdge": "payment-to-network",
+        "nearestOtherDistance": 28,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "events-to-worker",
+        "ownDistance": 14,
+        "nearestOtherEdge": "fraud-check-to-review-worker",
+        "nearestOtherDistance": 118,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "fraud-check-to-review-worker",
+        "ownDistance": 14,
+        "nearestOtherEdge": "events-to-worker",
+        "nearestOtherDistance": 68,
+        "ambiguous": false,
+        "distant": false
+      }
+    ],
+    "composition": {
+      "width": 1680,
+      "height": 479
+    },
+    "warnings": [
+      {
+        "kind": "edge-bend-complexity",
+        "edge": "fraud-check-to-review-worker",
+        "bends": 3,
+        "routeLength": 897
+      },
+      {
+        "kind": "distant-edge-label",
+        "edge": "gateway-to-payment",
+        "ownDistance": 106
+      }
+    ]
+  },
+  "suggestedPatches": [
+    {
+      "operation": "reduce-edge-bends",
+      "edge": "fraud-check-to-review-worker",
+      "maxBends": 2
+    },
+    {
+      "operation": "reassociate-edge-label",
+      "edge": "gateway-to-payment",
+      "targetDistance": 36
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "scenePath": "/home/runner/work/excalidraw-skill/excalidraw-skill/examples/dogfood/copilot-cloud-002/human-arranged.excalidraw",
+  "editabilityPath": "/home/runner/work/excalidraw-skill/excalidraw-skill/examples/dogfood/copilot-cloud-002/human-arranged.editability.json",
+  "qualityPath": "/home/runner/work/excalidraw-skill/excalidraw-skill/examples/dogfood/copilot-cloud-002/human-arranged.quality.json",
+  "previewPath": "/home/runner/work/excalidraw-skill/excalidraw-skill/examples/dogfood/copilot-cloud-002/human-arranged.preview.png",
+  "previewValidPng": true,
+  "requiresVisualReview": true,
+  "visualApprovalPerformed": false,
+  "visualReviewGuide": "skills/excalidraw-skill/guides/visual-review.md",
+  "reviewPath": "/home/runner/work/excalidraw-skill/excalidraw-skill/examples/dogfood/copilot-cloud-002/human-arranged.review.json"
+}

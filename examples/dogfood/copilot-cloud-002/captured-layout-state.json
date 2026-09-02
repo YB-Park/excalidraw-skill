@@ -1,0 +1,62 @@
+{
+  "version": "1.0",
+  "coordinateSpace": "excalidraw-scene",
+  "nodes": {
+    "web-app": {
+      "x": 120,
+      "y": 240,
+      "width": 180,
+      "height": 80,
+      "locked": true
+    },
+    "api-gateway": {
+      "x": 420,
+      "y": 240,
+      "width": 180,
+      "height": 80,
+      "locked": true
+    },
+    "payment-service": {
+      "x": 680,
+      "y": 190,
+      "width": 180,
+      "height": 80,
+      "locked": true
+    },
+    "card-network": {
+      "x": 1020,
+      "y": 240,
+      "width": 180,
+      "height": 80,
+      "locked": true
+    },
+    "fraud-check": {
+      "x": 720,
+      "y": 454,
+      "width": 180,
+      "height": 80,
+      "locked": true
+    },
+    "payment-db": {
+      "x": 720,
+      "y": 568,
+      "width": 180,
+      "height": 80,
+      "locked": true
+    },
+    "payment-events": {
+      "x": 1060,
+      "y": 545,
+      "width": 180,
+      "height": 80,
+      "locked": true
+    },
+    "settlement-worker": {
+      "x": 1320,
+      "y": 503,
+      "width": 180,
+      "height": 96,
+      "locked": true
+    }
+  }
+}
