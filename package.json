@@ -14,6 +14,8 @@
     "smoke:v03": "node ./bin/excalidraw-skill.mjs build examples/service-flow/payment-flow.visual-plan.diagram.json",
     "smoke:system": "node ./bin/excalidraw-skill.mjs build examples/system-architecture/layered-middleware.diagram.json",
     "smoke:module": "node ./bin/excalidraw-skill.mjs build examples/module-architecture/connection-manager.diagram.json",
+    "candidates": "node ./src/generate-candidates.mjs",
+    "mcp": "node ./mcp/server.mjs",
     "evaluate": "node ./src/evaluate-suite.mjs",
     "evaluate:strict": "node ./src/evaluate-suite.mjs --strict-perceptual --strict-readability",
     "evaluate:flow": "node ./src/evaluate-suite.mjs --family flow",
@@ -31,11 +33,14 @@
     "skill:uninstall:global": "node ./bin/excalidraw-skill.mjs uninstall --global"
   },
   "dependencies": {
+    "@modelcontextprotocol/server": "^2.0.0",
     "@resvg/resvg-js": "^2.6.2",
-    "elkjs": "^0.12.0"
+    "elkjs": "^0.12.0",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@excalidraw/excalidraw": "0.18.1",
+    "@modelcontextprotocol/client": "^2.0.0",
     "playwright": "1.62.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
@@ -48,9 +53,12 @@
   "files": [
     "bin",
     "src",
+    "mcp",
     "skills",
+    ".mcp.json",
     ".opencode",
     ".github/prompts",
+    ".github/agents",
     "assets",
     "docs",
     "examples",

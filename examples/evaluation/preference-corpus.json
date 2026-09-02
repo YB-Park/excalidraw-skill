@@ -1,0 +1,6 @@
+{
+  "version": "1.0",
+  "status": "collecting",
+  "description": "Human-ranked cognitive candidate evidence. Do not fabricate rankings; add cases only after a person has inspected the actual candidate images.",
+  "cases": []
+}
