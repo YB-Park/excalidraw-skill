@@ -1,0 +1,2974 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "excalidraw-skill",
+  "elements": [
+    {
+      "id": "accent_rectangle_web-app",
+      "type": "rectangle",
+      "x": 120,
+      "y": 240,
+      "width": 8,
+      "height": 80,
+      "angle": 0,
+      "strokeColor": "#475569",
+      "backgroundColor": "#475569",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_web-app"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "web-app"
+        }
+      }
+    },
+    {
+      "id": "accent_rectangle_api-gateway",
+      "type": "rectangle",
+      "x": 420,
+      "y": 240,
+      "width": 8,
+      "height": 80,
+      "angle": 0,
+      "strokeColor": "#2563eb",
+      "backgroundColor": "#2563eb",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_api-gateway"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "api-gateway"
+        }
+      }
+    },
+    {
+      "id": "tag_rectangle_api-gateway_API",
+      "type": "rectangle",
+      "x": 432,
+      "y": 248,
+      "width": 54,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#2563eb",
+      "backgroundColor": "#dbeafe",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_api-gateway"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "api-gateway"
+        }
+      }
+    },
+    {
+      "id": "tag_text_rectangle_api-gateway_API",
+      "type": "text",
+      "x": 440,
+      "y": 250,
+      "width": 46,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#2563eb",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_api-gateway"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "api-gateway"
+        }
+      },
+      "text": "API",
+      "originalText": "API",
+      "fontSize": 10,
+      "fontFamily": 2,
+      "textAlign": "left",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "accent_rectangle_payment-service",
+      "type": "rectangle",
+      "x": 720,
+      "y": 240,
+      "width": 8,
+      "height": 80,
+      "angle": 0,
+      "strokeColor": "#4f46e5",
+      "backgroundColor": "#4f46e5",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-service"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "payment-service"
+        }
+      }
+    },
+    {
+      "id": "external_shell_rectangle_card-network",
+      "type": "rectangle",
+      "x": 1014,
+      "y": 234,
+      "width": 192,
+      "height": 92,
+      "angle": 0,
+      "strokeColor": "#64748b",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "dashed",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_card-network"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "card-network"
+        }
+      }
+    },
+    {
+      "id": "tag_rectangle_card-network_EXT",
+      "type": "rectangle",
+      "x": 1032,
+      "y": 248,
+      "width": 54,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#64748b",
+      "backgroundColor": "#f1f5f9",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_card-network"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "card-network"
+        }
+      }
+    },
+    {
+      "id": "tag_text_rectangle_card-network_EXT",
+      "type": "text",
+      "x": 1040,
+      "y": 250,
+      "width": 46,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#64748b",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_card-network"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "card-network"
+        }
+      },
+      "text": "EXT",
+      "originalText": "EXT",
+      "fontSize": 10,
+      "fontFamily": 2,
+      "textAlign": "left",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "accent_rectangle_fraud-check",
+      "type": "rectangle",
+      "x": 720,
+      "y": 454,
+      "width": 10,
+      "height": 80,
+      "angle": 0,
+      "strokeColor": "#d97706",
+      "backgroundColor": "#d97706",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_fraud-check"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "fraud-check"
+        }
+      }
+    },
+    {
+      "id": "risk_badge_rectangle_fraud-check",
+      "type": "ellipse",
+      "x": 866,
+      "y": 462,
+      "width": 22,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#d97706",
+      "backgroundColor": "#fef3c7",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_fraud-check"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "fraud-check"
+        }
+      }
+    },
+    {
+      "id": "risk_bang_rectangle_fraud-check",
+      "type": "text",
+      "x": 874,
+      "y": 463,
+      "width": 12,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#b45309",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_fraud-check"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "fraud-check"
+        }
+      },
+      "text": "!",
+      "originalText": "!",
+      "fontSize": 15,
+      "fontFamily": 2,
+      "textAlign": "left",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "db_top_rectangle_payment-db",
+      "type": "line",
+      "x": 734,
+      "y": 590,
+      "width": 152,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#0f766e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-db"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "payment-db"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          152,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "db_bottom_rectangle_payment-db",
+      "type": "line",
+      "x": 734,
+      "y": 630,
+      "width": 152,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#0f766e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-db"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "payment-db"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          152,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "tag_rectangle_payment-db_DATA",
+      "type": "rectangle",
+      "x": 732,
+      "y": 576,
+      "width": 54,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#0f766e",
+      "backgroundColor": "#ccfbf1",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-db"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "payment-db"
+        }
+      }
+    },
+    {
+      "id": "tag_text_rectangle_payment-db_DATA",
+      "type": "text",
+      "x": 740,
+      "y": 578,
+      "width": 46,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#0f766e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-db"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "payment-db"
+        }
+      },
+      "text": "DATA",
+      "originalText": "DATA",
+      "fontSize": 10,
+      "fontFamily": 2,
+      "textAlign": "left",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "queue_band_rectangle_payment-events",
+      "type": "rectangle",
+      "x": 1020,
+      "y": 511,
+      "width": 180,
+      "height": 24,
+      "angle": 0,
+      "strokeColor": "#9333ea",
+      "backgroundColor": "#f3e8ff",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-events"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "payment-events"
+        }
+      }
+    },
+    {
+      "id": "queue_label_rectangle_payment-events",
+      "type": "text",
+      "x": 1032,
+      "y": 515,
+      "width": 60,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#7e22ce",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-events"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "payment-events"
+        }
+      },
+      "text": "EVENT",
+      "originalText": "EVENT",
+      "fontSize": 10,
+      "fontFamily": 2,
+      "textAlign": "left",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "queue_dot_0_rectangle_payment-events",
+      "type": "ellipse",
+      "x": 1156,
+      "y": 519,
+      "width": 8,
+      "height": 8,
+      "angle": 0,
+      "strokeColor": "#9333ea",
+      "backgroundColor": "#9333ea",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-events"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "payment-events"
+        }
+      }
+    },
+    {
+      "id": "queue_dot_1_rectangle_payment-events",
+      "type": "ellipse",
+      "x": 1170,
+      "y": 519,
+      "width": 8,
+      "height": 8,
+      "angle": 0,
+      "strokeColor": "#9333ea",
+      "backgroundColor": "#9333ea",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-events"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "payment-events"
+        }
+      }
+    },
+    {
+      "id": "queue_dot_2_rectangle_payment-events",
+      "type": "ellipse",
+      "x": 1184,
+      "y": 519,
+      "width": 8,
+      "height": 8,
+      "angle": 0,
+      "strokeColor": "#9333ea",
+      "backgroundColor": "#9333ea",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-events"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "payment-events"
+        }
+      }
+    },
+    {
+      "id": "accent_rectangle_settlement-worker",
+      "type": "rectangle",
+      "x": 1320,
+      "y": 503,
+      "width": 8,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#7c3aed",
+      "backgroundColor": "#7c3aed",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_settlement-worker"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "settlement-worker"
+        }
+      }
+    },
+    {
+      "id": "tag_rectangle_settlement-worker_JOB",
+      "type": "rectangle",
+      "x": 1332,
+      "y": 511,
+      "width": 48,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#7c3aed",
+      "backgroundColor": "#ede9fe",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_settlement-worker"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "settlement-worker"
+        }
+      }
+    },
+    {
+      "id": "tag_text_rectangle_settlement-worker_JOB",
+      "type": "text",
+      "x": 1340,
+      "y": 513,
+      "width": 40,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#7c3aed",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_settlement-worker"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "settlement-worker"
+        }
+      },
+      "text": "JOB",
+      "originalText": "JOB",
+      "fontSize": 10,
+      "fontFamily": 2,
+      "textAlign": "left",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_web-app",
+      "type": "rectangle",
+      "x": 120,
+      "y": 240,
+      "width": 180,
+      "height": 80,
+      "angle": 0,
+      "strokeColor": "#475569",
+      "backgroundColor": "#f8fafc",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_web-app"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_web-app_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_web-to-gateway",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "web-app",
+          "role": "node",
+          "label": "Web App",
+          "displayLabel": "Web App",
+          "shapeRef": "client.web",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_web-app_label",
+      "type": "text",
+      "x": 136,
+      "y": 268.5,
+      "width": 148,
+      "height": 23,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_web-app"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "web-app_label",
+          "role": "label",
+          "node": "web-app",
+          "sourceLabel": "Web App",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false,
+            "estimatedLineWidths": [
+              68.94
+            ]
+          }
+        }
+      },
+      "text": "Web App",
+      "originalText": "Web App",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_web-app",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_api-gateway",
+      "type": "rectangle",
+      "x": 420,
+      "y": 240,
+      "width": 180,
+      "height": 80,
+      "angle": 0,
+      "strokeColor": "#2563eb",
+      "backgroundColor": "#eff6ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_api-gateway"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_api-gateway_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_web-to-gateway",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_gateway-to-payment",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "api-gateway",
+          "role": "node",
+          "label": "API Gateway",
+          "displayLabel": "API Gateway",
+          "shapeRef": "gateway.api",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_api-gateway_label",
+      "type": "text",
+      "x": 436,
+      "y": 268.5,
+      "width": 148,
+      "height": 23,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_api-gateway"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "api-gateway_label",
+          "role": "label",
+          "node": "api-gateway",
+          "sourceLabel": "API Gateway",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false,
+            "estimatedLineWidths": [
+              112.14000000000003
+            ]
+          }
+        }
+      },
+      "text": "API Gateway",
+      "originalText": "API Gateway",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_api-gateway",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_payment-service",
+      "type": "rectangle",
+      "x": 720,
+      "y": 240,
+      "width": 180,
+      "height": 80,
+      "angle": 0,
+      "strokeColor": "#4f46e5",
+      "backgroundColor": "#eef2ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-service"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_payment-service_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_gateway-to-payment",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_payment-to-network",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_payment-to-fraud",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_payment-to-db",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_payment-to-events",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "payment-service",
+          "role": "node",
+          "label": "Payment Service",
+          "displayLabel": "Payment Service",
+          "shapeRef": "service.backend",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_payment-service_label",
+      "type": "text",
+      "x": 736,
+      "y": 268.5,
+      "width": 148,
+      "height": 23,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-service"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "payment-service_label",
+          "role": "label",
+          "node": "payment-service",
+          "sourceLabel": "Payment Service",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false,
+            "estimatedLineWidths": [
+              143.64000000000001
+            ]
+          }
+        }
+      },
+      "text": "Payment Service",
+      "originalText": "Payment Service",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_payment-service",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_card-network",
+      "type": "rectangle",
+      "x": 1020,
+      "y": 240,
+      "width": 180,
+      "height": 80,
+      "angle": 0,
+      "strokeColor": "#64748b",
+      "backgroundColor": "#f8fafc",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_card-network"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_card-network_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_payment-to-network",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "card-network",
+          "role": "node",
+          "label": "Card Network",
+          "displayLabel": "Card Network",
+          "shapeRef": "external.system",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_card-network_label",
+      "type": "text",
+      "x": 1036,
+      "y": 268.5,
+      "width": 148,
+      "height": 23,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_card-network"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "card-network_label",
+          "role": "label",
+          "node": "card-network",
+          "sourceLabel": "Card Network",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false,
+            "estimatedLineWidths": [
+              118.44000000000003
+            ]
+          }
+        }
+      },
+      "text": "Card Network",
+      "originalText": "Card Network",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_card-network",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_fraud-check",
+      "type": "rectangle",
+      "x": 720,
+      "y": 454,
+      "width": 180,
+      "height": 80,
+      "angle": 0,
+      "strokeColor": "#d97706",
+      "backgroundColor": "#fffbeb",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_fraud-check"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_fraud-check_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_payment-to-fraud",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "fraud-check",
+          "role": "node",
+          "label": "Fraud Check",
+          "displayLabel": "Fraud Check",
+          "shapeRef": "risk.security",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_fraud-check_label",
+      "type": "text",
+      "x": 736,
+      "y": 482.5,
+      "width": 148,
+      "height": 23,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_fraud-check"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "fraud-check_label",
+          "role": "label",
+          "node": "fraud-check",
+          "sourceLabel": "Fraud Check",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false,
+            "estimatedLineWidths": [
+              108.54000000000002
+            ]
+          }
+        }
+      },
+      "text": "Fraud Check",
+      "originalText": "Fraud Check",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_fraud-check",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_payment-db",
+      "type": "rectangle",
+      "x": 720,
+      "y": 568,
+      "width": 180,
+      "height": 80,
+      "angle": 0,
+      "strokeColor": "#0f766e",
+      "backgroundColor": "#f0fdfa",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-db"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_payment-db_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_payment-to-db",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "payment-db",
+          "role": "node",
+          "label": "Payment DB",
+          "displayLabel": "Payment DB",
+          "shapeRef": "database.relational",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_payment-db_label",
+      "type": "text",
+      "x": 736,
+      "y": 596.5,
+      "width": 148,
+      "height": 23,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-db"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "payment-db_label",
+          "role": "label",
+          "node": "payment-db",
+          "sourceLabel": "Payment DB",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false,
+            "estimatedLineWidths": [
+              100.44
+            ]
+          }
+        }
+      },
+      "text": "Payment DB",
+      "originalText": "Payment DB",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_payment-db",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_payment-events",
+      "type": "rectangle",
+      "x": 1020,
+      "y": 511,
+      "width": 180,
+      "height": 80,
+      "angle": 0,
+      "strokeColor": "#9333ea",
+      "backgroundColor": "#faf5ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-events"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_payment-events_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_payment-to-events",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_events-to-worker",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "payment-events",
+          "role": "node",
+          "label": "Payment Events",
+          "displayLabel": "Payment Events",
+          "shapeRef": "queue.topic",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_payment-events_label",
+      "type": "text",
+      "x": 1036,
+      "y": 539.5,
+      "width": 148,
+      "height": 23,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-events"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "payment-events_label",
+          "role": "label",
+          "node": "payment-events",
+          "sourceLabel": "Payment Events",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false,
+            "estimatedLineWidths": [
+              138.24
+            ]
+          }
+        }
+      },
+      "text": "Payment Events",
+      "originalText": "Payment Events",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_payment-events",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_settlement-worker",
+      "type": "rectangle",
+      "x": 1320,
+      "y": 503,
+      "width": 180,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#7c3aed",
+      "backgroundColor": "#f5f3ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_settlement-worker"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_settlement-worker_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_events-to-worker",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "settlement-worker",
+          "role": "node",
+          "label": "Settlement Worker",
+          "displayLabel": "Settlement\nWorker",
+          "shapeRef": "service.worker",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_settlement-worker_label",
+      "type": "text",
+      "x": 1336,
+      "y": 528.5,
+      "width": 148,
+      "height": 45,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_settlement-worker"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "settlement-worker_label",
+          "role": "label",
+          "node": "settlement-worker",
+          "sourceLabel": "Settlement Worker",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false,
+            "estimatedLineWidths": [
+              96.30000000000001,
+              61.199999999999996
+            ]
+          }
+        }
+      },
+      "text": "Settlement\nWorker",
+      "originalText": "Settlement\nWorker",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_settlement-worker",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "arrow_web-to-gateway",
+      "type": "arrow",
+      "x": 300,
+      "y": 280,
+      "width": 120,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "web-to-gateway",
+          "role": "edge",
+          "from": "web-app",
+          "to": "api-gateway",
+          "label": "HTTPS",
+          "kind": "sync",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "right",
+            "targetSide": "left",
+            "axisLock": null,
+            "bends": 0
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          120,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_web-app",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_api-gateway",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "arrow_gateway-to-payment",
+      "type": "arrow",
+      "x": 600,
+      "y": 280,
+      "width": 120,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "gateway-to-payment",
+          "role": "edge",
+          "from": "api-gateway",
+          "to": "payment-service",
+          "label": "authorize",
+          "kind": "sync",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "right",
+            "targetSide": "left",
+            "axisLock": null,
+            "bends": 0
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          120,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_api-gateway",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_payment-service",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "arrow_payment-to-network",
+      "type": "arrow",
+      "x": 900,
+      "y": 280,
+      "width": 120,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "payment-to-network",
+          "role": "edge",
+          "from": "payment-service",
+          "to": "card-network",
+          "label": "authorize",
+          "kind": "sync",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "right",
+            "targetSide": "left",
+            "axisLock": null,
+            "bends": 0
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          120,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_payment-service",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_card-network",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "arrow_payment-to-fraud",
+      "type": "arrow",
+      "x": 810,
+      "y": 320,
+      "width": 0,
+      "height": 134,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "payment-to-fraud",
+          "role": "edge",
+          "from": "payment-service",
+          "to": "fraud-check",
+          "label": "risk check",
+          "kind": "optional",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "down",
+            "targetSide": "up",
+            "axisLock": null,
+            "bends": 0
+          },
+          "flowBundleRepair": {
+            "engine": "flow-bundle-v0.2",
+            "kind": "fan-out",
+            "node": "payment-service",
+            "template": "support-shelf-direct",
+            "shelfRole": "nearest-centered"
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          134
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_payment-service",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_fraud-check",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "arrow_payment-to-db",
+      "type": "arrow",
+      "x": 720,
+      "y": 302.4,
+      "width": 0,
+      "height": 305.6,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "payment-to-db",
+          "role": "edge",
+          "from": "payment-service",
+          "to": "payment-db",
+          "label": "persist",
+          "kind": "sync",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "left",
+            "targetSide": "left",
+            "axisLock": null,
+            "bends": 2
+          },
+          "flowBundleRepair": {
+            "engine": "flow-bundle-v0.2",
+            "kind": "fan-out",
+            "node": "payment-service",
+            "template": "support-shelf-centered-bypass",
+            "shelfRole": "deeper-centered",
+            "channelOffset": 36
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -36,
+          0
+        ],
+        [
+          -36,
+          305.6
+        ],
+        [
+          0,
+          305.6
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_payment-service",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_payment-db",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "arrow_payment-to-events",
+      "type": "arrow",
+      "x": 900,
+      "y": 294.4,
+      "width": 120,
+      "height": 256.6,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "payment-to-events",
+          "role": "edge",
+          "from": "payment-service",
+          "to": "payment-events",
+          "label": "publish",
+          "kind": "async",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "right",
+            "targetSide": "left",
+            "axisLock": null,
+            "bends": 2
+          },
+          "flowBundleRepair": {
+            "engine": "flow-bundle-v0.2",
+            "kind": "fan-out",
+            "node": "payment-service",
+            "template": "support-shelf-lateral-channel",
+            "shelfRole": "lateral",
+            "side": "right",
+            "channelOffset": 38
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          38,
+          0
+        ],
+        [
+          38,
+          256.6
+        ],
+        [
+          120,
+          256.6
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_payment-service",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_payment-events",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "arrow_events-to-worker",
+      "type": "arrow",
+      "x": 1200,
+      "y": 567,
+      "width": 120,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "events-to-worker",
+          "role": "edge",
+          "from": "payment-events",
+          "to": "settlement-worker",
+          "label": "consume",
+          "kind": "async",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "right",
+            "targetSide": "left",
+            "axisLock": null,
+            "bends": 0
+          },
+          "routeRepair": {
+            "endpointSeparated": true
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          120,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_payment-events",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_settlement-worker",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "text_web-to-gateway_label",
+      "type": "text",
+      "x": 334,
+      "y": 244,
+      "width": 53,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "HTTPS",
+      "originalText": "HTTPS",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "web-to-gateway_label",
+          "role": "edge-label",
+          "edge": "web-to-gateway",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 112,
+            "estimatedLineWidths": [
+              42.3
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "above",
+            "preferred": "above",
+            "ownDistance": 14,
+            "nearestOtherDistance": 214,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    },
+    {
+      "id": "text_gateway-to-payment_label",
+      "type": "text",
+      "x": 624,
+      "y": 244,
+      "width": 72,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "authorize",
+      "originalText": "authorize",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "gateway-to-payment_label",
+          "role": "edge-label",
+          "edge": "gateway-to-payment",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 112,
+            "estimatedLineWidths": [
+              61.1
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "above",
+            "preferred": "above",
+            "ownDistance": 14,
+            "nearestOtherDistance": 36.4,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    },
+    {
+      "id": "text_payment-to-network_label",
+      "type": "text",
+      "x": 924,
+      "y": 244,
+      "width": 72,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "authorize",
+      "originalText": "authorize",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "payment-to-network_label",
+          "role": "edge-label",
+          "edge": "payment-to-network",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 112,
+            "estimatedLineWidths": [
+              61.1
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "above",
+            "preferred": "above",
+            "ownDistance": 14,
+            "nearestOtherDistance": 28.4,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    },
+    {
+      "id": "text_payment-to-fraud_label",
+      "type": "text",
+      "x": 824,
+      "y": 376,
+      "width": 76,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "risk check",
+      "originalText": "risk check",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "payment-to-fraud_label",
+          "role": "edge-label",
+          "edge": "payment-to-fraud",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 96,
+            "estimatedLineWidths": [
+              65.4
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "right",
+            "preferred": "right",
+            "ownDistance": 14,
+            "nearestOtherDistance": 38,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    },
+    {
+      "id": "text_payment-to-db_label",
+      "type": "text",
+      "x": 698,
+      "y": 398,
+      "width": 57,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "persist",
+      "originalText": "persist",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "payment-to-db_label",
+          "role": "edge-label",
+          "edge": "payment-to-db",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 96,
+            "estimatedLineWidths": [
+              46.8
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "right",
+            "preferred": "right",
+            "ownDistance": 14,
+            "nearestOtherDistance": 55,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    },
+    {
+      "id": "text_payment-to-events_label",
+      "type": "text",
+      "x": 902,
+      "y": 308,
+      "width": 54,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "publish",
+      "originalText": "publish",
+      "fontSize": 13,
+      "fontFamily": 3,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "payment-to-events_label",
+          "role": "edge-label",
+          "edge": "payment-to-events",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 96,
+            "estimatedLineWidths": [
+              43.5
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "below",
+            "preferred": "below",
+            "ownDistance": 0,
+            "nearestOtherDistance": 28.4,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    },
+    {
+      "id": "text_events-to-worker_label",
+      "type": "text",
+      "x": 1230,
+      "y": 531,
+      "width": 61,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "consume",
+      "originalText": "consume",
+      "fontSize": 13,
+      "fontFamily": 3,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "events-to-worker_label",
+          "role": "edge-label",
+          "edge": "events-to-worker",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 112,
+            "estimatedLineWidths": [
+              50
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "above",
+            "preferred": "above",
+            "ownDistance": 14,
+            "nearestOtherDistance": 209.5,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    }
+  ],
+  "appState": {
+    "gridSize": null,
+    "viewBackgroundColor": "#ffffff"
+  },
+  "files": {},
+  "customData": {
+    "excalidrawSkill": {
+      "diagramType": "service-flow",
+      "title": "Payment Approval Flow",
+      "stylePreset": "professional-software",
+      "layout": {
+        "engine": "flow-v0.4.2",
+        "family": "flow",
+        "subtype": "service-flow",
+        "profile": "swimlane-flow",
+        "placedNodes": 8
+      },
+      "flowOptimization": {
+        "version": "0.3.0",
+        "strategy": "lane-rank-permutation-search",
+        "scoring": "shared-post-route-quality-score",
+        "groupsConsidered": 1,
+        "groupsChanged": 0,
+        "baselineCost": 61.8,
+        "selectedCost": 61.8,
+        "improvement": 0,
+        "decisions": [
+          {
+            "group": "support::3",
+            "originalOrder": [
+              "fraud-check",
+              "payment-db"
+            ],
+            "selectedOrder": [
+              "fraud-check",
+              "payment-db"
+            ],
+            "changed": false,
+            "costBefore": 61.8,
+            "costAfter": 61.8
+          }
+        ]
+      },
+      "positionRefinement": {
+        "version": "0.2.0",
+        "strategy": "bounded-cross-axis-local-search",
+        "scoring": "shared-post-route-quality-score",
+        "candidates": 4,
+        "nodesChanged": 0,
+        "baselineCost": 61.8,
+        "selectedCost": 61.8,
+        "improvement": 0,
+        "moves": {},
+        "decisions": []
+      },
+      "routeRepair": {
+        "engine": "route-repair-v0.1",
+        "nodeCrossingsRepaired": 0,
+        "endpointOverlapsRepaired": 0
+      },
+      "routeSimplification": {
+        "engine": "route-simplify-v0.2",
+        "simplified": 0
+      },
+      "routeOptimization": {
+        "version": "0.5.0",
+        "strategy": "routing-strategy-portfolio",
+        "selectedStrategy": "bundle-then-edge",
+        "scoring": "shared-post-route-quality-score",
+        "bundlesConsidered": 1,
+        "bundlesChanged": 0,
+        "bundleDecisions": [
+          {
+            "kind": "fan-out",
+            "node": "payment-service",
+            "edgeIds": [
+              "payment-to-db",
+              "payment-to-events",
+              "payment-to-fraud"
+            ],
+            "accepted": false,
+            "strategy": "preserve",
+            "selectedDirection": null,
+            "originalDirections": {
+              "payment-to-db": "down",
+              "payment-to-events": "down",
+              "payment-to-fraud": "down"
+            },
+            "costBefore": 61.8,
+            "costAfter": 61.8,
+            "improvement": 0
+          }
+        ],
+        "edgesConsidered": 4,
+        "edgesChanged": 0,
+        "baselineCost": 61.8,
+        "selectedCost": 61.8,
+        "improvement": 0,
+        "candidates": [
+          {
+            "strategy": "bundle-then-edge",
+            "cost": 61.8,
+            "hardPenalty": 0,
+            "acceptedBundles": 0,
+            "acceptedEdges": 0
+          },
+          {
+            "strategy": "edge-only",
+            "cost": 61.8,
+            "hardPenalty": 0,
+            "acceptedBundles": 0,
+            "acceptedEdges": 0
+          }
+        ],
+        "decisions": [
+          {
+            "edge": "payment-to-fraud",
+            "preferredDirection": "down",
+            "selectedDirection": "down",
+            "accepted": false,
+            "costBefore": 61.8,
+            "costAfter": 61.8,
+            "improvement": 0
+          },
+          {
+            "edge": "payment-to-db",
+            "preferredDirection": "down",
+            "selectedDirection": "down",
+            "accepted": false,
+            "costBefore": 61.8,
+            "costAfter": 61.8,
+            "improvement": 0
+          },
+          {
+            "edge": "payment-to-events",
+            "preferredDirection": "down",
+            "selectedDirection": "down",
+            "accepted": false,
+            "costBefore": 61.8,
+            "costAfter": 61.8,
+            "improvement": 0
+          },
+          {
+            "edge": "events-to-worker",
+            "preferredDirection": "right",
+            "selectedDirection": "right",
+            "accepted": false,
+            "costBefore": 61.8,
+            "costAfter": 61.8,
+            "improvement": 0
+          }
+        ]
+      },
+      "flowBundleRepair": {
+        "version": "0.4.0",
+        "strategy": "topology-ordered-bundle-geometry-portfolio",
+        "considered": 1,
+        "accepted": 1,
+        "finalCost": 32.9,
+        "decisions": [
+          {
+            "kind": "fan-out",
+            "node": "payment-service",
+            "edgeIds": [
+              "payment-to-db",
+              "payment-to-events",
+              "payment-to-fraud"
+            ],
+            "considered": true,
+            "accepted": true,
+            "costBefore": 61.8,
+            "costAfter": 32.9,
+            "hardPenaltyBefore": 0,
+            "hardPenaltyAfter": 0,
+            "hardViolationsAfter": {
+              "nodeOverlaps": 0,
+              "edgeNodeCrossings": 0,
+              "endpointOverlaps": 0,
+              "endpointApproachViolations": 0,
+              "endpointNodePenetrations": 0,
+              "labelNodeOverlaps": 0,
+              "textOverflows": 0,
+              "edgeVisualMismatches": 0,
+              "unresolvedFrameCollisions": 0,
+              "excessiveEdgeCrossings": 0,
+              "excessiveAspectRatio": 0,
+              "familyFailure": 0
+            },
+            "endpointOverlapsAfter": [],
+            "endpointApproachViolationsAfter": [],
+            "endpointNodePenetrationsAfter": [],
+            "edgeNodeCrossingsAfter": [],
+            "improvement": 28.9
+          }
+        ]
+      },
+      "endpointIntegrityRepair": {
+        "version": "0.1.0",
+        "repaired": 0,
+        "unresolved": 0,
+        "decisions": []
+      },
+      "framePolicy": {
+        "budget": 1,
+        "candidateCount": 0,
+        "renderedCount": 0,
+        "suppressedSmallGroups": 6,
+        "suppressedUnspecifiedGroups": 0,
+        "suppressedFullScene": 0,
+        "titleReserveMode": "native-100pct-estimate",
+        "titleReserveHeight": 32,
+        "adjustedFrameCollisions": 0,
+        "unresolvedFrameCollisions": 0,
+        "suppressedByBudget": 0
+      }
+    }
+  }
+}
