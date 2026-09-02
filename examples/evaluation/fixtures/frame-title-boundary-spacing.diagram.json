@@ -2,7 +2,6 @@
   "version": "2.0",
   "diagramType": "system-architecture",
   "title": "Frame Title Boundary Spacing",
-  "stylePreset": "default-software",
   "outputPath": "examples/evaluation/output/frame-title-boundary-spacing.excalidraw",
   "layout": {"profile": "layered-system"},
   "framePolicy": {"allowSingletons": true, "include": ["upper-frame", "lower-frame"]},
