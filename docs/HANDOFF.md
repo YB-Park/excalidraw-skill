@@ -42,17 +42,20 @@ Manual layout is product input, not automation failure. Stable semantic IDs allo
 The current LayoutState slice proves semantic-ID keyed node/label position capture and reapplication. It does **not** yet claim full arbitrary-human-move edge rerouting; fresh review is required after reapplication.
 
 ## Cognitive candidate workflow
-For an important new diagram in the current VS Code dogfood workspace:
+The first candidate portfolio is intentionally restricted to supported **flow-family** DiagramSpecs (`flow`, `service-flow`, `event-flow`, `data-flow`). System and module architecture continue through deterministic build/review + actual image inspection until they have their own three proven distinct strategies.
+
+For an important new flow-family diagram in the current VS Code dogfood workspace:
 1. Plan semantics and reader intent without x/y coordinates.
 2. Build the three deterministic strategies through `diagram_candidates`:
    - `narrative`: primary story continuity;
    - `compact`: lower eye travel/spread;
-   - `structured`: conceptual-center/relationship exploration; flow dogfood currently uses `hub-and-spoke`.
+   - `structured`: conceptual-center/relationship exploration using `hub-and-spoke` in this first slice.
 3. Every candidate must pass the existing deterministic build/review gates.
 4. CI rejects a candidate portfolio with a near-duplicate composition. Diversity is an exploration prerequisite, **not** an aesthetic score.
-5. The Critic independently inspects the actual PNG for each candidate using five dimensions: narrative clarity, semantic hierarchy, spatial coherence, visual economy, and task comprehension.
-6. Treat the Critic as a noisy preference sensor. Low confidence, close candidates, or presentation-critical work escalates to the human.
-7. Human selection/correction becomes preference evidence; do not fabricate human rankings.
+5. Candidate files use opaque IDs (`c01`, `c02`, `c03`). Pass only the returned `blindCandidates` view to the Critic; do not expose strategy name/intent until ranking is complete.
+6. The Critic independently inspects the actual PNG for each candidate using five dimensions: narrative clarity, semantic hierarchy, spatial coherence, visual economy, and task comprehension.
+7. Treat the Critic as a noisy preference sensor. Low confidence, close candidates, non-blind handoff, or presentation-critical work escalates to the human.
+8. Human selection/correction becomes preference evidence; do not fabricate human rankings.
 
 For an existing diagram:
 1. Inspect first.
@@ -78,6 +81,8 @@ Initial MCP tools:
 
 `diagram_review_image` returns the actual PNG as MCP image content plus deterministic review evidence. No agent may claim visual approval from metrics alone.
 
+The MCP server uses the current v2 stdio serving path and is integration-tested with the official MCP client through a child-process handshake, tool listing, and a real tool invocation. Tool filesystem access is restricted to the current workspace.
+
 This agent/MCP layer is currently **repo/workspace-native dogfood integration**. General distribution into arbitrary initialized projects is not yet claimed complete.
 
 ## Cheap-model policy
@@ -89,16 +94,18 @@ All Excalidraw custom agents explicitly restrict themselves to the current low-c
 Designer and Planner prefer Luna. Critic currently prefers MAI-Code-1.1-Flash for image-capable review. Model names are configuration, not architecture; replacements must remain cheap-tier and satisfy the role capability. No agent may silently escalate or hand off to a more expensive model.
 
 ## Verified baseline on this branch
-Current branch CI vertical slice has demonstrated:
+The pre-hardening branch baseline (`024f2da9c5059eab5edaef3553a2f3f68fe5b096`) passed CI #289 end-to-end, demonstrating:
 - all unit tests and existing smoke builds pass;
 - the real payment-flow candidate portfolio builds three valid candidates and verified PNGs;
-- the candidate diversity gate passes with a compositionally distinct `structured` candidate;
+- the candidate diversity gate passes with a compositionally distinct structured candidate;
 - strict evaluation remains green;
 - existing layout research remains green;
 - Chromium/native patch round trips and actual-render signatures remain green;
 - all runnable actual Excalidraw render signatures remain green.
 
-Manual artifact inspection also proved why the separation matters: the `structured` candidate is genuinely different, but its reading path is weaker than the Narrative/Compact candidates. This is acceptable exploration evidence and should be rejected by critic/human preference rather than encoded as a new deterministic failure rule.
+The post-review hardening adds true opaque-ID critic handoff, flow-only portfolio scope, current MCP stdio negotiation/integration testing, and workspace path sandboxing. Its latest CI must be green before merge; do not inherit the older green result as proof of these additions.
+
+Manual artifact inspection also proved why the separation matters: the structured candidate is genuinely different, but its reading path can be weaker than Narrative/Compact. This is acceptable exploration evidence and should be rejected by critic/human preference rather than encoded as a new deterministic failure rule.
 
 ## Evaluation suites
 1. **Kernel Contract Suite** — deterministic correctness and existing native-render regressions.
@@ -109,12 +116,13 @@ The preference corpus is intentionally empty until a person actually inspects ca
 
 ## Immediate next work
 1. Finish this cognitive-agent vertical slice through PR merge and verify `main` CI.
-2. Dogfood the VS Code `Excalidraw Designer` on real supported-family tasks using cheap models only.
+2. Dogfood the VS Code `Excalidraw Designer` on real flow-family tasks using cheap models only, starting with Luna for Designer/Planner.
 3. Collect the first real human candidate rankings/reasons in `examples/evaluation/preference-corpus.json`; start with 10–20 meaningful tasks rather than synthetic aesthetic fixtures.
 4. Measure Critic agreement/stability and escalation instead of assuming one LLM judgment is ground truth.
 5. Exercise a real human manual-layout edit, capture LayoutState, make a semantic change, then prove routing reconciliation + fresh review before declaring the full Interaction Suite complete.
-6. Decide agent/MCP installation/distribution only after repo-native dogfood shows the workflow is worth carrying into external workspaces.
-7. Only consider broader family support after the current families survive this mixed-initiative dogfood cleanly.
+6. Design family-specific candidate portfolios for system/module only after flow dogfood demonstrates value; do not fake diversity by reusing identical layouts.
+7. Decide agent/MCP installation/distribution only after repo-native dogfood shows the workflow is worth carrying into external workspaces.
+8. Only consider broader unsupported family support after the current families survive this mixed-initiative dogfood cleanly.
 
 ## Non-negotiables
 - Do not lower kernel thresholds or refresh baselines just to green CI.
