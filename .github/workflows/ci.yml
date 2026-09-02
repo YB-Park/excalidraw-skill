@@ -25,6 +25,14 @@ jobs:
       - run: npm run smoke
       - run: npm run smoke:system
       - run: npm run smoke:module
+      - name: Exercise cognitive candidate portfolio
+        run: |
+          npm run candidates -- examples/service-flow/payment-flow.visual-plan.diagram.json
+          mkdir -p artifacts/cognitive-candidates
+          cp examples/service-flow/payment-flow.visual-plan.candidates.json artifacts/cognitive-candidates/
+          cp examples/service-flow/payment-flow.visual-plan.candidate-*.excalidraw artifacts/cognitive-candidates/
+          cp examples/service-flow/payment-flow.visual-plan.candidate-*.preview.png artifacts/cognitive-candidates/
+          cp examples/service-flow/payment-flow.visual-plan.candidate-*.review.json artifacts/cognitive-candidates/
       - name: Evaluate strict quality gates
         run: npm run evaluate:strict
       - name: Compare layout candidates
