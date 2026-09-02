@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { LAYOUT_STRATEGIES, applyLayoutStrategy } from './layout-strategies.mjs';
+import { LAYOUT_STRATEGIES, applyLayoutStrategy, isFlowSpec } from './layout-strategies.mjs';
 
 const srcDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(srcDir, '..');
@@ -41,7 +41,14 @@ function candidateOutputPath(workspaceCwd, originalOutputPath, candidateId) {
   return `${base}.candidate-${candidateId}${ext}`;
 }
 
+function assertCandidateFamily(spec) {
+  if (!isFlowSpec(spec)) {
+    throw new Error(`Cognitive candidate portfolio currently supports flow families only; received ${spec?.diagramType ?? 'unknown'}. Use the deterministic build/review path for this family.`);
+  }
+}
+
 export function candidateSpecs(spec) {
+  assertCandidateFamily(spec);
   return LAYOUT_STRATEGIES.map((strategy, index) => ({
     candidateId: opaqueCandidateId(index),
     strategy,
@@ -63,6 +70,7 @@ export function generateCandidates(specPath, { cwd = process.cwd() } = {}) {
   const absoluteSpecPath = path.resolve(workspaceCwd, specPath);
   const original = readJson(absoluteSpecPath);
   if (!original.outputPath) throw new Error('DiagramSpec outputPath is required for candidate generation');
+  assertCandidateFamily(original);
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'excalidraw-candidates-'));
   const candidates = [];
 
@@ -93,6 +101,7 @@ export function generateCandidates(specPath, { cwd = process.cwd() } = {}) {
   const manifest = {
     version: '1.1',
     mode: 'cognitive-candidate-portfolio',
+    supportedFamily: 'flow',
     sourceSpec: absoluteSpecPath,
     requiresPerceptualRanking: true,
     candidates
