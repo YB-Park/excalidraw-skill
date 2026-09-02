@@ -1,12 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
-import { createExcalidrawMcpServer } from '../mcp/server.mjs';
+import { createExcalidrawMcpServer, workspacePath } from '../mcp/server.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const expectedTools = [
@@ -23,8 +22,13 @@ test('MCP server constructs with typed Excalidraw tool registrations', () => {
   assert.equal(typeof server.connect, 'function');
 });
 
+test('MCP path resolution rejects workspace escapes', () => {
+  assert.equal(workspacePath('diagrams/example.excalidraw', root), path.join(root, 'diagrams/example.excalidraw'));
+  assert.throws(() => workspacePath('../outside.txt', root), /escapes workspace/i);
+});
+
 test('MCP stdio server negotiates, lists semantic tools, and executes a real tool call', async () => {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'excalidraw-mcp-test-'));
+  const tempDir = fs.mkdtempSync(path.join(root, '.tmp-excalidraw-mcp-test-'));
   const scenePath = path.join(tempDir, 'empty.excalidraw');
   const layoutStatePath = path.join(tempDir, 'captured.layout-state.json');
   fs.writeFileSync(scenePath, `${JSON.stringify({ type: 'excalidraw', version: 2, elements: [], appState: {}, files: {} })}\n`);
