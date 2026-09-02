@@ -30,17 +30,31 @@ function runNode(relativeFile, args, cwd) {
   return result;
 }
 
-function candidateOutputPath(workspaceCwd, originalOutputPath, strategyId) {
+function opaqueCandidateId(index) {
+  return `c${String(index + 1).padStart(2, '0')}`;
+}
+
+function candidateOutputPath(workspaceCwd, originalOutputPath, candidateId) {
   const absoluteOriginal = path.resolve(workspaceCwd, originalOutputPath);
   const ext = path.extname(absoluteOriginal) || '.excalidraw';
   const base = absoluteOriginal.slice(0, -ext.length);
-  return `${base}.candidate-${strategyId}${ext}`;
+  return `${base}.candidate-${candidateId}${ext}`;
 }
 
 export function candidateSpecs(spec) {
-  return LAYOUT_STRATEGIES.map((strategy) => ({
+  return LAYOUT_STRATEGIES.map((strategy, index) => ({
+    candidateId: opaqueCandidateId(index),
     strategy,
     spec: applyLayoutStrategy(spec, strategy.id)
+  }));
+}
+
+export function blindCandidateView(manifest) {
+  return (manifest?.candidates ?? []).map(({ candidateId, scenePath, previewPath, reviewPath }) => ({
+    candidateId,
+    scenePath,
+    previewPath,
+    reviewPath
   }));
 }
 
@@ -53,16 +67,17 @@ export function generateCandidates(specPath, { cwd = process.cwd() } = {}) {
   const candidates = [];
 
   try {
-    for (const { strategy, spec } of candidateSpecs(original)) {
-      const outputPath = candidateOutputPath(workspaceCwd, original.outputPath, strategy.id);
+    for (const { candidateId, strategy, spec } of candidateSpecs(original)) {
+      const outputPath = candidateOutputPath(workspaceCwd, original.outputPath, candidateId);
       const candidateSpec = { ...spec, outputPath };
-      const candidateSpecPath = path.join(tempDir, `${strategy.id}.diagram.json`);
+      const candidateSpecPath = path.join(tempDir, `${candidateId}.diagram.json`);
       writeJson(candidateSpecPath, candidateSpec);
 
       runNode('src/build.mjs', [candidateSpecPath], workspaceCwd);
       runNode('src/review.mjs', [outputPath, candidateSpecPath], workspaceCwd);
 
       candidates.push({
+        candidateId,
         strategy: strategy.id,
         intent: strategy.intent,
         scenePath: outputPath,
@@ -76,14 +91,14 @@ export function generateCandidates(specPath, { cwd = process.cwd() } = {}) {
 
   const manifestPath = `${absoluteSpecPath.replace(/\.diagram\.json$/i, '')}.candidates.json`;
   const manifest = {
-    version: '1.0',
+    version: '1.1',
     mode: 'cognitive-candidate-portfolio',
     sourceSpec: absoluteSpecPath,
     requiresPerceptualRanking: true,
     candidates
   };
   writeJson(manifestPath, manifest);
-  return { manifestPath, manifest };
+  return { manifestPath, manifest, blindCandidates: blindCandidateView(manifest) };
 }
 
 function main() {
