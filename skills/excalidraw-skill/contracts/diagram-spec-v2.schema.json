@@ -3,7 +3,7 @@
   "$id": "https://company.local/excalidraw-skill/diagram-spec-v2.schema.json",
   "title": "DiagramSpec v2",
   "type": "object",
-  "required": ["version", "diagramType", "title", "stylePreset", "nodes", "edges", "outputPath"],
+  "required": ["version", "diagramType", "title", "nodes", "edges", "outputPath"],
   "properties": {
     "version": {"const": "2.0"},
     "diagramType": {
@@ -18,7 +18,7 @@
       ]
     },
     "title": {"type": "string", "minLength": 1},
-    "stylePreset": {"type": "string", "minLength": 1},
+    "stylePreset": {"const": "professional-software", "default": "professional-software"},
     "outputPath": {"type": "string", "pattern": "\\.excalidraw$"},
     "layout": {"$ref": "#/$defs/layout"},
     "groups": {"type": "array", "items": {"$ref": "#/$defs/group"}},
