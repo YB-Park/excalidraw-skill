@@ -18,25 +18,20 @@ New diagram work must follow the `build` workflow. Do not call `patch` for a new
 node <runtimeEntry> build <spec.json>
 ```
 
-8. Inspect structural/editability evidence:
+8. Inspect the scene summary when useful, then run the agent-facing review happy path:
 
 ```text
 node <runtimeEntry> inspect <output.excalidraw>
-node <runtimeEntry> editability-report <output.excalidraw>
-node <runtimeEntry> quality-report <output.excalidraw> <spec.json>
+node <runtimeEntry> review <output.excalidraw> <spec.json>
 ```
 
-9. Read `visual-review.md`, create a portable PNG, and inspect the image when the host supports vision:
+`review` runs deterministic validity/editability/quality checks, creates a portable PNG, verifies its PNG signature, and emits a `.review.json` handoff with `requiresVisualReview: true`. Prefer this command over manually composing `editability-report`, `quality-report`, and `preview` during normal agent work.
 
-```text
-node <runtimeEntry> preview <output.excalidraw> -o <output.preview.png>
-```
+9. Read `visual-review.md` and inspect the PNG reported by `review` when the host supports vision. Inspect the image before reading suggested fixes. Check reading path, routing, labels, composition, whitespace, and semantic boundaries. A passing quality report is not aesthetic approval.
 
-Inspect the image before reading suggested patches. Check reading path, routing, labels, composition, whitespace, and semantic boundaries. A passing `QualityReport` is not aesthetic approval.
+If a blocker or major visual defect exists, revise the `DiagramSpec` or Visual Plan and rebuild, then run `review` again. Do not patch a brand-new diagram just to polish it. Prefer at most two visual refinement passes; persistent defects should be reported and captured as dogfood regressions.
 
-If a blocker or major visual defect exists, revise the `DiagramSpec` or Visual Plan and rebuild. Do not patch a brand-new diagram just to polish it. Prefer at most two visual refinement passes; persistent defects should be reported and captured as dogfood regressions.
-
-If the host cannot inspect images, still create the preview and report its path, but explicitly state that visual approval was not performed.
+If the host cannot inspect images, still run `review` and report its preview path, but explicitly state that visual approval was not performed.
 
 ## Diagram family selection
 
@@ -83,4 +78,4 @@ Preserve user-provided names. Do not append type suffixes merely because `shapeR
 
 ## Output contract
 
-Produce the spec first, then run `build`; exact placement, wrapping, routing, ports, frames, and Excalidraw details belong to the renderer. Return the `.excalidraw` path, preview PNG path, structural/editability summary, and visual-review result. Do not return raw Excalidraw JSON.
+Produce the spec first, then run `build` and `review`; exact placement, wrapping, routing, ports, frames, and Excalidraw details belong to the renderer. Return the `.excalidraw` path, review JSON path, preview PNG path, structural/editability summary, and whether visual approval was actually performed. Do not return raw Excalidraw JSON.
