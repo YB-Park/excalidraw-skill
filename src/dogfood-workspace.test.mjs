@@ -9,6 +9,7 @@ import { installGlobalSkill } from './global-skill.mjs';
 
 const srcDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(srcDir, '..');
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 function tempDir(t, prefix) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -31,7 +32,13 @@ function runRuntime(runtimeEntry, cwd, args) {
   return result;
 }
 
-test('installed managed runtime completes init, build, inspect, patch, and validate in a clean workspace', (t) => {
+function assertValidPng(filePath) {
+  const buffer = fs.readFileSync(filePath);
+  assert.ok(buffer.length > PNG_SIGNATURE.length, `${filePath} is unexpectedly small`);
+  assert.equal(buffer.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE), true, `${filePath} is not a PNG`);
+}
+
+test('installed managed runtime completes build, preview, patch, and validation in a clean workspace', (t) => {
   const home = tempDir(t, 'excalidraw-dogfood-home-');
   const workspace = tempDir(t, 'excalidraw-dogfood-workspace-');
   const targetDir = path.join(home, '.copilot', 'skills', 'excalidraw-skill');
@@ -59,6 +66,10 @@ test('installed managed runtime completes init, build, inspect, patch, and valid
   assert.equal(editability.pass, true);
   assert.equal(quality.structuralPass, true);
 
+  const previewPath = path.join(workspace, 'dogfood-payment.preview.png');
+  runRuntime(runtimeEntry, workspace, ['preview', spec.outputPath, '-o', path.basename(previewPath)]);
+  assertValidPng(previewPath);
+
   runRuntime(runtimeEntry, workspace, ['inspect', spec.outputPath]);
 
   const patch = {
@@ -73,6 +84,10 @@ test('installed managed runtime completes init, build, inspect, patch, and valid
   const editedPath = 'dogfood-payment.edited.excalidraw';
   runRuntime(runtimeEntry, workspace, ['patch', spec.outputPath, path.basename(patchPath), '-o', editedPath]);
   assert.equal(fs.existsSync(path.join(workspace, editedPath)), true);
+
+  const editedPreviewPath = path.join(workspace, 'dogfood-payment.edited.preview.png');
+  runRuntime(runtimeEntry, workspace, ['preview', editedPath, '-o', path.basename(editedPreviewPath)]);
+  assertValidPng(editedPreviewPath);
 
   runRuntime(runtimeEntry, workspace, ['validate', editedPath]);
   runRuntime(runtimeEntry, workspace, ['editability-report', editedPath]);
