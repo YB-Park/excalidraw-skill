@@ -36,38 +36,46 @@ test('user-facing smoke docs inspect the scene produced by npm run smoke', () =>
 
   for (const relativePath of docs) {
     const content = read(relativePath);
-    assert.ok(
-      content.includes(outputPath),
-      `${relativePath} must reference current smoke output ${outputPath}`
-    );
-    assert.equal(
-      content.includes('payment-flow.grouped.excalidraw'),
-      false,
-      `${relativePath} still references the legacy grouped smoke output`
-    );
+    assert.ok(content.includes(outputPath), `${relativePath} must reference current smoke output ${outputPath}`);
+    assert.equal(content.includes('payment-flow.grouped.excalidraw'), false, `${relativePath} still references the legacy grouped smoke output`);
   }
 });
 
 test('patch usage and installed edit guide list every executable DiagramPatch operation', () => {
   const contract = read('skills/excalidraw-skill/contracts/diagram-patch.md');
-  const operations = [...new Set(
-    [...contract.matchAll(/- `op: "([^"]+)"`/g)].map((match) => match[1])
-  )];
+  const operations = [...new Set([...contract.matchAll(/- `op: "([^"]+)"`/g)].map((match) => match[1]))];
 
   assert.ok(operations.length >= 8, 'DiagramPatch contract should expose the full operation set');
 
-  for (const relativePath of [
-    'docs/PATCH_USAGE.md',
-    'skills/excalidraw-skill/guides/edit.md'
-  ]) {
+  for (const relativePath of ['docs/PATCH_USAGE.md', 'skills/excalidraw-skill/guides/edit.md']) {
     const content = read(relativePath);
     for (const operation of operations) {
-      assert.ok(
-        content.includes(`\`${operation}\``),
-        `${relativePath} is missing DiagramPatch operation ${operation}`
-      );
+      assert.ok(content.includes(`\`${operation}\``), `${relativePath} is missing DiagramPatch operation ${operation}`);
     }
   }
+});
+
+test('agent-facing entrypoints require preview-based visual review and do not teach render-to-PNG', () => {
+  const agentFiles = [
+    'skills/excalidraw-skill/SKILL.md',
+    'skills/excalidraw-skill/guides/create.md',
+    'skills/excalidraw-skill/guides/edit.md',
+    '.github/prompts/excalidraw.prompt.md',
+    '.opencode/commands/excalidraw.md'
+  ];
+
+  for (const relativePath of agentFiles) {
+    const content = read(relativePath);
+    assert.match(content, /\bpreview\b/, `${relativePath} must teach preview visual review`);
+    assert.match(content, /visual|image|PNG/i, `${relativePath} must explain image-based review`);
+    assert.doesNotMatch(content, /render[^\n`]*-o[^\n`]*\.png/i, `${relativePath} must not teach render-to-PNG`);
+  }
+
+  const guide = read('skills/excalidraw-skill/guides/visual-review.md');
+  assert.match(guide, /reading path/i);
+  assert.match(guide, /routing/i);
+  assert.match(guide, /composition/i);
+  assert.match(guide, /at most two visual refinement passes/i);
 });
 
 test('release docs no longer describe global installation or patching as unimplemented smoke scope', () => {
