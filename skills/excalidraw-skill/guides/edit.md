@@ -14,40 +14,41 @@ node <runtimeEntry> inspect <scene.excalidraw>
 
 2. Work from `SceneSummary`, not the full raw scene.
 3. Produce a `DiagramPatch` using semantic ids from the inspected summary.
-4. Apply the patch with the local runtime:
+4. Apply the patch:
 
 ```text
 node <runtimeEntry> patch <scene.excalidraw> <patch.json> [-o output.excalidraw]
 ```
 
-5. Validate native editability and file structure:
+5. Validate native editability and structural/family quality:
 
 ```text
 node <runtimeEntry> editability-report <output.excalidraw>
 node <runtimeEntry> validate <output.excalidraw>
-```
-
-6. Review structural/family quality when a spec is available, or structural quality alone when it is not:
-
-```text
 node <runtimeEntry> quality-report <output.excalidraw> [spec.json]
 ```
 
-Patch itself runs native editability and structural safety gates. The explicit follow-up commands are useful for review and diagnostics.
+6. Read `visual-review.md`, create a PNG, and inspect it when the host supports image vision:
+
+```text
+node <runtimeEntry> preview <output.excalidraw> -o <output.preview.png>
+```
+
+Inspect the image before reading suggested patches. Verify that the requested change is visually local, the reading path still works, affected routes/labels remain clear, and unrelated manual layout did not move.
+
+If a blocker/major defect remains, make the smallest additional semantic patch. Prefer at most two visual refinement passes. If the host cannot inspect images, still create the preview and explicitly say that visual approval was not performed.
+
+Patch itself runs native editability and structural safety gates. A passing gate is not aesthetic approval.
 
 ## Preserve human work
 
 Default to `preserveManualLayout: true`.
 
-Do not move manually adjusted unrelated objects unless the user explicitly asks for cleanup or relayout.
-
-Do not overwrite labels unless the patch says the label should change.
-
-Affected/connected edges may be rerouted when required to preserve endpoint integrity or other hard geometry constraints.
+Do not move manually adjusted unrelated objects unless the user explicitly asks for cleanup or relayout. Do not overwrite labels unless requested. Affected/connected edges may be rerouted when required to preserve endpoint integrity or other hard geometry constraints.
 
 ## Patch operations
 
-Use executable semantic operations from the DiagramPatch contract:
+Executable semantic operations:
 
 - `addNode`
 - `addEdge`
@@ -58,28 +59,18 @@ Use executable semantic operations from the DiagramPatch contract:
 - `applyStylePreset`
 - `removeObject`
 
-There is no separate `updateEdge` operation. Rewire an existing relation by removing the semantic edge and adding the replacement edge.
+There is no separate `updateEdge`; rewire by removing the semantic edge and adding the replacement. Unknown operations must fail rather than silently doing nothing. Avoid raw Excalidraw element diffs.
 
-Unknown operations must fail rather than silently doing nothing.
+## Command guardrails
 
-Avoid raw Excalidraw element diffs.
-
-## Patch command guardrails
-
-`patch` requires both an existing scene path and a patch file. A bare `patch` command is never a valid diagram generation step.
-
-Use this:
+`patch` requires both an existing scene path and a patch file:
 
 ```text
 node <runtimeEntry> patch existing.excalidraw change.patch.json -o updated.excalidraw
 ```
 
-Do not use this:
-
-```text
-node <runtimeEntry> patch
-```
+Never use low-level `render` to create a PNG. `render` writes Excalidraw JSON only. Use `preview` after the patch for visual review.
 
 ## When in doubt
 
-Make the smallest local change that satisfies the user request. Keep the original scene/spec available during dogfood so a visual defect can be reproduced instead of hidden by a full regeneration.
+Make the smallest local change that satisfies the request. Keep the original scene/spec during dogfood so a visual defect can be reproduced instead of hidden by full regeneration. Turn recurring defects into deterministic repair logic or regression fixtures.
