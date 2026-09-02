@@ -34,9 +34,11 @@ Important new diagrams are explored through a deliberately small portfolio of me
 
 - `narrative` — preserve the clearest primary story and subordinate secondary concerns.
 - `compact` — reduce eye travel and spread while preserving correctness.
-- `structured` — emphasize semantic grouping and hierarchy over compactness.
+- `structured` — emphasize the conceptual center and relationship structure rather than preserving the original lane composition. For supported flow families, the first vertical slice explores this through the existing `hub-and-spoke` profile.
 
 The first implementation keeps the portfolio at three candidates to control cost and judge instability. Random coordinate jitter is not a strategy.
+
+Candidate names alone are not enough: the generated scenes must also be compositionally distinct enough to justify perceptual ranking. CI therefore compares stable semantic node positions after normalization and rejects a portfolio containing a near-duplicate pair. This gate does not choose the aesthetically best candidate; it only prevents a fake design-space exploration where several nominal strategies render essentially the same composition.
 
 Each candidate must pass deterministic build/review gates before perceptual ranking. A candidate that violates a hard gate is not rescued by an LLM preference.
 
@@ -62,7 +64,7 @@ Manual layout is product input, not automation failure.
 
 `DiagramSpec` remains semantic source material. `LayoutState` stores presentation decisions keyed by stable semantic node ID. A human-moved node can therefore be preserved across later semantic regeneration without baking coordinates into the semantic specification.
 
-The first LayoutState contract captures locked node positions and moves bound node labels with the node. A fresh review is required after reapplication. More expressive relative constraints can be added only when real dogfood demonstrates the need.
+The first LayoutState contract captures locked node positions and moves bound node labels with the node. A fresh review is required after reapplication. It intentionally does not claim that edge routing is already reconciled automatically after arbitrary human movement; that is an interaction-layer capability to prove in later dogfood. More expressive relative constraints can be added only when real use demonstrates the need.
 
 ## VS Code native agent architecture
 
@@ -109,13 +111,15 @@ Statistical. A curated set of real tasks records human-ranked candidates and rea
 
 ### Interaction Suite
 
-Mixed deterministic/perceptual. A human arrangement is captured, semantics are changed, LayoutState is reapplied, unrelated presentation intent is preserved, and the result is freshly reviewed.
+Mixed deterministic/perceptual. A human arrangement is captured, semantics are changed, LayoutState is reapplied, unrelated presentation intent is preserved, routing is reconciled, and the result is freshly reviewed. The current vertical slice proves semantic-ID keyed capture/reapply but does not yet claim the full interaction suite is complete.
 
 ## Current vertical slice and boundaries
 
 This first slice intentionally does not rewrite every family renderer or remove existing heuristic passes. It creates the architectural seams needed to measure the new approach without destabilizing the proven kernel.
 
 Candidate strategy behavior is initially most differentiated for flow families. Broader family-specific strategy portfolios should be added only after preference evidence shows what diversity is useful.
+
+The VS Code agents and `.mcp.json` in this slice are repository/workspace-native dogfood integration. General project installation/distribution of the agent/MCP layer is a separate concern and must not be claimed complete merely because the kernel's global installer exists.
 
 Do not expand unsupported diagram families as part of this architecture migration.
 
