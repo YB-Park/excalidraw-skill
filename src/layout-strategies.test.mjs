@@ -16,10 +16,10 @@ test('compact strategy changes aspect preference without mutating source spec', 
   assert.equal(result.layoutStrategy.id, 'compact');
 });
 
-test('structured flow strategy deliberately switches to layered-flow', () => {
+test('structured flow strategy deliberately switches to hub-and-spoke', () => {
   const source = { diagramType: 'service-flow', layout: { profile: 'swimlane-flow', aspectRatio: 'wide' } };
   const result = applyLayoutStrategy(source, 'structured');
-  assert.equal(result.layout.profile, 'layered-flow');
+  assert.equal(result.layout.profile, 'hub-and-spoke');
   assert.equal(result.layout.aspectRatio, 'balanced');
 });
 
