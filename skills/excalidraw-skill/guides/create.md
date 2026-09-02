@@ -52,7 +52,9 @@ Do not overload one scene with system, module, flow, and sequence concerns. Crea
 For renderable graph-like diagrams:
 
 - Use `version: "2.0"` when visual hierarchy, primary flow, lanes, support concerns, or semantic edge styling matter.
-- Use `stylePreset`, `shapeRef`, semantic ids, relation kinds, layout hints, and semantic `edge.visual` when needed.
+- `stylePreset` is optional. Omit it when the user did not ask for a different style; the runtime defaults to `professional-software`.
+- If `stylePreset` is written explicitly, use `professional-software`. Do not invent names such as `default-software`.
+- Use `shapeRef`, semantic ids, relation kinds, layout hints, and semantic `edge.visual` when needed.
 - Do not add raw coordinates.
 - Do not hand-author raw Excalidraw elements.
 - Do not use raw edge colors, raw stroke widths, or arbitrary Excalidraw style values in the spec.
