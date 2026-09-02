@@ -47,7 +47,9 @@ export function loadStylePreset(name = DEFAULT_STYLE_PRESET) {
   const presetName = assertPresetName(name ?? DEFAULT_STYLE_PRESET);
   if (cache.has(presetName)) return cache.get(presetName);
   const filePath = path.join(presetDir, `${presetName}.json`);
-  if (!fs.existsSync(filePath)) throw new Error(`Unsupported style preset: ${presetName}`);
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Unsupported style preset: ${presetName}. Use ${DEFAULT_STYLE_PRESET}, or omit stylePreset to use the default.`);
+  }
   const preset = assertRuntimePreset(JSON.parse(fs.readFileSync(filePath, 'utf8')), presetName);
   if (preset.name !== presetName) throw new Error(`Style preset name mismatch: expected ${presetName}, got ${preset.name ?? 'none'}`);
   cache.set(presetName, preset);
