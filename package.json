@@ -31,6 +31,7 @@
     "skill:uninstall:global": "node ./bin/excalidraw-skill.mjs uninstall --global"
   },
   "dependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "elkjs": "^0.12.0"
   },
   "devDependencies": {
