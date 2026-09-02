@@ -15,6 +15,13 @@ const [specPath, flag, outputPathArg] = process.argv.slice(2);
 function readJson(filePath) { return JSON.parse(fs.readFileSync(filePath, 'utf8')); }
 function writeJson(filePath, data) { fs.mkdirSync(path.dirname(filePath), { recursive: true }); fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`); }
 function safeId(prefix, value) { return `${prefix}_${String(value).replace(/[^a-zA-Z0-9_-]/g, '_')}`; }
+
+export function assertRenderOutputPath(outputPath) {
+  if (path.extname(outputPath).toLowerCase() !== '.excalidraw') {
+    throw new Error(`render writes Excalidraw JSON only and requires a .excalidraw output path. For a PNG image, build the scene first and run: excalidraw-skill preview <scene.excalidraw> -o preview.png`);
+  }
+}
+
 function base(type, semanticId, preset) {
   const style = baseElementStyle(preset);
   return {
@@ -156,10 +163,16 @@ function run() {
     console.error('Usage: node src/render.mjs <spec.json> [-o output.excalidraw]');
     process.exit(1);
   }
-  const spec = readJson(specPath);
-  const outputPath = flag === '-o' && outputPathArg ? outputPathArg : spec.outputPath ?? 'diagram.excalidraw';
-  writeJson(outputPath, renderSpec(spec));
-  console.log(outputPath);
+  try {
+    const spec = readJson(specPath);
+    const outputPath = flag === '-o' && outputPathArg ? outputPathArg : spec.outputPath ?? 'diagram.excalidraw';
+    assertRenderOutputPath(outputPath);
+    writeJson(outputPath, renderSpec(spec));
+    console.log(outputPath);
+  } catch (error) {
+    console.error(`render failed: ${error instanceof Error ? error.message : String(error)}`);
+    process.exit(1);
+  }
 }
 
 if (process.argv[1]?.endsWith('render.mjs')) run();
