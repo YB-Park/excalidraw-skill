@@ -2,7 +2,6 @@
   "version": "2.0",
   "diagramType": "service-flow",
   "title": "Horizontal Center Axis Flow",
-  "stylePreset": "default-software",
   "outputPath": "examples/evaluation/output/flow-swimlane-horizontal-center-axis.excalidraw",
   "layout": {
     "profile": "swimlane-flow",
