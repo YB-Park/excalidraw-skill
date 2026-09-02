@@ -16,22 +16,34 @@ function runCli(args, entry = binPath) {
   });
 }
 
-test('top-level help gives agent-first build workflow', () => {
+test('top-level help gives build plus visual review workflow', () => {
   const result = runCli(['--help']);
 
   assert.equal(result.status, 0);
   assert.match(result.stdout, /New diagram, no existing \.excalidraw path/);
   assert.match(result.stdout, /node <runtimeEntry> build <spec\.json>/);
+  assert.match(result.stdout, /preview <output\.excalidraw> -o <preview\.png>/);
+  assert.match(result.stdout, /Visually inspect the preview/);
   assert.match(result.stdout, /Do not call patch/);
 });
 
-test('subcommand help is intercepted before runner execution', () => {
+test('render help states JSON-only semantics and points to preview for PNG', () => {
   const result = runCli(['render', '--help']);
 
   assert.equal(result.status, 0);
-  assert.match(result.stdout, /Developer renderer step/);
-  assert.match(result.stdout, /use build instead/i);
+  assert.match(result.stdout, /Low-level developer scene renderer/);
+  assert.match(result.stdout, /Excalidraw JSON only/);
+  assert.match(result.stdout, /use preview/i);
   assert.doesNotMatch(result.stderr, /ENOENT|no such file/i);
+});
+
+test('preview help describes portable PNG visual review', () => {
+  const result = runCli(['preview', '--help']);
+
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /preview <scene\.excalidraw>/);
+  assert.match(result.stdout, /portable PNG/i);
+  assert.match(result.stdout, /not pixel-identical/i);
 });
 
 test('bare patch fails with edit-only guidance', () => {
