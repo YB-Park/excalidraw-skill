@@ -5,7 +5,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { McpServer } from '@modelcontextprotocol/server';
-import { StdioServerTransport } from '@modelcontextprotocol/server/stdio';
+import { serveStdio } from '@modelcontextprotocol/server/stdio';
 import * as z from 'zod/v4';
 import { generateCandidates } from '../src/generate-candidates.mjs';
 import { captureLayoutState, applyLayoutState } from '../src/layout-state.mjs';
@@ -59,7 +59,7 @@ export function createExcalidrawMcpServer() {
   server.registerTool(
     'diagram_candidates',
     {
-      description: 'Build the three deterministic layout-strategy candidates and verified PNG previews for a DiagramSpec.',
+      description: 'Build the three deterministic layout-strategy candidates and verified PNG previews for a DiagramSpec. Use blindCandidates for critic handoff; strategy metadata is coordinator-only.',
       inputSchema: z.object({ specPath: z.string().min(1) })
     },
     async ({ specPath }) => textAndStructured(generateCandidates(absolute(specPath)))
@@ -153,9 +153,8 @@ export function createExcalidrawMcpServer() {
 }
 
 async function main() {
-  const transport = new StdioServerTransport();
-  await createExcalidrawMcpServer().connect(transport);
   console.error('Excalidraw cognitive kernel MCP server running on stdio');
+  await serveStdio(() => createExcalidrawMcpServer());
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
