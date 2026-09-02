@@ -1,0 +1,14 @@
+{
+  "sourceEvidence": "examples/dogfood/copilot-cloud-002",
+  "status": "implementation-under-test",
+  "expected": {
+    "layoutRestored": true,
+    "labelsPreserved": true,
+    "semanticEditValid": true,
+    "staleEndpointsEliminated": true,
+    "orthogonalEndpointApproachPreserved": true,
+    "freshReviewRequired": true
+  },
+  "visualInspectionPerformed": false,
+  "preferenceEvidenceRecorded": false
+}
