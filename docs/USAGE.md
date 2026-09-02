@@ -1,105 +1,202 @@
 # Usage
 
-This is the user-facing guide for the Excalidraw skill package.
+This guide covers normal use of `excalidraw-skill`: create a new editable Excalidraw scene, review it, and make small semantic edits later.
 
-## Agent setup
+## Recommended mode: use the installed skill from Copilot
 
-Ask an LLM agent to run:
+Install globally first with `docs/GLOBAL_INSTALL.md`, then reload VS Code or start a new Copilot Chat.
 
-```txt
-Read docs/AGENT_SETUP.md and set this up.
+From the project where you want the diagram, ask naturally and include an output path when possible:
+
+```text
+이 프로젝트의 결제 승인 흐름을 Excalidraw로 그려줘.
+excalidraw-skill을 사용하고 diagrams/payment-approval.excalidraw에 저장해줘.
 ```
 
-The agent should verify Node.js, npm, Git, run setup commands, install the VS Code Excalidraw extension when possible, and run the smoke test.
+For architecture:
 
-## Manual setup
-
-```txt
-npm install
-npm run doctor
-npm run init
-npm run smoke
+```text
+이 시스템의 middleware layer 구조를 한 장으로 보여줘.
+layered system architecture로 만들고 diagrams/middleware.excalidraw에 저장해줘.
 ```
 
-## Create a diagram
+For a module internals view:
 
-Use the opencode command:
-
-```txt
-/excalidraw 결제 승인 흐름 다이어그램 만들어줘
+```text
+Connection Manager 내부 책임과 collaborator를 component view로 정리해줘.
+diagrams/connection-manager.excalidraw에 저장해줘.
 ```
 
-Or run the CLI directly:
+The agent should choose the supported family/profile, write a compact spec in the workspace, run `build`, inspect the result, and report the generated path plus quality status.
 
-```txt
-node ./bin/excalidraw-skill.mjs build examples/service-flow/payment-flow.grouped.diagram.json
-```
+## What a successful creation produces
 
-For new diagrams, `build` is the normal entry point. It runs rendering, styling, family layout, routing, validation, and quality-report generation.
+The primary artifact is the requested `.excalidraw` file. The build pipeline also produces reports beside it, including native editability and quality information.
 
-Do not use `patch` for new diagrams. Do not use low-level `render` directly unless debugging the renderer pipeline.
+A normal generated scene should have:
 
-Recommended manual review after building:
+- editable node text using native Excalidraw container binding
+- arrows bound to source/target nodes
+- semantic ids that can be inspected and patched later
+- structural quality checks completed before success is reported
 
-```txt
-node ./bin/excalidraw-skill.mjs inspect examples/service-flow/payment-flow.grouped.excalidraw
-node ./bin/excalidraw-skill.mjs quality-report examples/service-flow/payment-flow.grouped.excalidraw examples/service-flow/payment-flow.grouped.diagram.json
-```
+Passing automated quality is evidence of structural safety, not a substitute for visual review. During dogfood, open important outputs in Excalidraw or the VS Code Excalidraw extension and look at them.
 
 ## Edit an existing diagram
 
+Refer to the existing `.excalidraw` path explicitly:
+
+```text
+diagrams/payment-approval.excalidraw을 수정해줘.
+Payment Service를 Payment Authorization Service로 바꾸고
+나머지 수동 배치는 최대한 유지해줘.
+```
+
+Or request a structural local edit:
+
+```text
+diagrams/payment-approval.excalidraw에서 Settlement Worker를 제거해줘.
+연결된 edge도 정리하되 unrelated node는 움직이지 마.
+```
+
 The intended edit flow is:
 
-```txt
-inspect existing .excalidraw
-create a DiagramPatch
-apply patch
-validate result
-review quality report
+```text
+inspect existing scene
+→ create DiagramPatch from semantic ids
+→ patch
+→ editability / validation / structural quality checks
 ```
 
-Example:
+`patch` is edit-only. It is not a generation shortcut for a new diagram.
 
-```txt
-node ./bin/excalidraw-skill.mjs inspect examples/service-flow/payment-flow.grouped.excalidraw
-node ./bin/excalidraw-skill.mjs patch examples/service-flow/payment-flow.grouped.excalidraw examples/service-flow/add-fraud-check.patch.json
-node ./bin/excalidraw-skill.mjs validate examples/service-flow/payment-flow.with-fraud-check.excalidraw
-node ./bin/excalidraw-skill.mjs quality-report examples/service-flow/payment-flow.with-fraud-check.excalidraw
+Supported semantic patch operations are documented in `docs/PATCH_USAGE.md`.
+
+## Currently renderable scope
+
+### Flow families
+
+- `flow`
+- `service-flow`
+- `event-flow`
+- `data-flow`
+
+Runnable profiles include:
+
+- `layered-flow`
+- `swimlane-flow`
+- `hub-and-spoke`
+
+### System architecture
+
+Runnable now:
+
+- `system-architecture` / `layered-system`
+
+Contract-only for now:
+
+- `deployment-view`
+- `context-view`
+
+### Module architecture
+
+Runnable now:
+
+- `module-architecture` / `component-view`
+
+Contract-only for now:
+
+- `internal-block`
+- `port-interface-view`
+
+### Sequence
+
+The dedicated sequence renderer is not implemented yet. Do not route sequence requests through the graph/flow renderer. An agent may draft `SequenceSpec`, but rendered `.excalidraw` sequence output is not currently part of normal dogfood scope.
+
+## Direct CLI use from the repository checkout
+
+New diagram:
+
+```text
+node ./bin/excalidraw-skill.mjs build examples/service-flow/payment-flow.visual-plan.diagram.json
 ```
 
-`patch` is edit-only. A bare `patch` command is not a valid generation step.
+Inspect the exact output created by that spec:
 
-## Agent command help
-
-The CLI prints agent-oriented recipes:
-
-```txt
-node ./bin/excalidraw-skill.mjs --help
-node ./bin/excalidraw-skill.mjs build --help
-node ./bin/excalidraw-skill.mjs patch --help
+```text
+node ./bin/excalidraw-skill.mjs inspect examples/service-flow/payment-flow.visual-plan.excalidraw
 ```
 
-Agents should follow the router and command recipes instead of probing multiple subcommand help screens during normal generation.
+Run reports explicitly when needed:
 
-## VS Code extension
+```text
+node ./bin/excalidraw-skill.mjs editability-report examples/service-flow/payment-flow.visual-plan.excalidraw
+node ./bin/excalidraw-skill.mjs quality-report examples/service-flow/payment-flow.visual-plan.excalidraw examples/service-flow/payment-flow.visual-plan.diagram.json
+```
+
+For existing-scene edits:
+
+```text
+node ./bin/excalidraw-skill.mjs inspect <scene.excalidraw>
+node ./bin/excalidraw-skill.mjs patch <scene.excalidraw> <patch.json> -o <updated.excalidraw>
+node ./bin/excalidraw-skill.mjs editability-report <updated.excalidraw>
+node ./bin/excalidraw-skill.mjs validate <updated.excalidraw>
+node ./bin/excalidraw-skill.mjs quality-report <updated.excalidraw>
+```
+
+For new diagrams, `build` is the normal entry point. Do not call low-level `render` directly unless debugging the renderer pipeline.
+
+## Project-local prompt entrypoints
+
+If you do not want global installation:
+
+```text
+npm install
+npm run doctor
+npm run init
+```
+
+This creates prompt entrypoints in the current workspace:
+
+```text
+.opencode/commands/excalidraw.md
+.github/prompts/excalidraw.prompt.md
+```
+
+It does not install the managed runtime into `~/.copilot`.
+
+## Opening the result in VS Code
 
 Recommended extension:
 
-```txt
+```text
 Extension name: Excalidraw
 Extension id: pomdtr.excalidraw-editor
 ```
 
-Install from terminal when the VS Code CLI is available:
+When the VS Code CLI is available:
 
-```txt
+```text
 code --install-extension pomdtr.excalidraw-editor
 ```
 
-## Custom shapes
+## Troubleshooting
 
-Version 0.1 uses built-in Excalidraw shapes only.
+If the global skill is not discovered:
 
-The package uses `shapeRef` values such as `service.backend`, `database.relational`, and `queue.topic` so future versions can map those semantic refs to a team Excalidraw library without changing LLM prompts.
+1. Run `npm run skill:doctor:global` from the excalidraw-skill checkout.
+2. Confirm `ok`, `skillOk`, and `runtimeOk` are true.
+3. Reload VS Code or start a new Copilot Chat.
+4. Ask the agent to use the available `excalidraw-skill` explicitly once.
 
-Custom libraries should be optional, not required for the first release.
+If generation fails a quality/editability gate, do not bypass the gate. Keep the failure output and refine the spec or local patch.
+
+If a generated scene looks bad despite passing hard gates, treat that as a dogfood defect: preserve the scene/spec, reproduce it, and add it to the quality corpus before changing baselines.
+
+## Agent-assisted installation
+
+To have an LLM agent configure the repository/machine, ask it to follow:
+
+```text
+Read docs/AGENT_SETUP.md and set this up globally.
+```
