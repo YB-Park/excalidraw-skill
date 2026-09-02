@@ -48,6 +48,7 @@ test('installs a self-contained global skill and runtime', (t) => {
   for (const relative of [
     'SKILL.md',
     'guides/create.md',
+    'guides/visual-review.md',
     'contracts/diagram-spec.md',
     'diagram-types/sequence.md',
     'docs/DIAGRAM_TYPES.md',
@@ -59,7 +60,9 @@ test('installs a self-contained global skill and runtime', (t) => {
   for (const relative of [
     'bin/excalidraw-skill.mjs',
     'src/build.mjs',
+    'src/export-preview-png.mjs',
     'src/global-skill.mjs',
+    'node_modules/@resvg/resvg-js/index.js',
     'package.json',
     RUNTIME_MARKER
   ]) {
