@@ -41,6 +41,7 @@ const RUNTIME_ENTRIES = Object.freeze([
 const REQUIRED_RUNTIME_FILES = Object.freeze([
   'bin/excalidraw-skill.mjs',
   'src/build.mjs',
+  'src/review.mjs',
   'src/export-preview-png.mjs',
   'src/global-skill.mjs',
   'src/init.mjs',
@@ -180,151 +181,121 @@ export function installGlobalSkill({
   const sourceResolved = path.resolve(sourceDir);
   const targetResolved = path.resolve(targetDir);
   const runtimeResolved = path.resolve(runtimeDir);
-  if (sourceResolved === targetResolved) {
-    throw new Error('Global skill target must be different from the package source directory.');
-  }
-  if (targetResolved === runtimeResolved) {
-    throw new Error('Global skill and runtime targets must be different directories.');
+  if (sourceResolved === targetResolved || path.resolve(rootDir) === runtimeResolved) {
+    throw new Error('Install destination must differ from source directories.');
   }
 
   assertReplaceable(targetResolved, INSTALL_MARKER, force);
   assertReplaceable(runtimeResolved, RUNTIME_MARKER, force);
 
   const suffix = `${process.pid}-${Date.now()}`;
-  const skillParent = path.dirname(targetResolved);
-  const runtimeParent = path.dirname(runtimeResolved);
-  const temporarySkill = path.join(skillParent, `.excalidraw-skill.tmp-${suffix}`);
-  const temporaryRuntime = path.join(runtimeParent, `.excalidraw-runtime.tmp-${suffix}`);
-  const backupSkill = path.join(skillParent, `.excalidraw-skill.backup-${suffix}`);
-  const backupRuntime = path.join(runtimeParent, `.excalidraw-runtime.backup-${suffix}`);
-  fs.mkdirSync(skillParent, { recursive: true });
-  fs.mkdirSync(runtimeParent, { recursive: true });
-  for (const item of [temporarySkill, temporaryRuntime, backupSkill, backupRuntime]) removeIfExists(item);
-
-  fs.cpSync(sourceResolved, temporarySkill, {
-    recursive: true,
-    force: true,
-    errorOnExist: false,
-    preserveTimestamps: true
-  });
-  copyRuntime(rootDir, temporaryRuntime);
-
+  const skillStage = `${targetResolved}.stage-${suffix}`;
+  const runtimeStage = `${runtimeResolved}.stage-${suffix}`;
+  const skillBackup = `${targetResolved}.backup-${suffix}`;
+  const runtimeBackup = `${runtimeResolved}.backup-${suffix}`;
   const version = packageVersion(rootDir);
-  const runtimeEntry = path.join(runtimeResolved, 'bin', 'excalidraw-skill.mjs');
-  writeJson(path.join(temporarySkill, INSTALL_MARKER), {
-    managedBy: 'excalidraw-skill',
-    version,
-    installedAt,
-    runtimeDir: runtimeResolved,
-    runtimeEntry
-  });
-  writeJson(path.join(temporaryRuntime, RUNTIME_MARKER), {
-    managedBy: 'excalidraw-skill',
-    version,
-    installedAt,
-    skillDir: targetResolved
-  });
 
-  const replacedSkill = fs.existsSync(targetResolved);
-  const replacedRuntime = fs.existsSync(runtimeResolved);
   try {
-    if (replacedSkill) fs.renameSync(targetResolved, backupSkill);
-    if (replacedRuntime) fs.renameSync(runtimeResolved, backupRuntime);
-    fs.renameSync(temporaryRuntime, runtimeResolved);
-    fs.renameSync(temporarySkill, targetResolved);
-    removeIfExists(backupSkill);
-    removeIfExists(backupRuntime);
-  } catch (error) {
-    removeIfExists(targetResolved);
-    removeIfExists(runtimeResolved);
-    if (fs.existsSync(backupSkill)) fs.renameSync(backupSkill, targetResolved);
-    if (fs.existsSync(backupRuntime)) fs.renameSync(backupRuntime, runtimeResolved);
-    throw error;
-  } finally {
-    for (const item of [temporarySkill, temporaryRuntime, backupSkill, backupRuntime]) removeIfExists(item);
-  }
+    removeIfExists(skillStage);
+    removeIfExists(runtimeStage);
+    fs.mkdirSync(path.dirname(skillStage), { recursive: true });
+    fs.mkdirSync(path.dirname(runtimeStage), { recursive: true });
+    fs.cpSync(sourceDir, skillStage, { recursive: true, force: true });
+    copyRuntime(rootDir, runtimeStage);
 
-  return {
-    ok: true,
-    installed: true,
-    replaced: replacedSkill || replacedRuntime,
-    replacedSkill,
-    replacedRuntime,
-    targetDir: targetResolved,
-    runtimeDir: runtimeResolved,
-    runtimeEntry,
-    version
-  };
+    const runtimeEntry = path.join(runtimeResolved, 'bin', 'excalidraw-skill.mjs');
+    writeJson(path.join(skillStage, INSTALL_MARKER), {
+      managedBy: 'excalidraw-skill',
+      version,
+      installedAt,
+      source: sourceResolved,
+      runtimeDir: runtimeResolved,
+      runtimeEntry
+    });
+    writeJson(path.join(runtimeStage, RUNTIME_MARKER), {
+      managedBy: 'excalidraw-skill',
+      version,
+      installedAt,
+      source: path.resolve(rootDir),
+      skillDir: targetResolved,
+      runtimeEntry
+    });
+
+    const skillStageMissing = missingBundleFiles(skillStage);
+    const runtimeStageMissing = missingRuntimeFiles(runtimeStage);
+    if (skillStageMissing.length > 0 || runtimeStageMissing.length > 0) {
+      throw new Error(`Staged install is incomplete: ${[...skillStageMissing, ...runtimeStageMissing].join(', ')}`);
+    }
+
+    if (fs.existsSync(targetResolved)) fs.renameSync(targetResolved, skillBackup);
+    if (fs.existsSync(runtimeResolved)) fs.renameSync(runtimeResolved, runtimeBackup);
+    fs.renameSync(skillStage, targetResolved);
+    fs.renameSync(runtimeStage, runtimeResolved);
+    removeIfExists(skillBackup);
+    removeIfExists(runtimeBackup);
+
+    return {
+      ok: true,
+      targetDir: targetResolved,
+      runtimeDir: runtimeResolved,
+      runtimeEntry,
+      version
+    };
+  } catch (error) {
+    removeIfExists(skillStage);
+    removeIfExists(runtimeStage);
+    if (!fs.existsSync(targetResolved) && fs.existsSync(skillBackup)) fs.renameSync(skillBackup, targetResolved);
+    if (!fs.existsSync(runtimeResolved) && fs.existsSync(runtimeBackup)) fs.renameSync(runtimeBackup, runtimeResolved);
+    removeIfExists(skillBackup);
+    removeIfExists(runtimeBackup);
+    throw error;
+  }
 }
 
 export function doctorGlobalSkill({
   targetDir = resolveGlobalSkillDir(),
-  runtimeDir = null,
-  checkCli = true,
-  env = process.env,
-  platform = process.platform
+  runtimeDir = resolveGlobalRuntimeDir(),
+  env = process.env
 } = {}) {
-  const targetResolved = path.resolve(targetDir);
-  const marker = readMarker(targetResolved, INSTALL_MARKER);
-  const runtimeResolved = path.resolve(runtimeDir ?? marker?.runtimeDir ?? resolveGlobalRuntimeDir({ env }));
-  const runtimeEntry = marker?.runtimeEntry ?? path.join(runtimeResolved, 'bin', 'excalidraw-skill.mjs');
-  const missing = fs.existsSync(targetResolved) ? missingBundleFiles(targetResolved) : [...REQUIRED_FILES];
-  const runtimeMissing = fs.existsSync(runtimeResolved) ? missingRuntimeFiles(runtimeResolved) : [...REQUIRED_RUNTIME_FILES];
-  const managed = marker?.managedBy === 'excalidraw-skill';
-  const runtimeManaged = managedInstall(runtimeResolved, RUNTIME_MARKER);
-  const cliPath = checkCli ? findExecutableOnPath('excalidraw-skill', { env, platform }) : null;
-  const skillOk = fs.existsSync(targetResolved) && managed && missing.length === 0;
-  const runtimeOk = fs.existsSync(runtimeResolved)
-    && runtimeManaged
+  const marker = readMarker(targetDir, INSTALL_MARKER);
+  const runtimeMarker = readMarker(runtimeDir, RUNTIME_MARKER);
+  const skillMissing = missingBundleFiles(targetDir);
+  const runtimeMissing = missingRuntimeFiles(runtimeDir);
+  const skillOk = marker?.managedBy === 'excalidraw-skill' && skillMissing.length === 0;
+  const runtimeOk = runtimeMarker?.managedBy === 'excalidraw-skill'
     && runtimeMissing.length === 0
-    && fs.existsSync(runtimeEntry);
-  const cliOk = !checkCli || Boolean(cliPath);
+    && runtimeMarker.runtimeEntry === path.join(path.resolve(runtimeDir), 'bin', 'excalidraw-skill.mjs');
+  const cliPath = findExecutableOnPath('excalidraw-skill', { env });
+
   return {
     ok: skillOk && runtimeOk,
     skillOk,
     runtimeOk,
-    cliOk,
+    cliOk: Boolean(cliPath),
+    targetDir: path.resolve(targetDir),
+    runtimeDir: path.resolve(runtimeDir),
+    runtimeEntry: runtimeMarker?.runtimeEntry ?? marker?.runtimeEntry ?? null,
     cliPath,
-    targetDir: targetResolved,
-    runtimeDir: runtimeResolved,
-    runtimeEntry,
-    managed,
-    runtimeManaged,
-    version: marker?.version ?? null,
-    missing,
+    skillMissing,
     runtimeMissing,
-    warning: checkCli && !cliPath
-      ? 'Optional PATH command is not installed. The skill can still use runtimeEntry directly. Avoid sudo; use a Node version manager or a user-owned npm prefix if you want the convenience command.'
-      : null
+    marker,
+    runtimeMarker
   };
 }
 
 export function uninstallGlobalSkill({
   targetDir = resolveGlobalSkillDir(),
-  runtimeDir = null,
+  runtimeDir = resolveGlobalRuntimeDir(),
   force = false
 } = {}) {
-  const targetResolved = path.resolve(targetDir);
-  const marker = readMarker(targetResolved, INSTALL_MARKER);
-  const runtimeResolved = path.resolve(runtimeDir ?? marker?.runtimeDir ?? resolveGlobalRuntimeDir());
-
-  if (fs.existsSync(targetResolved) && !managedInstall(targetResolved, INSTALL_MARKER) && !force) {
-    throw new Error(`Refusing to remove unmanaged directory: ${targetResolved}. Re-run with --force to remove it.`);
+  const removed = [];
+  for (const [directory, markerName] of [[targetDir, INSTALL_MARKER], [runtimeDir, RUNTIME_MARKER]]) {
+    if (!fs.existsSync(directory)) continue;
+    if (!managedInstall(directory, markerName) && !force) {
+      throw new Error(`Refusing to remove unmanaged directory: ${directory}. Re-run with --force to remove it.`);
+    }
+    fs.rmSync(directory, { recursive: true, force: true });
+    removed.push(path.resolve(directory));
   }
-  if (fs.existsSync(runtimeResolved) && !managedInstall(runtimeResolved, RUNTIME_MARKER) && !force) {
-    throw new Error(`Refusing to remove unmanaged directory: ${runtimeResolved}. Re-run with --force to remove it.`);
-  }
-
-  const removedSkill = fs.existsSync(targetResolved);
-  const removedRuntime = fs.existsSync(runtimeResolved);
-  removeIfExists(targetResolved);
-  removeIfExists(runtimeResolved);
-  return {
-    ok: true,
-    removed: removedSkill || removedRuntime,
-    removedSkill,
-    removedRuntime,
-    targetDir: targetResolved,
-    runtimeDir: runtimeResolved
-  };
+  return { ok: true, removed };
 }
