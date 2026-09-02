@@ -2,7 +2,6 @@
   "version": "2.0",
   "diagramType": "data-flow",
   "title": "Data Plane Visual Intent",
-  "stylePreset": "default-software",
   "outputPath": "examples/evaluation/output/flow-edge-visual-data-plane.excalidraw",
   "layout": {
     "profile": "layered-flow",
