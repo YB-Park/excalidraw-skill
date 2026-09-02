@@ -13,16 +13,24 @@ import { captureLayoutState, applyLayoutState } from '../src/layout-state.mjs';
 const mcpDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(mcpDir, '..');
 
-function absolute(inputPath) {
-  return path.resolve(process.cwd(), inputPath);
+export function workspacePath(inputPath, cwd = process.cwd()) {
+  const workspaceRoot = path.resolve(cwd);
+  const resolved = path.resolve(workspaceRoot, inputPath);
+  const relative = path.relative(workspaceRoot, resolved);
+  if (relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+    throw new Error(`MCP path escapes workspace: ${inputPath}`);
+  }
+  return resolved;
 }
 
 function readJson(inputPath) {
-  return JSON.parse(fs.readFileSync(absolute(inputPath), 'utf8'));
+  return JSON.parse(fs.readFileSync(workspacePath(inputPath), 'utf8'));
 }
 
 function writeJson(inputPath, value) {
-  fs.writeFileSync(absolute(inputPath), `${JSON.stringify(value, null, 2)}\n`);
+  const output = workspacePath(inputPath);
+  fs.mkdirSync(path.dirname(output), { recursive: true });
+  fs.writeFileSync(output, `${JSON.stringify(value, null, 2)}\n`);
 }
 
 function runNode(relativeFile, args) {
@@ -48,10 +56,11 @@ export function createExcalidrawMcpServer() {
     { name: 'excalidraw-cognitive-kernel', version: '0.1.0' },
     {
       instructions: [
-        'Use diagram_candidates for new important diagrams instead of inventing coordinates.',
+        'Use diagram_candidates only for currently supported flow-family candidate exploration instead of inventing coordinates.',
         'Treat validate/editability as hard constraints and visual judgment as a separate perceptual step.',
         'Use diagram_review_image to obtain the actual PNG before claiming visual approval.',
-        'Human layout edits are presentation intent: capture them with diagram_capture_layout_state and preserve them.'
+        'Human layout edits are presentation intent: capture them with diagram_capture_layout_state and preserve them.',
+        'All paths are restricted to the current workspace.'
       ].join(' ')
     }
   );
@@ -59,10 +68,10 @@ export function createExcalidrawMcpServer() {
   server.registerTool(
     'diagram_candidates',
     {
-      description: 'Build the three deterministic layout-strategy candidates and verified PNG previews for a DiagramSpec. Use blindCandidates for critic handoff; strategy metadata is coordinator-only.',
+      description: 'For flow-family DiagramSpecs only, build three deterministic layout-strategy candidates and verified PNG previews. Use blindCandidates for critic handoff; strategy metadata is coordinator-only.',
       inputSchema: z.object({ specPath: z.string().min(1) })
     },
-    async ({ specPath }) => textAndStructured(generateCandidates(absolute(specPath)))
+    async ({ specPath }) => textAndStructured(generateCandidates(workspacePath(specPath)))
   );
 
   server.registerTool(
@@ -75,12 +84,12 @@ export function createExcalidrawMcpServer() {
       })
     },
     async ({ scenePath, specPath }) => {
-      const scene = absolute(scenePath);
-      const args = specPath ? [scene, absolute(specPath)] : [scene];
+      const scene = workspacePath(scenePath);
+      const args = specPath ? [scene, workspacePath(specPath)] : [scene];
       runNode('src/review.mjs', args);
       const base = scene.slice(0, -'.excalidraw'.length);
       const review = readJson(`${base}.review.json`);
-      const png = fs.readFileSync(`${base}.preview.png`);
+      const png = fs.readFileSync(workspacePath(`${base}.preview.png`));
       return {
         content: [
           { type: 'text', text: JSON.stringify(review, null, 2) },
@@ -101,10 +110,10 @@ export function createExcalidrawMcpServer() {
       })
     },
     async ({ scenePath, specPath }) => {
-      const scene = absolute(scenePath);
+      const scene = workspacePath(scenePath);
       runNode('src/validate.mjs', [scene]);
       runNode('src/editability-report.mjs', [scene]);
-      runNode('src/quality-report.mjs', specPath ? [scene, absolute(specPath)] : [scene]);
+      runNode('src/quality-report.mjs', specPath ? [scene, workspacePath(specPath)] : [scene]);
       return textAndStructured({
         ok: true,
         scenePath: scene,
@@ -124,8 +133,8 @@ export function createExcalidrawMcpServer() {
       })
     },
     async ({ scenePath, outputPath }) => {
-      const scene = absolute(scenePath);
-      const output = absolute(outputPath ?? `${scene}.layout-state.json`);
+      const scene = workspacePath(scenePath);
+      const output = workspacePath(outputPath ?? `${scene}.layout-state.json`);
       const state = captureLayoutState(readJson(scene));
       writeJson(output, state);
       return textAndStructured({ ok: true, scenePath: scene, layoutStatePath: output, state });
@@ -142,8 +151,8 @@ export function createExcalidrawMcpServer() {
       })
     },
     async ({ scenePath, layoutStatePath }) => {
-      const scene = absolute(scenePath);
-      const result = applyLayoutState(readJson(scene), readJson(layoutStatePath));
+      const scene = workspacePath(scenePath);
+      const result = applyLayoutState(readJson(scene), readJson(workspacePath(layoutStatePath)));
       writeJson(scene, result.scene);
       return textAndStructured({ ok: true, scenePath: scene, moves: result.moves, requiresFreshReview: true });
     }
