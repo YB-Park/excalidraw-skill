@@ -29,6 +29,7 @@ jobs:
         run: |
           npm run candidates -- examples/service-flow/payment-flow.visual-plan.diagram.json
           mkdir -p artifacts/cognitive-candidates
+          node ./src/candidate-diversity.mjs examples/service-flow/payment-flow.visual-plan.candidates.json | tee artifacts/cognitive-candidates/diversity.json
           cp examples/service-flow/payment-flow.visual-plan.candidates.json artifacts/cognitive-candidates/
           cp examples/service-flow/payment-flow.visual-plan.candidate-*.excalidraw artifacts/cognitive-candidates/
           cp examples/service-flow/payment-flow.visual-plan.candidate-*.preview.png artifacts/cognitive-candidates/
