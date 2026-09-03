@@ -1,6 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { createFamilyQualityReport } from './family-quality.mjs';
 import { layoutServiceFlow } from './layout-service-flow.mjs';
+import { applyLayoutStrategy } from './layout-strategies.mjs';
+import { renderSpec } from './render.mjs';
 import { routeEdges } from './route-edges.mjs';
 import { absolutePoints } from './geometry.mjs';
 
@@ -213,6 +218,36 @@ test('hub-and-spoke puts external and support nodes on separate sides', () => {
   assert.ok(placed.get('provider').x > placed.get('hub').x);
   assert.ok(placed.get('db').y > placed.get('hub').y);
 });
+
+test('hub-and-spoke preserves primary flow order while separating support nodes', () => {
+  const nodes = [
+    { semanticId: 'start', layoutHints: { importance: 'primary' } },
+    { semanticId: 'middle', layoutHints: { importance: 'primary' } },
+    { semanticId: 'finish', layoutHints: { importance: 'primary' } },
+    { semanticId: 'support', shapeRef: 'database.relational', layoutHints: { importance: 'support' } }
+  ];
+  const spec = {
+    diagramType: 'service-flow',
+    version: '2.0',
+    nodes,
+    edges: [],
+    layout: { profile: 'hub-and-spoke', direction: 'left-to-right', primaryFlow: ['start', 'middle', 'finish'] }
+  };
+  const placed = positions(layoutServiceFlow(sceneFor(nodes), spec));
+  assert.ok(placed.get('start').x < placed.get('middle').x);
+  assert.ok(placed.get('middle').x < placed.get('finish').x);
+  assert.ok(placed.get('support').y > placed.get('start').y);
+});
+
+for (const name of ['payment-approval', 'order-fulfillment', 'observability-pipeline']) {
+  test(`structured ${name} preserves declared primary flow order`, () => {
+    const path = fileURLToPath(new URL(`../examples/dogfood/copilot-cloud-001/${name}.diagram.json`, import.meta.url));
+    const source = JSON.parse(fs.readFileSync(path, 'utf8'));
+    const spec = applyLayoutStrategy(source, 'structured');
+    const report = createFamilyQualityReport(layoutServiceFlow(renderSpec(spec), spec), spec);
+    assert.equal(report.metrics.primaryFlowOrderViolations, 0);
+  });
+}
 
 for (const diagramType of ['flow', 'event-flow', 'data-flow']) {
   test(`${diagramType} uses the flow layout engine`, () => {

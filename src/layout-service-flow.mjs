@@ -379,10 +379,25 @@ function layoutHub(spec, sceneNodes) {
   const centerX = 560;
   const centerY = 330;
   setPosition(placements, hubId, centerX, centerY);
+  const direction = spec.layout?.direction ?? 'left-to-right';
+  const primarySet = new Set(primary);
+  const geometry = placementGeometry(sceneNodes, spec);
+  const primaryPitch = direction === 'top-to-bottom'
+    ? geometry.maxHeight + rankGapFor(spec)
+    : geometry.rankPitch;
+  for (let position = 1; position < primary.length; position += 1) {
+    const node = sceneNodes.get(primary[position]);
+    if (!node) continue;
+    if (direction === 'top-to-bottom') {
+      setPosition(placements, primary[position], centerX, centerY + position * primaryPitch);
+    } else {
+      setPosition(placements, primary[position], centerX + position * primaryPitch, centerY);
+    }
+  }
 
   const buckets = { left: [], right: [], top: [], bottom: [] };
   for (const entry of index.values()) {
-    if (entry.node.semanticId === hubId) continue;
+    if (primarySet.has(entry.node.semanticId)) continue;
     buckets[classifyHubNode(entry.node)].push(entry);
   }
   for (const bucket of Object.values(buckets)) {
