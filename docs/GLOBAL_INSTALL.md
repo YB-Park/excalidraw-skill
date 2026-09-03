@@ -30,14 +30,14 @@ The installer manages:
 ~/.copilot/mcp-config.json
 ```
 
-It also registers the same stdio MCP server in the VS Code **user profile**. VS Code versions differ here, so registration is capability-driven:
+It also registers the same stdio MCP server in the active VS Code user scope. VS Code versions and execution scopes differ here, so registration is capability- and scope-driven:
 
 1. Discover the installed VS Code CLI.
 2. Inspect `code --help`.
 3. If that build advertises `--add-mcp`, use it.
-4. Otherwise safely merge only `servers.excalidraw` into the default profile's user `mcp.json`.
+4. Otherwise resolve the active user scope and safely merge only `servers.excalidraw` into its `mcp.json`.
 
-The fallback user configuration locations are:
+Desktop fallback locations are:
 
 ```text
 macOS   ~/Library/Application Support/Code/User/mcp.json
@@ -45,9 +45,16 @@ Windows %APPDATA%\Code\User\mcp.json
 Linux   ~/.config/Code/User/mcp.json
 ```
 
-VS Code Insiders uses the corresponding `Code - Insiders` directory. Existing MCP servers and unrelated top-level configuration are preserved.
+When install runs inside a VS Code Server remote session, the remote-user MCP config is preferred instead:
 
-This dual registration is intentional. VS Code extension-host chat reads MCP servers from user-profile `mcp.json`, while Agent Host can read `~/.copilot/mcp-config.json` natively. The installer never writes `.vscode/mcp.json` into arbitrary workspaces.
+```text
+VS Code Server            ~/.vscode-server/data/User/mcp.json
+VS Code Server - Insiders ~/.vscode-server-insiders/data/User/mcp.json
+```
+
+This corresponds to VS Code's **MCP: Open Remote User Configuration** scope. Existing MCP servers and unrelated top-level configuration are preserved. The installer never writes `.vscode/mcp.json` into arbitrary workspaces.
+
+This dual registration is intentional. VS Code chat reads MCP servers from the active user or remote-user `mcp.json`, while Agent Host can read `~/.copilot/mcp-config.json` natively.
 
 The Designer intentionally has no `tools:` allowlist, so it inherits the user's normal enabled host tools as well as the Excalidraw MCP tools. Narrow tool restrictions remain only where isolation is intentional, such as the Critic.
 
@@ -59,7 +66,7 @@ A non-default VS Code profile is not mapped from its display name to its interna
 EXCALIDRAW_SKILL_VSCODE_PROFILE="Work" npm run skill:install:global
 ```
 
-If that CLI build does not support `--add-mcp`, open **MCP: Open User Configuration** in the target profile and provide that exact path:
+If that CLI build does not support `--add-mcp`, open **MCP: Open User Configuration** or **MCP: Open Remote User Configuration** in the target scope and provide that exact path:
 
 ```text
 EXCALIDRAW_SKILL_VSCODE_MCP_CONFIG="/path/to/profile/mcp.json" npm run skill:install:global
@@ -86,10 +93,13 @@ mcpOk: true
 For VS Code MCP registration, the strongest result is:
 
 ```text
+vscodeMcpScope: "remote-user"   # or "user" / "explicit"
 vscodeMcpRegisteredAtInstall: true
 vscodeMcpLiveConfigMatch: true
 vscodeMcpStatus: "registered-and-verified"
 ```
+
+`vscodeMcpConfigPath` shows the exact file that was managed. In a VS Code Server session it should point to `~/.vscode-server/data/User/mcp.json` (or the Insiders equivalent).
 
 When registration used a newer CLI's `--add-mcp`, live config verification may not be available and the status can remain `registered-via-cli`. Use **MCP: List Servers** for the final live check.
 
@@ -106,7 +116,7 @@ npm run skill:install:global
 npm run skill:doctor:global
 ```
 
-The managed skill/runtime directories are replaced atomically. Managed agent files, Agent Host MCP registration, and VS Code user-profile MCP registration are refreshed while unrelated configuration is preserved.
+The managed skill/runtime directories are replaced atomically. Managed agent files, Agent Host MCP registration, and VS Code user-scope MCP registration are refreshed while unrelated configuration is preserved.
 
 ## Safety
 
@@ -124,15 +134,16 @@ Do not use `--force` as a generic fix for installation errors.
 npm run skill:uninstall:global
 ```
 
-If the installer directly managed a user `mcp.json`, uninstall removes `servers.excalidraw` only when it still exactly matches the managed server and preserves all unrelated configuration. If registration was performed by the VS Code CLI, remove it through **MCP: List Servers** or **MCP: Open User Configuration** when requested by the uninstall report.
+If the installer directly managed a user or remote-user `mcp.json`, uninstall removes `servers.excalidraw` only when it still exactly matches the managed server and preserves all unrelated configuration. If registration was performed by the VS Code CLI, remove it through **MCP: List Servers**, **MCP: Open User Configuration**, or **MCP: Open Remote User Configuration** when requested by the uninstall report.
 
 ## Troubleshooting
 
 If VS Code does not show the server:
 
 - `mcpOk: false`: inspect `~/.copilot/mcp-config.json`; this is Agent Host registration.
-- `vscodeMcpLiveConfigMatch: false`: inspect the path shown in `vscodeMcpConfigPath` and compare it with **MCP: Open User Configuration**.
-- named profile + old CLI: set `EXCALIDRAW_SKILL_VSCODE_MCP_CONFIG` to the exact file opened by **MCP: Open User Configuration**.
+- `vscodeMcpScope: "remote-user"`: compare `vscodeMcpConfigPath` with **MCP: Open Remote User Configuration**.
+- `vscodeMcpLiveConfigMatch: false`: inspect the path shown in `vscodeMcpConfigPath` and compare it with the active VS Code MCP configuration.
+- named profile + old CLI: set `EXCALIDRAW_SKILL_VSCODE_MCP_CONFIG` to the exact file opened by the relevant MCP configuration command.
 - tools still missing after a correct file: run **MCP: List Servers**, reload VS Code, and use **MCP: Reset Cached Tools**.
 
 The repository-local cognitive setup still uses checked-in `.github/agents/*.agent.md` and `.mcp.json`. Global installation makes the same Designer/Planner/Critic + MCP workflow available from unrelated workspaces.
