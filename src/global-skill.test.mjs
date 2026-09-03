@@ -143,23 +143,42 @@ test('global MCP install preserves unrelated user configuration and uninstall re
   assert.equal(after.inputs[0].id, 'keep-me');
 });
 
-test('does not overwrite user-owned agent files or MCP entries without force', (t) => {
+test('MCP conflict leaves managed directories and user integrations untouched', (t) => {
   const { targetDir, runtimeDir, agentsDir, mcpConfigPath } = targets(t);
-  fs.mkdirSync(agentsDir, { recursive: true });
-  fs.writeFileSync(path.join(agentsDir, 'excalidraw-designer.agent.md'), 'user agent\n');
-  assert.throws(
-    () => installGlobalSkill({ rootDir, targetDir, runtimeDir, agentsDir, mcpConfigPath }),
-    /unmanaged agent file/
-  );
-  fs.rmSync(agentsDir, { recursive: true, force: true });
-  fs.rmSync(targetDir, { recursive: true, force: true });
-  fs.rmSync(runtimeDir, { recursive: true, force: true });
   fs.mkdirSync(path.dirname(mcpConfigPath), { recursive: true });
-  fs.writeFileSync(mcpConfigPath, JSON.stringify({ servers: { excalidraw: { command: 'custom' } } }, null, 2));
+  const originalConfig = JSON.stringify({
+    inputs: [{ id: 'keep-me', type: 'promptString' }],
+    servers: { excalidraw: { command: 'custom' } }
+  }, null, 2);
+  fs.writeFileSync(mcpConfigPath, originalConfig);
   assert.throws(
     () => installGlobalSkill({ rootDir, targetDir, runtimeDir, agentsDir, mcpConfigPath }),
     /unmanaged MCP server entry/
   );
+  assert.equal(fs.readFileSync(mcpConfigPath, 'utf8'), originalConfig);
+  assert.equal(fs.existsSync(targetDir), false);
+  assert.equal(fs.existsSync(runtimeDir), false);
+  for (const name of MANAGED_AGENT_FILES) assert.equal(fs.existsSync(path.join(agentsDir, name)), false);
+});
+
+test('agent conflict leaves the MCP configuration untouched', (t) => {
+  const { targetDir, runtimeDir, agentsDir, mcpConfigPath } = targets(t);
+  fs.mkdirSync(agentsDir, { recursive: true });
+  fs.writeFileSync(path.join(agentsDir, 'excalidraw-designer.agent.md'), 'user agent\n');
+  fs.mkdirSync(path.dirname(mcpConfigPath), { recursive: true });
+  const originalConfig = JSON.stringify({
+    inputs: [{ id: 'keep-me', type: 'promptString' }],
+    servers: { otherServer: { command: 'other' } }
+  }, null, 2);
+  fs.writeFileSync(mcpConfigPath, originalConfig);
+  assert.throws(
+    () => installGlobalSkill({ rootDir, targetDir, runtimeDir, agentsDir, mcpConfigPath }),
+    /unmanaged agent file/
+  );
+  assert.equal(fs.readFileSync(mcpConfigPath, 'utf8'), originalConfig);
+  assert.equal(fs.existsSync(targetDir), false);
+  assert.equal(fs.existsSync(runtimeDir), false);
+  assert.equal(fs.readFileSync(path.join(agentsDir, 'excalidraw-designer.agent.md'), 'utf8'), 'user agent\n');
 });
 
 test('reinstall atomically replaces both managed directories', (t) => {

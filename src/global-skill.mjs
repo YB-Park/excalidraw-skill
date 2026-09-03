@@ -166,26 +166,19 @@ function dependencyPath(rootDir, name) {
   return path.join(rootDir, 'node_modules', ...name.split('/'));
 }
 
-function dependencyQueue(manifest) {
-  const required = Object.keys(manifest.dependencies ?? {}).map((name) => ({ name, optional: false }));
-  const optional = Object.keys(manifest.optionalDependencies ?? {}).map((name) => ({ name, optional: true }));
-  return [...required, ...optional];
-}
-
 function copyProductionDependencies(rootDir, destination) {
   const rootPackage = readJson(path.join(rootDir, 'package.json'));
-  const queue = dependencyQueue(rootPackage);
+  const queue = Object.keys(rootPackage.dependencies ?? {});
   const copied = new Set();
   while (queue.length > 0) {
-    const item = queue.shift();
-    if (!item?.name || copied.has(item.name)) continue;
-    const source = dependencyPath(rootDir, item.name);
+    const name = queue.shift();
+    if (!name || copied.has(name)) continue;
+    const source = dependencyPath(rootDir, name);
     const packageFile = path.join(source, 'package.json');
     if (!fs.existsSync(packageFile)) {
-      if (item.optional) continue;
-      throw new Error(`Runtime dependency is not installed: ${item.name}`);
+      throw new Error(`Runtime dependency is not installed: ${name}`);
     }
-    const target = dependencyPath(destination, item.name);
+    const target = dependencyPath(destination, name);
     fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.cpSync(source, target, {
       recursive: true,
@@ -193,10 +186,10 @@ function copyProductionDependencies(rootDir, destination) {
       errorOnExist: false,
       preserveTimestamps: true
     });
-    copied.add(item.name);
+    copied.add(name);
     const manifest = readJson(packageFile);
-    for (const dependency of dependencyQueue(manifest)) {
-      if (!copied.has(dependency.name)) queue.push(dependency);
+    for (const dependency of Object.keys(manifest.dependencies ?? {})) {
+      if (!copied.has(dependency)) queue.push(dependency);
     }
   }
 }
@@ -241,8 +234,9 @@ function readMcpConfig(configPath) {
   return config;
 }
 
-function assertManagedAgentsWritable(rootDir, agentsDir, force) {
+function writeManagedAgents(rootDir, agentsDir, force) {
   const sourceDir = path.join(rootDir, '.github', 'agents');
+  fs.mkdirSync(agentsDir, { recursive: true });
   for (const name of MANAGED_AGENT_FILES) {
     const source = path.join(sourceDir, name);
     const target = path.join(agentsDir, name);
@@ -250,25 +244,19 @@ function assertManagedAgentsWritable(rootDir, agentsDir, force) {
     if (fs.existsSync(target) && !sameFile(source, target) && !force) {
       throw new Error(`Refusing to replace unmanaged agent file: ${target}. Re-run with --force to replace it.`);
     }
+    fs.copyFileSync(source, target);
   }
 }
 
-function assertManagedMcpWritable(configPath, runtimeDir, nodeExecutable, force) {
-  const config = readMcpConfig(configPath);
-  const current = config.servers && typeof config.servers === 'object' && !Array.isArray(config.servers)
-    ? config.servers.excalidraw
-    : null;
-  const expected = managedMcpServer(runtimeDir, nodeExecutable);
-  if (current && JSON.stringify(current) !== JSON.stringify(expected) && !force) {
-    throw new Error(`Refusing to replace unmanaged MCP server entry: ${configPath}#servers.excalidraw. Re-run with --force to replace it.`);
-  }
-}
-
-function writeManagedAgents(rootDir, agentsDir) {
+function preflightManagedAgents(rootDir, agentsDir, force) {
   const sourceDir = path.join(rootDir, '.github', 'agents');
-  fs.mkdirSync(agentsDir, { recursive: true });
   for (const name of MANAGED_AGENT_FILES) {
-    fs.copyFileSync(path.join(sourceDir, name), path.join(agentsDir, name));
+    const source = path.join(sourceDir, name);
+    const target = path.join(agentsDir, name);
+    if (!fs.existsSync(source)) throw new Error(`Missing agent source: ${source}`);
+    if (fs.existsSync(target) && (!fs.statSync(target).isFile() || !sameFile(source, target)) && !force) {
+      throw new Error(`Refusing to replace unmanaged agent file: ${target}. Re-run with --force to replace it.`);
+    }
   }
 }
 
@@ -286,15 +274,29 @@ function removeManagedAgents(rootDir, agentsDir, force) {
   return removed;
 }
 
-function writeManagedMcpConfig(configPath, runtimeDir, nodeExecutable) {
+function writeManagedMcpConfig(configPath, runtimeDir, nodeExecutable, force) {
   const config = readMcpConfig(configPath);
   const servers = config.servers && typeof config.servers === 'object' && !Array.isArray(config.servers)
     ? { ...config.servers }
     : {};
   const expected = managedMcpServer(runtimeDir, nodeExecutable);
+  if (servers.excalidraw && JSON.stringify(servers.excalidraw) !== JSON.stringify(expected) && !force) {
+    throw new Error(`Refusing to replace unmanaged MCP server entry: ${configPath}#servers.excalidraw. Re-run with --force to replace it.`);
+  }
   servers.excalidraw = expected;
   writeJson(configPath, { ...config, servers });
   return expected;
+}
+
+function preflightManagedMcpConfig(configPath, runtimeDir, nodeExecutable, force) {
+  const config = readMcpConfig(configPath);
+  const servers = config.servers && typeof config.servers === 'object' && !Array.isArray(config.servers)
+    ? config.servers
+    : {};
+  const expected = managedMcpServer(runtimeDir, nodeExecutable);
+  if (servers.excalidraw && JSON.stringify(servers.excalidraw) !== JSON.stringify(expected) && !force) {
+    throw new Error(`Refusing to replace unmanaged MCP server entry: ${configPath}#servers.excalidraw. Re-run with --force to replace it.`);
+  }
 }
 
 function removeManagedMcpConfig(configPath, runtimeDir, nodeExecutable, force) {
@@ -350,8 +352,8 @@ export function installGlobalSkill({
 
   assertReplaceable(targetResolved, INSTALL_MARKER, force);
   assertReplaceable(runtimeResolved, RUNTIME_MARKER, force);
-  assertManagedAgentsWritable(rootDir, agentsResolved, force);
-  assertManagedMcpWritable(mcpConfigResolved, runtimeResolved, nodeExecutable, force);
+  preflightManagedAgents(rootDir, agentsResolved, force);
+  preflightManagedMcpConfig(mcpConfigResolved, runtimeResolved, nodeExecutable, force);
 
   const suffix = `${process.pid}-${Date.now()}`;
   const skillParent = path.dirname(targetResolved);
@@ -398,8 +400,8 @@ export function installGlobalSkill({
     if (replacedRuntime) fs.renameSync(runtimeResolved, backupRuntime);
     fs.renameSync(temporaryRuntime, runtimeResolved);
     fs.renameSync(temporarySkill, targetResolved);
-    writeManagedAgents(rootDir, agentsResolved);
-    const mcpServer = writeManagedMcpConfig(mcpConfigResolved, runtimeResolved, nodeExecutable);
+    writeManagedAgents(rootDir, agentsResolved, force);
+    const mcpServer = writeManagedMcpConfig(mcpConfigResolved, runtimeResolved, nodeExecutable, force);
     removeIfExists(backupSkill);
     removeIfExists(backupRuntime);
     return {
