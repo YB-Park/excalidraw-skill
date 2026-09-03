@@ -26,6 +26,16 @@ test('structured multi-step flow switches to layered-flow to preserve sequence s
   assert.equal(result.layout.aspectRatio, 'balanced');
 });
 
+test('structured stays distinct when sequential source is already layered and balanced', () => {
+  const source = {
+    diagramType: 'data-flow',
+    layout: { profile: 'layered-flow', aspectRatio: 'balanced', primaryFlow: ['collect', 'process', 'store'] }
+  };
+  const result = applyLayoutStrategy(source, 'structured');
+  assert.equal(result.layout.profile, 'layered-flow');
+  assert.equal(result.layout.aspectRatio, 'wide');
+});
+
 test('structured infers multi-step primary flow from ranked primary nodes', () => {
   const source = {
     diagramType: 'event-flow',
