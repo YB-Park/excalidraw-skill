@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { findExecutableOnPath } from './global-skill.mjs';
 
 export const VSCODE_MCP_MARKER = '.vscode-mcp-registration.json';
 
@@ -12,6 +11,29 @@ function markerPath(targetDir) {
 function writeMarker(targetDir, value) {
   fs.mkdirSync(targetDir, { recursive: true });
   fs.writeFileSync(markerPath(targetDir), `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function findExecutableOnPath(name, { env = process.env, platform = process.platform } = {}) {
+  const directories = String(env.PATH ?? '').split(path.delimiter).filter(Boolean);
+  const extensions = platform === 'win32'
+    ? String(env.PATHEXT ?? '.EXE;.CMD;.BAT;.COM').split(';').filter(Boolean)
+    : [''];
+  const names = platform === 'win32' && path.extname(name)
+    ? [name]
+    : extensions.map((extension) => `${name}${extension}`);
+
+  for (const directory of directories) {
+    for (const candidateName of names) {
+      const candidate = path.join(directory, candidateName);
+      try {
+        fs.accessSync(candidate, platform === 'win32' ? fs.constants.F_OK : fs.constants.X_OK);
+        return candidate;
+      } catch {
+        // Keep searching.
+      }
+    }
+  }
+  return null;
 }
 
 export function readVscodeMcpMarker(targetDir) {
@@ -64,8 +86,13 @@ export function registerVscodeUserMcp({
   const args = [];
   if (profile) args.push('--profile', profile);
   args.push('--add-mcp', JSON.stringify(payload));
-  const child = spawn(cliPath, args, { encoding: 'utf8', stdio: 'pipe', env });
-  const registered = child.status === 0;
+  let child;
+  try {
+    child = spawn(cliPath, args, { encoding: 'utf8', stdio: 'pipe', env });
+  } catch (error) {
+    child = { status: 1, stdout: '', stderr: error instanceof Error ? error.message : String(error) };
+  }
+  const registered = child.status === 0 && !child.error;
   const result = {
     attempted: true,
     registered,
@@ -75,7 +102,7 @@ export function registerVscodeUserMcp({
     payload,
     exitCode: child.status ?? 1,
     stdout: String(child.stdout ?? '').trim() || null,
-    stderr: String(child.stderr ?? '').trim() || null,
+    stderr: String(child.stderr ?? child.error?.message ?? '').trim() || null,
     remediation: registered
       ? null
       : 'VS Code rejected `--add-mcp`. Run `MCP: Open User Configuration` or `MCP: Add Server` and add the Excalidraw server globally.'
