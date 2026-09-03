@@ -125,7 +125,7 @@ This first slice intentionally does not rewrite every family renderer or remove 
 
 The flow-family candidate portfolio is intentionally narrower than the renderer support surface. Broader family-specific strategy portfolios should be added only after each family has genuinely distinct strategies and preference evidence showing that the additional exploration is useful.
 
-The VS Code agents and `.mcp.json` in this slice are repository/workspace-native dogfood integration. General project installation/distribution of the agent/MCP layer is a separate concern and must not be claimed complete merely because the kernel's global installer exists.
+The VS Code agents and `.mcp.json` support repository/workspace-local dogfooding. The global installer also distributes the agents and registers the MCP server in the user's `COPILOT_HOME`, so the same workflow is available from unrelated workspaces.
 
 Do not expand unsupported diagram families as part of this architecture migration.
 
