@@ -83,10 +83,10 @@ Initial MCP tools:
 
 The MCP server uses the current v2 stdio serving path and is integration-tested with the official MCP client through a child-process handshake, tool listing, and a real tool invocation. Tool filesystem access is restricted to the current workspace.
 
-This agent/MCP layer is currently **repo/workspace-native dogfood integration**. General distribution into arbitrary initialized projects is not yet claimed complete.
+This layer supports both repo/workspace-local dogfood through `.mcp.json` and global distribution through `npm run skill:install:global`, which installs the agents and managed MCP entry under `COPILOT_HOME`.
 
 ## Cheap-model policy
-All Excalidraw custom agents explicitly restrict themselves to the current low-cost allow-list:
+All Excalidraw custom agents use the current low-cost model list:
 - GPT-5.6 Luna
 - MAI-Code-1.1-Flash
 - Kimi K2.7 Code

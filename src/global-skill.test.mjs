@@ -27,7 +27,9 @@ function targets(t) {
   return {
     home,
     targetDir: path.join(home, '.copilot', 'skills', 'excalidraw-skill'),
-    runtimeDir: path.join(home, '.copilot', 'tools', 'excalidraw-skill')
+    runtimeDir: path.join(home, '.copilot', 'tools', 'excalidraw-skill'),
+    agentsDir: path.join(home, '.copilot', 'agents'),
+    mcpConfigPath: path.join(home, '.copilot', 'mcp-config.json')
   };
 }
 
@@ -36,11 +38,13 @@ function normalizeMarkdown(text) {
 }
 
 test('installs a self-contained global skill and runtime', (t) => {
-  const { targetDir, runtimeDir } = targets(t);
+  const { targetDir, runtimeDir, agentsDir, mcpConfigPath } = targets(t);
   const result = installGlobalSkill({
     rootDir,
     targetDir,
     runtimeDir,
+    agentsDir,
+    mcpConfigPath,
     installedAt: '2026-01-01T00:00:00.000Z'
   });
   assert.equal(result.installed, true);
@@ -63,6 +67,8 @@ test('installs a self-contained global skill and runtime', (t) => {
     'src/export-preview-png.mjs',
     'src/global-skill.mjs',
     'node_modules/@resvg/resvg-js/index.js',
+    'mcp/server.mjs',
+    'node_modules/@modelcontextprotocol/server/package.json',
     'package.json',
     RUNTIME_MARKER
   ]) {
@@ -72,20 +78,40 @@ test('installs a self-contained global skill and runtime', (t) => {
   assert.equal(marker.runtimeDir, runtimeDir);
   assert.equal(marker.runtimeEntry, path.join(runtimeDir, 'bin', 'excalidraw-skill.mjs'));
 
-  const report = doctorGlobalSkill({ targetDir, runtimeDir, checkCli: false });
+  const report = doctorGlobalSkill({ targetDir, runtimeDir, agentsDir, mcpConfigPath, checkCli: false });
   assert.equal(report.ok, true);
   assert.equal(report.skillOk, true);
   assert.equal(report.runtimeOk, true);
+  assert.equal(report.agentsOk, true);
+  assert.equal(report.mcpOk, true);
   assert.deepEqual(report.missing, []);
   assert.deepEqual(report.runtimeMissing, []);
+  assert.deepEqual(report.missingAgents, []);
+  assert.deepEqual(JSON.parse(fs.readFileSync(mcpConfigPath, 'utf8')).mcpServers.excalidraw.cwd, '${workspaceFolder}');
+});
+
+test('global install preserves unrelated MCP entries and uninstall removes only its entry', (t) => {
+  const { home, targetDir, runtimeDir, agentsDir, mcpConfigPath } = targets(t);
+  fs.mkdirSync(path.dirname(mcpConfigPath), { recursive: true });
+  fs.writeFileSync(mcpConfigPath, JSON.stringify({ servers: { other: { command: 'other' } }, setting: true }));
+  installGlobalSkill({ rootDir, targetDir, runtimeDir, agentsDir, mcpConfigPath });
+  const installedConfig = JSON.parse(fs.readFileSync(mcpConfigPath, 'utf8'));
+  assert.deepEqual(installedConfig.servers.other, { command: 'other' });
+  uninstallGlobalSkill({ targetDir, runtimeDir, agentsDir, mcpConfigPath });
+  assert.deepEqual(JSON.parse(fs.readFileSync(mcpConfigPath, 'utf8')), {
+    servers: { other: { command: 'other' } },
+    setting: true
+  });
+  assert.equal(fs.existsSync(path.join(agentsDir, 'excalidraw-designer.agent.md')), false);
+  assert.equal(fs.existsSync(home), true);
 });
 
 test('reinstall atomically replaces both managed directories', (t) => {
-  const { targetDir, runtimeDir } = targets(t);
-  installGlobalSkill({ rootDir, targetDir, runtimeDir });
+  const { targetDir, runtimeDir, agentsDir, mcpConfigPath } = targets(t);
+  installGlobalSkill({ rootDir, targetDir, runtimeDir, agentsDir, mcpConfigPath });
   fs.writeFileSync(path.join(targetDir, 'stale-skill.txt'), 'stale');
   fs.writeFileSync(path.join(runtimeDir, 'stale-runtime.txt'), 'stale');
-  const result = installGlobalSkill({ rootDir, targetDir, runtimeDir });
+  const result = installGlobalSkill({ rootDir, targetDir, runtimeDir, agentsDir, mcpConfigPath });
   assert.equal(result.replaced, true);
   assert.equal(result.replacedSkill, true);
   assert.equal(result.replacedRuntime, true);
@@ -94,34 +120,34 @@ test('reinstall atomically replaces both managed directories', (t) => {
 });
 
 test('does not overwrite unmanaged skill or runtime directories without force', (t) => {
-  const { targetDir, runtimeDir } = targets(t);
+  const { targetDir, runtimeDir, agentsDir, mcpConfigPath } = targets(t);
   fs.mkdirSync(targetDir, { recursive: true });
   fs.writeFileSync(path.join(targetDir, 'user-file.txt'), 'keep');
   assert.throws(
-    () => installGlobalSkill({ rootDir, targetDir, runtimeDir }),
+    () => installGlobalSkill({ rootDir, targetDir, runtimeDir, agentsDir, mcpConfigPath }),
     /unmanaged directory/
   );
   fs.rmSync(targetDir, { recursive: true, force: true });
   fs.mkdirSync(runtimeDir, { recursive: true });
   fs.writeFileSync(path.join(runtimeDir, 'user-runtime.txt'), 'keep');
   assert.throws(
-    () => installGlobalSkill({ rootDir, targetDir, runtimeDir }),
+    () => installGlobalSkill({ rootDir, targetDir, runtimeDir, agentsDir, mcpConfigPath }),
     /unmanaged directory/
   );
-  installGlobalSkill({ rootDir, targetDir, runtimeDir, force: true });
+  installGlobalSkill({ rootDir, targetDir, runtimeDir, agentsDir, mcpConfigPath, force: true });
   assert.equal(fs.existsSync(path.join(runtimeDir, 'user-runtime.txt')), false);
 });
 
 test('uninstalls both managed directories by default', (t) => {
-  const { targetDir, runtimeDir } = targets(t);
-  installGlobalSkill({ rootDir, targetDir, runtimeDir });
-  const removed = uninstallGlobalSkill({ targetDir, runtimeDir });
+  const { targetDir, runtimeDir, agentsDir, mcpConfigPath } = targets(t);
+  installGlobalSkill({ rootDir, targetDir, runtimeDir, agentsDir, mcpConfigPath });
+  const removed = uninstallGlobalSkill({ targetDir, runtimeDir, agentsDir, mcpConfigPath });
   assert.equal(removed.removed, true);
   assert.equal(removed.removedSkill, true);
   assert.equal(removed.removedRuntime, true);
   assert.equal(fs.existsSync(targetDir), false);
   assert.equal(fs.existsSync(runtimeDir), false);
-  assert.equal(uninstallGlobalSkill({ targetDir, runtimeDir }).removed, false);
+  assert.equal(uninstallGlobalSkill({ targetDir, runtimeDir, agentsDir, mcpConfigPath }).removed, false);
 });
 
 test('resolves COPILOT_HOME and explicit target overrides', () => {

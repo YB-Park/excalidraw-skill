@@ -7,6 +7,9 @@ const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 export const packageRoot = path.resolve(moduleDir, '..');
 export const INSTALL_MARKER = '.excalidraw-skill-install.json';
 export const RUNTIME_MARKER = '.excalidraw-skill-runtime.json';
+export const AGENTS_MARKER = '.excalidraw-skill-agents.json';
+export const MCP_CONFIG = 'mcp-config.json';
+export const MANAGED_MCP_SERVER = 'excalidraw';
 
 const REQUIRED_FILES = Object.freeze([
   'SKILL.md',
@@ -34,8 +37,15 @@ const RUNTIME_ENTRIES = Object.freeze([
   'skills',
   '.opencode',
   '.github/prompts',
-  'node_modules/@resvg',
+  'mcp',
+  'node_modules',
   'package.json'
+]);
+
+const AGENT_FILES = Object.freeze([
+  'excalidraw-designer.agent.md',
+  'excalidraw-planner.agent.md',
+  'excalidraw-critic.agent.md'
 ]);
 
 const REQUIRED_RUNTIME_FILES = Object.freeze([
@@ -116,6 +126,14 @@ export function resolveGlobalRuntimeDir(options = {}) {
   return path.join(copilotHome(options), 'tools', 'excalidraw-skill');
 }
 
+export function resolveGlobalAgentsDir(options = {}) {
+  return path.join(copilotHome(options), 'agents');
+}
+
+export function resolveGlobalMcpConfig(options = {}) {
+  return path.join(copilotHome(options), MCP_CONFIG);
+}
+
 export function findExecutableOnPath(name, { env = process.env, platform = process.platform } = {}) {
   const directories = String(env.PATH ?? '').split(path.delimiter).filter(Boolean);
   const extensions = platform === 'win32'
@@ -165,6 +183,8 @@ export function installGlobalSkill({
   rootDir = packageRoot,
   targetDir = resolveGlobalSkillDir(),
   runtimeDir = resolveGlobalRuntimeDir(),
+  agentsDir = resolveGlobalAgentsDir(),
+  mcpConfigPath = resolveGlobalMcpConfig(),
   force = false,
   installedAt = new Date().toISOString()
 } = {}) {
@@ -210,6 +230,17 @@ export function installGlobalSkill({
   });
   copyRuntime(rootDir, temporaryRuntime);
 
+  const resolvedAgentsDir = path.resolve(agentsDir);
+  const resolvedMcpConfigPath = path.resolve(mcpConfigPath);
+  fs.mkdirSync(resolvedAgentsDir, { recursive: true });
+  for (const file of AGENT_FILES) {
+    fs.copyFileSync(path.join(rootDir, '.github', 'agents', file), path.join(resolvedAgentsDir, file));
+  }
+  writeJson(path.join(resolvedAgentsDir, AGENTS_MARKER), {
+    managedBy: 'excalidraw-skill',
+    files: AGENT_FILES
+  });
+
   const version = packageVersion(rootDir);
   const runtimeEntry = path.join(runtimeResolved, 'bin', 'excalidraw-skill.mjs');
   writeJson(path.join(temporarySkill, INSTALL_MARKER), {
@@ -225,6 +256,23 @@ export function installGlobalSkill({
     installedAt,
     skillDir: targetResolved
   });
+
+  let mcpConfig = {};
+  if (fs.existsSync(resolvedMcpConfigPath)) mcpConfig = readJson(resolvedMcpConfigPath);
+  if (!mcpConfig || typeof mcpConfig !== 'object' || Array.isArray(mcpConfig)) {
+    throw new Error(`MCP config must contain a JSON object: ${resolvedMcpConfigPath}`);
+  }
+  const serverKey = mcpConfig.mcpServers ? 'mcpServers' : mcpConfig.servers ? 'servers' : 'mcpServers';
+  const servers = mcpConfig[serverKey] && typeof mcpConfig[serverKey] === 'object' && !Array.isArray(mcpConfig[serverKey])
+    ? { ...mcpConfig[serverKey] }
+    : {};
+  servers[MANAGED_MCP_SERVER] = {
+    type: 'stdio',
+    command: process.execPath,
+    args: [path.join(runtimeResolved, 'mcp', 'server.mjs')],
+    cwd: '${workspaceFolder}'
+  };
+  writeJson(resolvedMcpConfigPath, { ...mcpConfig, [serverKey]: servers });
 
   const replacedSkill = fs.existsSync(targetResolved);
   const replacedRuntime = fs.existsSync(runtimeResolved);
@@ -254,6 +302,8 @@ export function installGlobalSkill({
     targetDir: targetResolved,
     runtimeDir: runtimeResolved,
     runtimeEntry,
+    agentsDir: resolvedAgentsDir,
+    mcpConfigPath: resolvedMcpConfigPath,
     version
   };
 }
@@ -261,6 +311,8 @@ export function installGlobalSkill({
 export function doctorGlobalSkill({
   targetDir = resolveGlobalSkillDir(),
   runtimeDir = null,
+  agentsDir = null,
+  mcpConfigPath = null,
   checkCli = true,
   env = process.env,
   platform = process.platform
@@ -269,6 +321,8 @@ export function doctorGlobalSkill({
   const marker = readMarker(targetResolved, INSTALL_MARKER);
   const runtimeResolved = path.resolve(runtimeDir ?? marker?.runtimeDir ?? resolveGlobalRuntimeDir({ env }));
   const runtimeEntry = marker?.runtimeEntry ?? path.join(runtimeResolved, 'bin', 'excalidraw-skill.mjs');
+  const agentsResolved = path.resolve(agentsDir ?? resolveGlobalAgentsDir({ env }));
+  const mcpConfigResolved = path.resolve(mcpConfigPath ?? resolveGlobalMcpConfig({ env }));
   const missing = fs.existsSync(targetResolved) ? missingBundleFiles(targetResolved) : [...REQUIRED_FILES];
   const runtimeMissing = fs.existsSync(runtimeResolved) ? missingRuntimeFiles(runtimeResolved) : [...REQUIRED_RUNTIME_FILES];
   const managed = marker?.managedBy === 'excalidraw-skill';
@@ -279,11 +333,28 @@ export function doctorGlobalSkill({
     && runtimeManaged
     && runtimeMissing.length === 0
     && fs.existsSync(runtimeEntry);
+  const missingAgents = fs.existsSync(agentsResolved)
+    ? AGENT_FILES.filter((file) => !fs.existsSync(path.join(agentsResolved, file)))
+    : [...AGENT_FILES];
+  let mcpConfig = null;
+  try { mcpConfig = readJson(mcpConfigResolved); } catch { /* absent or invalid */ }
+  const mcpEntry = mcpConfig?.mcpServers?.[MANAGED_MCP_SERVER] ?? mcpConfig?.servers?.[MANAGED_MCP_SERVER];
+  const mcpOk = Boolean(
+    mcpEntry
+    && mcpEntry.command === process.execPath
+    && Array.isArray(mcpEntry.args)
+    && mcpEntry.args.length === 1
+    && path.resolve(mcpEntry.args[0]) === path.resolve(path.join(runtimeResolved, 'mcp', 'server.mjs'))
+    && fs.existsSync(mcpEntry.args[0])
+  );
+  const agentsOk = missingAgents.length === 0;
   const cliOk = !checkCli || Boolean(cliPath);
   return {
-    ok: skillOk && runtimeOk,
+    ok: skillOk && runtimeOk && agentsOk && mcpOk,
     skillOk,
     runtimeOk,
+    agentsOk,
+    mcpOk,
     cliOk,
     cliPath,
     targetDir: targetResolved,
@@ -294,6 +365,8 @@ export function doctorGlobalSkill({
     version: marker?.version ?? null,
     missing,
     runtimeMissing,
+    missingAgents,
+    mcpConfigPath: mcpConfigResolved,
     warning: checkCli && !cliPath
       ? 'Optional PATH command is not installed. The skill can still use runtimeEntry directly. Avoid sudo; use a Node version manager or a user-owned npm prefix if you want the convenience command.'
       : null
@@ -303,11 +376,15 @@ export function doctorGlobalSkill({
 export function uninstallGlobalSkill({
   targetDir = resolveGlobalSkillDir(),
   runtimeDir = null,
+  agentsDir = null,
+  mcpConfigPath = null,
   force = false
 } = {}) {
   const targetResolved = path.resolve(targetDir);
   const marker = readMarker(targetResolved, INSTALL_MARKER);
   const runtimeResolved = path.resolve(runtimeDir ?? marker?.runtimeDir ?? resolveGlobalRuntimeDir());
+  const agentsResolved = path.resolve(agentsDir ?? resolveGlobalAgentsDir());
+  const mcpConfigResolved = path.resolve(mcpConfigPath ?? resolveGlobalMcpConfig());
 
   if (fs.existsSync(targetResolved) && !managedInstall(targetResolved, INSTALL_MARKER) && !force) {
     throw new Error(`Refusing to remove unmanaged directory: ${targetResolved}. Re-run with --force to remove it.`);
@@ -320,12 +397,30 @@ export function uninstallGlobalSkill({
   const removedRuntime = fs.existsSync(runtimeResolved);
   removeIfExists(targetResolved);
   removeIfExists(runtimeResolved);
+  const agentMarker = readMarker(agentsResolved, AGENTS_MARKER);
+  if (agentMarker?.managedBy === 'excalidraw-skill') {
+    for (const file of agentMarker.files ?? []) removeIfExists(path.join(agentsResolved, file));
+    removeIfExists(path.join(agentsResolved, AGENTS_MARKER));
+  }
+  if (fs.existsSync(mcpConfigResolved)) {
+    const config = readJson(mcpConfigResolved);
+    const serverKey = config?.mcpServers?.[MANAGED_MCP_SERVER]?.command === process.execPath
+      ? 'mcpServers'
+      : config?.servers?.[MANAGED_MCP_SERVER]?.command === process.execPath ? 'servers' : null;
+    if (serverKey) {
+      const servers = { ...config[serverKey] };
+      delete servers[MANAGED_MCP_SERVER];
+      writeJson(mcpConfigResolved, { ...config, [serverKey]: servers });
+    }
+  }
   return {
     ok: true,
     removed: removedSkill || removedRuntime,
     removedSkill,
     removedRuntime,
     targetDir: targetResolved,
-    runtimeDir: runtimeResolved
+    runtimeDir: runtimeResolved,
+    agentsDir: agentsResolved,
+    mcpConfigPath: mcpConfigResolved
   };
 }

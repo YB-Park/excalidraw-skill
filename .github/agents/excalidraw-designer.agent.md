@@ -5,12 +5,6 @@ model:
   - GPT-5.6 Luna (copilot)
   - MAI-Code-1.1-Flash (copilot)
   - Kimi K2.7 Code (copilot)
-tools:
-  - agent
-  - search
-  - read
-  - edit
-  - excalidraw/*
 agents:
   - Excalidraw Planner
   - Excalidraw Critic
