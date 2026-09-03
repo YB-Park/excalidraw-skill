@@ -5,6 +5,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { doctorGlobalSkill, installGlobalSkill, uninstallGlobalSkill } from '../src/global-skill.mjs';
+import {
+  doctorVscodeUserMcp,
+  registerVscodeUserMcp,
+  removeVscodeMcpMarker
+} from '../src/vscode-mcp-registration.mjs';
 
 const [command = 'help', ...args] = process.argv.slice(2);
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -52,7 +57,7 @@ function requireGlobal() {
 }
 
 function generalHelp() {
-  return `Usage: excalidraw-skill <command> [args]\n\nAgent-first recipes\n\nNew diagram, no existing .excalidraw path:\n  1. Write a DiagramSpec JSON file in the workspace.\n  2. Set spec.outputPath to the desired .excalidraw path.\n  3. Run: node <runtimeEntry> build <spec.json>\n  4. Run: node <runtimeEntry> review <output.excalidraw> <spec.json>\n  5. review runs validate/editability/quality checks and creates a verified PNG.\n  6. Compatibility path: node <runtimeEntry> preview <output.excalidraw> -o <preview.png>\n  7. Visually inspect the preview when the host supports image vision.\n  8. Do not call patch for a brand-new diagram; refine the spec and rebuild.\n\nExisting diagram edit, existing .excalidraw path provided:\n  1. Run: node <runtimeEntry> inspect <scene.excalidraw>\n  2. Write a DiagramPatch JSON file using inspected semantic ids.\n  3. Run: node <runtimeEntry> patch <scene.excalidraw> <patch.json> [-o output.excalidraw]\n  4. Run: node <runtimeEntry> review <output.excalidraw> [spec.json]\n  5. Visually inspect the reported preview PNG.\n\nPrimary commands:\n  build <spec.json>                         Build a new diagram.\n  review <scene.excalidraw> [spec.json]     Run deterministic gates and create a verified PNG for visual review.\n  preview <scene.excalidraw> [-o file.png]  Create only a portable PNG preview.\n  inspect <scene.excalidraw>                Inspect semantic structure before editing.\n  patch <scene.excalidraw> <patch.json>     Apply a semantic edit.\n  validate <scene.excalidraw>               Check basic scene validity.\n  editability-report <scene.excalidraw>     Check native editability.\n  quality-report <scene.excalidraw> [spec]  Check structural and family quality.\n  capabilities                              Print supported families/features.\n  schema                                    Print the DiagramSpec schema.\n  examples                                  Print compact agent recipes.\n  explain [overview|visual|frames|layout]   Explain an agent-facing concept.\n  init [--upgrade]                          Create or upgrade managed project prompts.\n  doctor [--global]                         Check installation.\n  install --global [--force]                Install managed runtime.\n  uninstall --global [--force]              Remove managed runtime.\n  evaluate [--family <family>]              Run evaluation suite.\n  list-shapes                               Print shape catalog index.\n\nLLM rules:\n  - Prefer build/review for new diagrams and inspect/patch/review for edits.\n  - A passing metric report is not aesthetic approval: inspect the PNG when vision is available.\n  - Never use render to create PNG; render writes Excalidraw JSON only and is a low-level developer step.\n  - Do not probe multiple --help commands as a discovery loop.\n\nUse: excalidraw-skill help <command>. Developer helpers are listed by: excalidraw-skill help debug.`;
+  return `Usage: excalidraw-skill <command> [args]\n\nAgent-first recipes\n\nNew diagram, no existing .excalidraw path:\n  1. Write a DiagramSpec JSON file in the workspace.\n  2. Set spec.outputPath to the desired .excalidraw path.\n  3. Run: node <runtimeEntry> build <spec.json>\n  4. Run: node <runtimeEntry> review <output.excalidraw> <spec.json>\n  5. review runs validate/editability/quality checks and creates a verified PNG.\n  6. Compatibility path: node <runtimeEntry> preview <output.excalidraw> -o <preview.png>\n  7. Visually inspect the preview when the host supports image vision.\n  8. Do not call patch for a brand-new diagram; refine the spec and rebuild.\n\nExisting diagram edit, existing .excalidraw path provided:\n  1. Run: node <runtimeEntry> inspect <scene.excalidraw>\n  2. Write a DiagramPatch JSON file using inspected semantic ids.\n  3. Run: node <runtimeEntry> patch <scene.excalidraw> <patch.json> [-o output.excalidraw]\n  4. Run: node <runtimeEntry> review <output.excalidraw> [spec.json]\n  5. Visually inspect the reported preview PNG.\n\nPrimary commands:\n  build <spec.json>                         Build a new diagram.\n  review <scene.excalidraw> [spec.json]     Run deterministic gates and create a verified PNG for visual review.\n  preview <scene.excalidraw> [-o file.png]  Create only a portable PNG preview.\n  inspect <scene.excalidraw>                Inspect semantic structure before editing.\n  patch <scene.excalidraw> <patch.json>     Apply a semantic edit.\n  validate <scene.excalidraw>               Check basic scene validity.\n  editability-report <scene.excalidraw>     Check native editability.\n  quality-report <scene.excalidraw> [spec]  Check structural and family quality.\n  capabilities                              Print supported families/features.\n  schema                                    Print the DiagramSpec schema.\n  examples                                  Print compact agent recipes.\n  explain [overview|visual|frames|layout]   Explain an agent-facing concept.\n  init [--upgrade]                          Create or upgrade managed project prompts.\n  doctor [--global]                         Check installation.\n  install --global [--force]                Install managed runtime and register MCP globally.\n  uninstall --global [--force]              Remove managed runtime; VS Code MCP profile cleanup may be manual.\n  evaluate [--family <family>]              Run evaluation suite.\n  list-shapes                               Print shape catalog index.\n\nLLM rules:\n  - Prefer build/review for new diagrams and inspect/patch/review for edits.\n  - A passing metric report is not aesthetic approval: inspect the PNG when vision is available.\n  - Never use render to create PNG; render writes Excalidraw JSON only and is a low-level developer step.\n  - Do not probe multiple --help commands as a discovery loop.\n\nUse: excalidraw-skill help <command>. Developer helpers are listed by: excalidraw-skill help debug.`;
 }
 
 function commandHelp(name) {
@@ -88,7 +93,8 @@ if (ARG_REQUIRED_COMMANDS.has(command) && args.length === 0) printAndExit(comman
 if (command === 'doctor') {
   if (hasFlag('--global')) {
     const report = doctorGlobalSkill();
-    console.log(JSON.stringify(report, null, 2));
+    const vscode = doctorVscodeUserMcp({ targetDir: report.targetDir });
+    console.log(JSON.stringify({ ...report, ...vscode }, null, 2));
     process.exit(report.ok ? 0 : 1);
   }
   console.log('excalidraw-skill doctor: ok');
@@ -96,10 +102,15 @@ if (command === 'doctor') {
   console.log(`workspace: ${invocationCwd}`);
 } else if (command === 'install') {
   requireGlobal();
-  console.log(JSON.stringify(installGlobalSkill({ rootDir, force: hasFlag('--force') }), null, 2));
+  const installed = installGlobalSkill({ rootDir, force: hasFlag('--force') });
+  const vscodeMcp = registerVscodeUserMcp({ targetDir: installed.targetDir, mcpServer: installed.mcpServer });
+  console.log(JSON.stringify({ ...installed, vscodeMcp }, null, 2));
 } else if (command === 'uninstall') {
   requireGlobal();
-  console.log(JSON.stringify(uninstallGlobalSkill({ force: hasFlag('--force') }), null, 2));
+  const report = doctorGlobalSkill({ checkCli: false });
+  const vscode = removeVscodeMcpMarker(report.targetDir);
+  const removed = uninstallGlobalSkill({ force: hasFlag('--force') });
+  console.log(JSON.stringify({ ...removed, ...vscode }, null, 2));
 } else if (command === 'list-shapes') {
   console.log(fs.readFileSync(fromRoot('skills/excalidraw-skill/catalog/shapes.index.json'), 'utf8'));
 } else if (command === 'examples') {
