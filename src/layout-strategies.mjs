@@ -55,8 +55,13 @@ export function applyLayoutStrategy(spec, strategyId) {
 
   if (strategyId === 'structured' && isFlowSpec(next)) {
     const primary = primaryFlowIds(next);
-    next.layout.profile = primary.length >= 2 ? 'layered-flow' : 'hub-and-spoke';
-    next.layout.aspectRatio = 'balanced';
+    const sourceProfile = spec?.layout?.profile ?? null;
+    const sourceAspect = spec?.layout?.aspectRatio ?? 'balanced';
+    const sequential = primary.length >= 2;
+    next.layout.profile = sequential ? 'layered-flow' : 'hub-and-spoke';
+    next.layout.aspectRatio = sequential && sourceProfile === 'layered-flow' && sourceAspect === 'balanced'
+      ? 'wide'
+      : 'balanced';
   }
 
   return next;
