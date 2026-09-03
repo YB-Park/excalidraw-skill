@@ -17,10 +17,15 @@ test('compact strategy changes aspect preference without mutating source spec', 
 });
 
 test('structured flow strategy deliberately switches to hub-and-spoke', () => {
-  const source = { diagramType: 'service-flow', layout: { profile: 'swimlane-flow', aspectRatio: 'wide' } };
+  const source = {
+    diagramType: 'service-flow',
+    layout: { profile: 'swimlane-flow', aspectRatio: 'wide', primaryFlow: ['start', 'finish'] }
+  };
   const result = applyLayoutStrategy(source, 'structured');
   assert.equal(result.layout.profile, 'hub-and-spoke');
   assert.equal(result.layout.aspectRatio, 'balanced');
+  assert.deepEqual(result.layout.primaryFlow, ['start', 'finish']);
+  assert.deepEqual(source.layout.primaryFlow, ['start', 'finish']);
 });
 
 test('structured strategy does not silently change non-flow family profile', () => {
