@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderSpec } from './render.mjs';
-import { exportPreviewSvg } from './export-preview-svg.mjs';
+import { exportPreviewSvg, sceneBounds } from './export-preview-svg.mjs';
 
 test('exports a deterministic SVG preview for visual review', () => {
   const scene = renderSpec({
@@ -32,4 +32,33 @@ test('escapes labels in preview output', () => {
   });
   const svg = exportPreviewSvg(scene);
   assert.match(svg, /A &lt; B &amp; C/);
+});
+
+test('keeps required node labels inside the padded preview bounds', () => {
+  const scene = {
+    elements: [
+      { type: 'rectangle', x: 100, y: 100, width: 120, height: 60 },
+      { type: 'text', x: 0, y: 110, width: 100, height: 24, text: 'Order fulfillment' }
+    ]
+  };
+
+  const bounds = sceneBounds(scene.elements);
+  assert.ok(bounds.x <= 0 - 60);
+  assert.ok(bounds.x + bounds.width >= 100 + 60);
+  assert.match(exportPreviewSvg(scene), /viewBox="-60 40 /);
+});
+
+test('keeps left-placed edge labels inside the preview bounds', () => {
+  const scene = {
+    elements: [
+      { type: 'rectangle', x: 200, y: 100, width: 120, height: 60 },
+      { type: 'arrow', x: 0, y: 130, width: 200, height: 0, points: [[0, 0], [200, 0]] },
+      { type: 'text', x: -90, y: 110, width: 80, height: 20, text: 'metrics pipeline' }
+    ]
+  };
+
+  const bounds = sceneBounds(scene.elements);
+  assert.ok(bounds.x <= -150);
+  assert.ok(bounds.x + bounds.width >= 380);
+  assert.match(exportPreviewSvg(scene), /viewBox="-150 40 /);
 });

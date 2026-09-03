@@ -21,7 +21,7 @@ function finite(value, fallback = 0) {
   return Number.isFinite(value) ? value : fallback;
 }
 
-function elementBounds(element) {
+export function elementBounds(element) {
   const x = finite(element.x);
   const y = finite(element.y);
   return {
@@ -32,8 +32,8 @@ function elementBounds(element) {
   };
 }
 
-function sceneBounds(elements, padding = 60) {
-  const visible = elements.filter((element) => !element?.isDeleted && element?.type !== 'text');
+export function sceneBounds(elements, padding = 60) {
+  const visible = elements.filter((element) => !element?.isDeleted);
   if (visible.length === 0) return { x: 0, y: 0, width: 1000, height: 700 };
   const bounds = visible.map(elementBounds);
   const left = Math.min(...bounds.map((item) => item.left)) - padding;
