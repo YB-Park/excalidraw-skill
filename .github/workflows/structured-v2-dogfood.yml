@@ -28,6 +28,9 @@ jobs:
             cp "examples/dogfood/copilot-cloud-001/${scenario}.candidate-"*.excalidraw artifacts/structured-v2/
             cp "examples/dogfood/copilot-cloud-001/${scenario}.candidate-"*.preview.png artifacts/structured-v2/
             cp "examples/dogfood/copilot-cloud-001/${scenario}.candidate-"*.review.json artifacts/structured-v2/
+            cp "examples/dogfood/copilot-cloud-001/${scenario}.candidate-"*.quality.json artifacts/structured-v2/
+            cp "examples/dogfood/copilot-cloud-001/${scenario}.candidate-"*.editability.json artifacts/structured-v2/
+            cp "examples/dogfood/copilot-cloud-001/${scenario}.candidate-"*.route-integrity.json artifacts/structured-v2/
           done
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
