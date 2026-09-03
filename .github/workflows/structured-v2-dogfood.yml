@@ -1,0 +1,45 @@
+name: Structured v2 dogfood artifacts
+
+on:
+  pull_request:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - name: Generate current candidate portfolios
+        run: |
+          set -euxo pipefail
+          for scenario in payment-approval order-fulfillment observability-pipeline; do
+            npm run candidates -- "examples/dogfood/copilot-cloud-001/${scenario}.diagram.json"
+          done
+      - name: Collect deterministic evidence
+        run: |
+          set -euxo pipefail
+          mkdir -p artifacts/structured-v2
+          for scenario in payment-approval order-fulfillment observability-pipeline; do
+            cp "examples/dogfood/copilot-cloud-001/${scenario}.candidates.json" artifacts/structured-v2/
+            cp "examples/dogfood/copilot-cloud-001/${scenario}.candidate-"*.excalidraw artifacts/structured-v2/
+            cp "examples/dogfood/copilot-cloud-001/${scenario}.candidate-"*.preview.png artifacts/structured-v2/
+            cp "examples/dogfood/copilot-cloud-001/${scenario}.candidate-"*.review.json artifacts/structured-v2/
+          done
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Render all candidates with native Excalidraw
+        run: |
+          set -euxo pipefail
+          for scene in artifacts/structured-v2/*.excalidraw; do
+            out="${scene%.excalidraw}.actual.png"
+            npm run visual:actual -- "$scene" -o "$out"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: structured-v2-dogfood
+          path: artifacts/structured-v2
+          if-no-files-found: error
