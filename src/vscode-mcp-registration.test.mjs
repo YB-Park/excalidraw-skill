@@ -89,6 +89,50 @@ test('falls back to the VS Code user mcp.json when CLI lacks --add-mcp', () => {
   }
 });
 
+test('treats empty or whitespace VS Code mcp.json as an empty configuration', () => {
+  for (const initial of ['', '   \n\t']) {
+    const temp = tempDir();
+    const targetDir = path.join(temp, 'skill');
+    const configPath = path.join(temp, 'mcp.json');
+    fs.writeFileSync(configPath, initial);
+    try {
+      const result = registerVscodeUserMcp({
+        targetDir,
+        mcpServer: server,
+        vscodeCli: '/fake/code',
+        env: { EXCALIDRAW_SKILL_VSCODE_MCP_CONFIG: configPath },
+        spawn() { return { status: 0, stdout: 'usage without add mcp', stderr: '' }; }
+      });
+      assert.equal(result.registered, true);
+      assert.equal(result.method, 'config-file');
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      assert.deepEqual(config, { servers: { excalidraw: server } });
+    } finally {
+      fs.rmSync(temp, { recursive: true, force: true });
+    }
+  }
+});
+
+test('does not overwrite malformed non-empty VS Code mcp.json', () => {
+  const temp = tempDir();
+  const targetDir = path.join(temp, 'skill');
+  const configPath = path.join(temp, 'mcp.json');
+  const malformed = '{\n  "servers":';
+  fs.writeFileSync(configPath, malformed);
+  try {
+    assert.throws(() => registerVscodeUserMcp({
+      targetDir,
+      mcpServer: server,
+      vscodeCli: '/fake/code',
+      env: { EXCALIDRAW_SKILL_VSCODE_MCP_CONFIG: configPath },
+      spawn() { return { status: 0, stdout: 'usage without add mcp', stderr: '' }; }
+    }), new RegExp(`Invalid JSON in VS Code MCP configuration: ${configPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+    assert.equal(fs.readFileSync(configPath, 'utf8'), malformed);
+  } finally {
+    fs.rmSync(temp, { recursive: true, force: true });
+  }
+});
+
 test('default profile paths resolve to VS Code user mcp.json', () => {
   assert.equal(
     resolveVscodeUserMcpConfig({ platform: 'darwin', homeDir: '/Users/tester', env: {} }),

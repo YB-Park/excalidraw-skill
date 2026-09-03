@@ -17,7 +17,15 @@ function writeMarker(targetDir, value) {
 
 function readJsonObject(file) {
   if (!fs.existsSync(file)) return {};
-  const value = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const source = fs.readFileSync(file, 'utf8').trim();
+  if (!source) return {};
+  let value;
+  try {
+    value = JSON.parse(source);
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(`Invalid JSON in VS Code MCP configuration: ${file}: ${detail}`);
+  }
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     throw new Error(`Expected JSON object: ${file}`);
   }
