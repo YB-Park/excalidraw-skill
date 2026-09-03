@@ -28,14 +28,16 @@ npm run skill:install:global
 npm run skill:doctor:global
 ```
 
-The installer creates two managed directories under the current user's home directory:
+The installer creates managed skill, runtime, and agent files under the current user's Copilot home, and registers the MCP server there:
 
 ```text
 ~/.copilot/skills/excalidraw-skill
 ~/.copilot/tools/excalidraw-skill
+~/.copilot/agents/excalidraw-{designer,planner,critic}.agent.md
+~/.copilot/mcp-config.json
 ```
 
-The first directory is the Copilot skill bundle. The second is the executable runtime used by the skill. The skill reads the absolute `runtimeEntry` from `.excalidraw-skill-install.json` and invokes it with Node.js.
+The first directory is the Copilot skill bundle. The second is the executable runtime (including the MCP server and its dependencies). The skill reads the absolute `runtimeEntry` from `.excalidraw-skill-install.json` and invokes it with Node.js. The managed `excalidraw` entry in `mcp-config.json` uses that same runtime and leaves unrelated servers untouched.
 
 On Windows, `~` means the current user's home directory.
 
@@ -95,7 +97,7 @@ Do not use `--force` as a generic fix for installation errors.
 npm run skill:uninstall:global
 ```
 
-Both the skill bundle and the managed runtime are removed. Unmanaged directories are not removed unless `--force` is supplied.
+Both the skill bundle, managed runtime, agent files, and only the managed `excalidraw` MCP entry are removed. Unmanaged directories and unrelated MCP entries are not removed unless `--force` is supplied.
 
 After removal, reload VS Code or start a new Copilot Chat.
 

@@ -86,7 +86,7 @@ Critic 평가에는 전략명을 넘기지 않습니다. 생성 결과는 coordi
 
 MCP 서버는 typed semantic tools만 노출하고 filesystem 접근을 현재 workspace 안으로 제한합니다. stdio 경로는 공식 MCP client를 이용해 실제 handshake, `tools/list`, tool invocation까지 integration test합니다.
 
-이 agent/MCP 경로는 **현재 저장소/workspace에서의 dogfood integration**입니다. 전역 skill installer가 arbitrary external workspace에 custom agent와 MCP 설정까지 자동 배포한다고 아직 주장하지 않습니다. 먼저 이 workflow가 실제 품질을 개선하는지 사람의 선택 데이터로 검증합니다.
+이 agent/MCP 경로는 workspace-local `.mcp.json`과 global installer 모두를 지원합니다. 전역 설치는 custom agents와 MCP 설정을 사용자의 `COPILOT_HOME`에 배포하므로 arbitrary external workspace에서도 사용할 수 있습니다. 먼저 이 workflow가 실제 품질을 개선하는지 사람의 선택 데이터로 검증합니다.
 
 ## Human-in-the-loop와 LayoutState
 

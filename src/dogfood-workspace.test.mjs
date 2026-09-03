@@ -43,7 +43,13 @@ test('installed managed runtime completes build, review, patch, and validation i
   const workspace = tempDir(t, 'excalidraw-dogfood-workspace-');
   const targetDir = path.join(home, '.copilot', 'skills', 'excalidraw-skill');
   const runtimeDir = path.join(home, '.copilot', 'tools', 'excalidraw-skill');
-  const installed = installGlobalSkill({ rootDir, targetDir, runtimeDir });
+  const installed = installGlobalSkill({
+    rootDir,
+    targetDir,
+    runtimeDir,
+    agentsDir: path.join(home, '.copilot', 'agents'),
+    mcpConfigPath: path.join(home, '.copilot', 'mcp-config.json')
+  });
   const runtimeEntry = installed.runtimeEntry;
 
   runRuntime(runtimeEntry, workspace, ['init']);
