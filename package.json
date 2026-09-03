@@ -15,6 +15,7 @@
     "smoke:system": "node ./bin/excalidraw-skill.mjs build examples/system-architecture/layered-middleware.diagram.json",
     "smoke:module": "node ./bin/excalidraw-skill.mjs build examples/module-architecture/connection-manager.diagram.json",
     "candidates": "node ./src/generate-candidates.mjs",
+    "preference:record": "node ./src/record-preference.mjs",
     "mcp": "node ./mcp/server.mjs",
     "evaluate": "node ./src/evaluate-suite.mjs",
     "evaluate:strict": "node ./src/evaluate-suite.mjs --strict-perceptual --strict-readability",
