@@ -62,3 +62,16 @@ test('keeps left-placed edge labels inside the preview bounds', () => {
   assert.ok(bounds.x + bounds.width >= 380);
   assert.match(exportPreviewSvg(scene), /viewBox="-150 40 /);
 });
+
+test('keeps generated frame titles inside the preview bounds', () => {
+  const scene = {
+    elements: [
+      { type: 'frame', x: 100, y: 100, width: 20, height: 40, name: 'Observability pipeline' }
+    ]
+  };
+
+  const bounds = sceneBounds(scene.elements);
+  assert.ok(bounds.x <= 110 - 60);
+  assert.ok(bounds.x + bounds.width >= 110 + 'Observability pipeline'.length * 16 + 60);
+  assert.ok(bounds.y <= 72 - 60);
+});

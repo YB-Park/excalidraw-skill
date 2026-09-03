@@ -35,7 +35,19 @@ export function elementBounds(element) {
 export function sceneBounds(elements, padding = 60) {
   const visible = elements.filter((element) => !element?.isDeleted);
   if (visible.length === 0) return { x: 0, y: 0, width: 1000, height: 700 };
-  const bounds = visible.map(elementBounds);
+  const bounds = visible.flatMap((element) => {
+    const content = [elementBounds(element)];
+    if (element.type === 'frame' && element.name) {
+      const titleWidth = Math.max(16, String(element.name).length * 16);
+      content.push({
+        left: finite(element.x) + 10,
+        right: finite(element.x) + 10 + titleWidth,
+        top: finite(element.y) - 28,
+        bottom: finite(element.y)
+      });
+    }
+    return content;
+  });
   const left = Math.min(...bounds.map((item) => item.left)) - padding;
   const right = Math.max(...bounds.map((item) => item.right)) + padding;
   const top = Math.min(...bounds.map((item) => item.top)) - padding;
