@@ -82,6 +82,15 @@ test('installs a self-contained global skill, runtime, agents, and MCP server', 
   ]) {
     assert.equal(fs.existsSync(path.join(runtimeDir, relative)), true, relative);
   }
+  const resvgManifest = JSON.parse(fs.readFileSync(
+    path.join(rootDir, 'node_modules', '@resvg', 'resvg-js', 'package.json'),
+    'utf8'
+  ));
+  for (const name of Object.keys(resvgManifest.optionalDependencies ?? {})) {
+    if (fs.existsSync(path.join(rootDir, 'node_modules', ...name.split('/')))) {
+      assert.equal(fs.existsSync(path.join(runtimeDir, 'node_modules', ...name.split('/'))), true, name);
+    }
+  }
   for (const name of MANAGED_AGENT_FILES) {
     assert.equal(fs.existsSync(path.join(agentsDir, name)), true, name);
     assert.equal(

@@ -166,19 +166,27 @@ function dependencyPath(rootDir, name) {
   return path.join(rootDir, 'node_modules', ...name.split('/'));
 }
 
+function dependencyQueue(manifest) {
+  return [
+    ...Object.keys(manifest.dependencies ?? {}).map((name) => ({ name, optional: false })),
+    ...Object.keys(manifest.optionalDependencies ?? {}).map((name) => ({ name, optional: true }))
+  ];
+}
+
 function copyProductionDependencies(rootDir, destination) {
   const rootPackage = readJson(path.join(rootDir, 'package.json'));
-  const queue = Object.keys(rootPackage.dependencies ?? {});
+  const queue = dependencyQueue(rootPackage);
   const copied = new Set();
   while (queue.length > 0) {
-    const name = queue.shift();
-    if (!name || copied.has(name)) continue;
-    const source = dependencyPath(rootDir, name);
+    const item = queue.shift();
+    if (!item?.name || copied.has(item.name)) continue;
+    const source = dependencyPath(rootDir, item.name);
     const packageFile = path.join(source, 'package.json');
     if (!fs.existsSync(packageFile)) {
-      throw new Error(`Runtime dependency is not installed: ${name}`);
+      if (item.optional) continue;
+      throw new Error(`Runtime dependency is not installed: ${item.name}`);
     }
-    const target = dependencyPath(destination, name);
+    const target = dependencyPath(destination, item.name);
     fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.cpSync(source, target, {
       recursive: true,
@@ -186,10 +194,10 @@ function copyProductionDependencies(rootDir, destination) {
       errorOnExist: false,
       preserveTimestamps: true
     });
-    copied.add(name);
+    copied.add(item.name);
     const manifest = readJson(packageFile);
-    for (const dependency of Object.keys(manifest.dependencies ?? {})) {
-      if (!copied.has(dependency)) queue.push(dependency);
+    for (const dependency of dependencyQueue(manifest)) {
+      if (!copied.has(dependency.name)) queue.push(dependency);
     }
   }
 }
