@@ -21,7 +21,24 @@ function finite(value, fallback = 0) {
   return Number.isFinite(value) ? value : fallback;
 }
 
+function absolutePoints(element) {
+  const x = finite(element.x);
+  const y = finite(element.y);
+  const points = Array.isArray(element.points) ? element.points : [[0, 0], [finite(element.width), finite(element.height)]];
+  return points.map(([px, py]) => ({ x: x + finite(px), y: y + finite(py) }));
+}
+
 function elementBounds(element) {
+  if ((element.type === 'line' || element.type === 'arrow') && Array.isArray(element.points) && element.points.length > 0) {
+    const points = absolutePoints(element);
+    return {
+      left: Math.min(...points.map((point) => point.x)),
+      right: Math.max(...points.map((point) => point.x)),
+      top: Math.min(...points.map((point) => point.y)),
+      bottom: Math.max(...points.map((point) => point.y))
+    };
+  }
+
   const x = finite(element.x);
   const y = finite(element.y);
   return {
@@ -33,7 +50,9 @@ function elementBounds(element) {
 }
 
 function sceneBounds(elements, padding = 60) {
-  const visible = elements.filter((element) => !element?.isDeleted && element?.type !== 'text');
+  // Required text is first-class visible content. Excluding it can crop edge labels
+  // that legitimately extend beyond node/edge geometry (dogfood #001 / issue #13).
+  const visible = elements.filter((element) => !element?.isDeleted);
   if (visible.length === 0) return { x: 0, y: 0, width: 1000, height: 700 };
   const bounds = visible.map(elementBounds);
   const left = Math.min(...bounds.map((item) => item.left)) - padding;
@@ -73,13 +92,6 @@ function renderEllipse(element) {
   const cx = finite(element.x) + finite(element.width) / 2;
   const cy = finite(element.y) + finite(element.height) / 2;
   return `<ellipse cx="${cx}" cy="${cy}" rx="${Math.abs(finite(element.width)) / 2}" ry="${Math.abs(finite(element.height)) / 2}" ${commonStyle(element)} />`;
-}
-
-function absolutePoints(element) {
-  const x = finite(element.x);
-  const y = finite(element.y);
-  const points = Array.isArray(element.points) ? element.points : [[0, 0], [finite(element.width), finite(element.height)]];
-  return points.map(([px, py]) => ({ x: x + finite(px), y: y + finite(py) }));
 }
 
 function renderPolyline(element) {
