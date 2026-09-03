@@ -7,6 +7,11 @@ const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 export const packageRoot = path.resolve(moduleDir, '..');
 export const INSTALL_MARKER = '.excalidraw-skill-install.json';
 export const RUNTIME_MARKER = '.excalidraw-skill-runtime.json';
+export const MANAGED_AGENT_FILES = Object.freeze([
+  'excalidraw-designer.agent.md',
+  'excalidraw-planner.agent.md',
+  'excalidraw-critic.agent.md'
+]);
 
 const REQUIRED_FILES = Object.freeze([
   'SKILL.md',
@@ -30,11 +35,11 @@ const REQUIRED_FILES = Object.freeze([
 const RUNTIME_ENTRIES = Object.freeze([
   'bin',
   'src',
+  'mcp',
   'assets',
   'skills',
   '.opencode',
   '.github/prompts',
-  'node_modules/@resvg',
   'package.json'
 ]);
 
@@ -45,7 +50,10 @@ const REQUIRED_RUNTIME_FILES = Object.freeze([
   'src/export-preview-png.mjs',
   'src/global-skill.mjs',
   'src/init.mjs',
+  'mcp/server.mjs',
   'node_modules/@resvg/resvg-js/index.js',
+  'node_modules/@modelcontextprotocol/server/package.json',
+  'node_modules/zod/package.json',
   'skills/excalidraw-skill/SKILL.md',
   'package.json'
 ]);
@@ -55,6 +63,7 @@ function readJson(file) {
 }
 
 function writeJson(file, value) {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
 }
 
@@ -96,6 +105,12 @@ function removeIfExists(target) {
   fs.rmSync(target, { recursive: true, force: true });
 }
 
+function sameFile(left, right) {
+  return fs.existsSync(left)
+    && fs.existsSync(right)
+    && fs.readFileSync(left, 'utf8') === fs.readFileSync(right, 'utf8');
+}
+
 function copilotHome({ env = process.env, homeDir = os.homedir() } = {}) {
   return env.COPILOT_HOME?.trim()
     ? path.resolve(env.COPILOT_HOME)
@@ -114,6 +129,14 @@ export function resolveGlobalRuntimeDir(options = {}) {
     ?? process.env.EXCALIDRAW_SKILL_RUNTIME_DIR?.trim();
   if (override) return path.resolve(override);
   return path.join(copilotHome(options), 'tools', 'excalidraw-skill');
+}
+
+export function resolveGlobalAgentsDir(options = {}) {
+  return path.join(copilotHome(options), 'agents');
+}
+
+export function resolveGlobalMcpConfigPath(options = {}) {
+  return path.join(copilotHome(options), 'mcp-config.json');
 }
 
 export function findExecutableOnPath(name, { env = process.env, platform = process.platform } = {}) {
@@ -139,6 +162,38 @@ export function findExecutableOnPath(name, { env = process.env, platform = proce
   return null;
 }
 
+function dependencyPath(rootDir, name) {
+  return path.join(rootDir, 'node_modules', ...name.split('/'));
+}
+
+function copyProductionDependencies(rootDir, destination) {
+  const rootPackage = readJson(path.join(rootDir, 'package.json'));
+  const queue = Object.keys(rootPackage.dependencies ?? {});
+  const copied = new Set();
+  while (queue.length > 0) {
+    const name = queue.shift();
+    if (!name || copied.has(name)) continue;
+    const source = dependencyPath(rootDir, name);
+    const packageFile = path.join(source, 'package.json');
+    if (!fs.existsSync(packageFile)) {
+      throw new Error(`Runtime dependency is not installed: ${name}`);
+    }
+    const target = dependencyPath(destination, name);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.cpSync(source, target, {
+      recursive: true,
+      force: true,
+      errorOnExist: false,
+      preserveTimestamps: true
+    });
+    copied.add(name);
+    const manifest = readJson(packageFile);
+    for (const dependency of Object.keys(manifest.dependencies ?? {})) {
+      if (!copied.has(dependency)) queue.push(dependency);
+    }
+  }
+}
+
 function copyRuntime(rootDir, destination) {
   fs.mkdirSync(destination, { recursive: true });
   for (const entry of RUNTIME_ENTRIES) {
@@ -153,6 +208,7 @@ function copyRuntime(rootDir, destination) {
       preserveTimestamps: true
     });
   }
+  copyProductionDependencies(rootDir, destination);
 }
 
 function assertReplaceable(directory, markerName, force) {
@@ -161,10 +217,91 @@ function assertReplaceable(directory, markerName, force) {
   }
 }
 
+function managedMcpServer(runtimeDir, nodeExecutable = process.execPath) {
+  return {
+    type: 'stdio',
+    command: nodeExecutable,
+    args: [path.join(runtimeDir, 'mcp', 'server.mjs')]
+  };
+}
+
+function readMcpConfig(configPath) {
+  if (!fs.existsSync(configPath)) return {};
+  const config = readJson(configPath);
+  if (!config || typeof config !== 'object' || Array.isArray(config)) {
+    throw new Error(`MCP configuration must be a JSON object: ${configPath}`);
+  }
+  return config;
+}
+
+function writeManagedAgents(rootDir, agentsDir, force) {
+  const sourceDir = path.join(rootDir, '.github', 'agents');
+  fs.mkdirSync(agentsDir, { recursive: true });
+  for (const name of MANAGED_AGENT_FILES) {
+    const source = path.join(sourceDir, name);
+    const target = path.join(agentsDir, name);
+    if (!fs.existsSync(source)) throw new Error(`Missing agent source: ${source}`);
+    if (fs.existsSync(target) && !sameFile(source, target) && !force) {
+      throw new Error(`Refusing to replace unmanaged agent file: ${target}. Re-run with --force to replace it.`);
+    }
+    fs.copyFileSync(source, target);
+  }
+}
+
+function removeManagedAgents(rootDir, agentsDir, force) {
+  const sourceDir = path.join(rootDir, '.github', 'agents');
+  let removed = false;
+  for (const name of MANAGED_AGENT_FILES) {
+    const source = path.join(sourceDir, name);
+    const target = path.join(agentsDir, name);
+    if (!fs.existsSync(target)) continue;
+    if (!force && fs.existsSync(source) && !sameFile(source, target)) continue;
+    fs.rmSync(target, { force: true });
+    removed = true;
+  }
+  return removed;
+}
+
+function writeManagedMcpConfig(configPath, runtimeDir, nodeExecutable, force) {
+  const config = readMcpConfig(configPath);
+  const servers = config.servers && typeof config.servers === 'object' && !Array.isArray(config.servers)
+    ? { ...config.servers }
+    : {};
+  const expected = managedMcpServer(runtimeDir, nodeExecutable);
+  if (servers.excalidraw && JSON.stringify(servers.excalidraw) !== JSON.stringify(expected) && !force) {
+    throw new Error(`Refusing to replace unmanaged MCP server entry: ${configPath}#servers.excalidraw. Re-run with --force to replace it.`);
+  }
+  servers.excalidraw = expected;
+  writeJson(configPath, { ...config, servers });
+  return expected;
+}
+
+function removeManagedMcpConfig(configPath, runtimeDir, nodeExecutable, force) {
+  if (!fs.existsSync(configPath)) return false;
+  const config = readMcpConfig(configPath);
+  if (!config.servers || typeof config.servers !== 'object' || Array.isArray(config.servers)) return false;
+  const current = config.servers.excalidraw;
+  if (!current) return false;
+  const expected = managedMcpServer(runtimeDir, nodeExecutable);
+  if (!force && JSON.stringify(current) !== JSON.stringify(expected)) return false;
+  const servers = { ...config.servers };
+  delete servers.excalidraw;
+  const next = { ...config, servers };
+  if (Object.keys(servers).length === 0 && Object.keys(config).length === 1) {
+    fs.rmSync(configPath, { force: true });
+  } else {
+    writeJson(configPath, next);
+  }
+  return true;
+}
+
 export function installGlobalSkill({
   rootDir = packageRoot,
   targetDir = resolveGlobalSkillDir(),
   runtimeDir = resolveGlobalRuntimeDir(),
+  agentsDir = resolveGlobalAgentsDir(),
+  mcpConfigPath = resolveGlobalMcpConfigPath(),
+  nodeExecutable = process.execPath,
   force = false,
   installedAt = new Date().toISOString()
 } = {}) {
@@ -181,6 +318,8 @@ export function installGlobalSkill({
   const sourceResolved = path.resolve(sourceDir);
   const targetResolved = path.resolve(targetDir);
   const runtimeResolved = path.resolve(runtimeDir);
+  const agentsResolved = path.resolve(agentsDir);
+  const mcpConfigResolved = path.resolve(mcpConfigPath);
   if (sourceResolved === targetResolved) {
     throw new Error('Global skill target must be different from the package source directory.');
   }
@@ -217,7 +356,10 @@ export function installGlobalSkill({
     version,
     installedAt,
     runtimeDir: runtimeResolved,
-    runtimeEntry
+    runtimeEntry,
+    agentsDir: agentsResolved,
+    mcpConfigPath: mcpConfigResolved,
+    nodeExecutable
   });
   writeJson(path.join(temporaryRuntime, RUNTIME_MARKER), {
     managedBy: 'excalidraw-skill',
@@ -233,8 +375,24 @@ export function installGlobalSkill({
     if (replacedRuntime) fs.renameSync(runtimeResolved, backupRuntime);
     fs.renameSync(temporaryRuntime, runtimeResolved);
     fs.renameSync(temporarySkill, targetResolved);
+    writeManagedAgents(rootDir, agentsResolved, force);
+    const mcpServer = writeManagedMcpConfig(mcpConfigResolved, runtimeResolved, nodeExecutable, force);
     removeIfExists(backupSkill);
     removeIfExists(backupRuntime);
+    return {
+      ok: true,
+      installed: true,
+      replaced: replacedSkill || replacedRuntime,
+      replacedSkill,
+      replacedRuntime,
+      targetDir: targetResolved,
+      runtimeDir: runtimeResolved,
+      runtimeEntry,
+      agentsDir: agentsResolved,
+      mcpConfigPath: mcpConfigResolved,
+      mcpServer,
+      version
+    };
   } catch (error) {
     removeIfExists(targetResolved);
     removeIfExists(runtimeResolved);
@@ -244,23 +402,15 @@ export function installGlobalSkill({
   } finally {
     for (const item of [temporarySkill, temporaryRuntime, backupSkill, backupRuntime]) removeIfExists(item);
   }
-
-  return {
-    ok: true,
-    installed: true,
-    replaced: replacedSkill || replacedRuntime,
-    replacedSkill,
-    replacedRuntime,
-    targetDir: targetResolved,
-    runtimeDir: runtimeResolved,
-    runtimeEntry,
-    version
-  };
 }
 
 export function doctorGlobalSkill({
+  rootDir = packageRoot,
   targetDir = resolveGlobalSkillDir(),
   runtimeDir = null,
+  agentsDir = null,
+  mcpConfigPath = null,
+  nodeExecutable = null,
   checkCli = true,
   env = process.env,
   platform = process.platform
@@ -268,6 +418,9 @@ export function doctorGlobalSkill({
   const targetResolved = path.resolve(targetDir);
   const marker = readMarker(targetResolved, INSTALL_MARKER);
   const runtimeResolved = path.resolve(runtimeDir ?? marker?.runtimeDir ?? resolveGlobalRuntimeDir({ env }));
+  const agentsResolved = path.resolve(agentsDir ?? marker?.agentsDir ?? resolveGlobalAgentsDir({ env }));
+  const mcpConfigResolved = path.resolve(mcpConfigPath ?? marker?.mcpConfigPath ?? resolveGlobalMcpConfigPath({ env }));
+  const effectiveNode = nodeExecutable ?? marker?.nodeExecutable ?? process.execPath;
   const runtimeEntry = marker?.runtimeEntry ?? path.join(runtimeResolved, 'bin', 'excalidraw-skill.mjs');
   const missing = fs.existsSync(targetResolved) ? missingBundleFiles(targetResolved) : [...REQUIRED_FILES];
   const runtimeMissing = fs.existsSync(runtimeResolved) ? missingRuntimeFiles(runtimeResolved) : [...REQUIRED_RUNTIME_FILES];
@@ -278,22 +431,43 @@ export function doctorGlobalSkill({
   const runtimeOk = fs.existsSync(runtimeResolved)
     && runtimeManaged
     && runtimeMissing.length === 0
-    && fs.existsSync(runtimeEntry);
+    && fs.existsSync(runtimeEntry)
+    && fs.existsSync(path.join(runtimeResolved, 'mcp', 'server.mjs'));
+  const agentMissing = MANAGED_AGENT_FILES.filter((name) => !sameFile(
+    path.join(rootDir, '.github', 'agents', name),
+    path.join(agentsResolved, name)
+  ));
+  const agentsOk = agentMissing.length === 0;
+  let mcpServer = null;
+  try {
+    mcpServer = readMcpConfig(mcpConfigResolved).servers?.excalidraw ?? null;
+  } catch {
+    mcpServer = null;
+  }
+  const expectedMcpServer = managedMcpServer(runtimeResolved, effectiveNode);
+  const mcpOk = JSON.stringify(mcpServer) === JSON.stringify(expectedMcpServer)
+    && fs.existsSync(expectedMcpServer.args[0]);
   const cliOk = !checkCli || Boolean(cliPath);
   return {
-    ok: skillOk && runtimeOk,
+    ok: skillOk && runtimeOk && agentsOk && mcpOk,
     skillOk,
     runtimeOk,
+    agentsOk,
+    mcpOk,
     cliOk,
     cliPath,
     targetDir: targetResolved,
     runtimeDir: runtimeResolved,
     runtimeEntry,
+    agentsDir: agentsResolved,
+    mcpConfigPath: mcpConfigResolved,
+    mcpServer,
     managed,
     runtimeManaged,
     version: marker?.version ?? null,
     missing,
     runtimeMissing,
+    agentMissing,
     warning: checkCli && !cliPath
       ? 'Optional PATH command is not installed. The skill can still use runtimeEntry directly. Avoid sudo; use a Node version manager or a user-owned npm prefix if you want the convenience command.'
       : null
@@ -301,13 +475,20 @@ export function doctorGlobalSkill({
 }
 
 export function uninstallGlobalSkill({
+  rootDir = packageRoot,
   targetDir = resolveGlobalSkillDir(),
   runtimeDir = null,
+  agentsDir = null,
+  mcpConfigPath = null,
+  nodeExecutable = null,
   force = false
 } = {}) {
   const targetResolved = path.resolve(targetDir);
   const marker = readMarker(targetResolved, INSTALL_MARKER);
   const runtimeResolved = path.resolve(runtimeDir ?? marker?.runtimeDir ?? resolveGlobalRuntimeDir());
+  const agentsResolved = path.resolve(agentsDir ?? marker?.agentsDir ?? resolveGlobalAgentsDir());
+  const mcpConfigResolved = path.resolve(mcpConfigPath ?? marker?.mcpConfigPath ?? resolveGlobalMcpConfigPath());
+  const effectiveNode = nodeExecutable ?? marker?.nodeExecutable ?? process.execPath;
 
   if (fs.existsSync(targetResolved) && !managedInstall(targetResolved, INSTALL_MARKER) && !force) {
     throw new Error(`Refusing to remove unmanaged directory: ${targetResolved}. Re-run with --force to remove it.`);
@@ -316,16 +497,22 @@ export function uninstallGlobalSkill({
     throw new Error(`Refusing to remove unmanaged directory: ${runtimeResolved}. Re-run with --force to remove it.`);
   }
 
+  const removedAgents = removeManagedAgents(rootDir, agentsResolved, force);
+  const removedMcp = removeManagedMcpConfig(mcpConfigResolved, runtimeResolved, effectiveNode, force);
   const removedSkill = fs.existsSync(targetResolved);
   const removedRuntime = fs.existsSync(runtimeResolved);
   removeIfExists(targetResolved);
   removeIfExists(runtimeResolved);
   return {
     ok: true,
-    removed: removedSkill || removedRuntime,
+    removed: removedSkill || removedRuntime || removedAgents || removedMcp,
     removedSkill,
     removedRuntime,
+    removedAgents,
+    removedMcp,
     targetDir: targetResolved,
-    runtimeDir: runtimeResolved
+    runtimeDir: runtimeResolved,
+    agentsDir: agentsResolved,
+    mcpConfigPath: mcpConfigResolved
   };
 }
