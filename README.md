@@ -76,7 +76,7 @@ flow 후보 전략은 다음과 같습니다.
 
 - `narrative`: primary story continuity
 - `compact`: eye travel / spread 감소
-- `structured`: conceptual center와 relationship structure 탐색; 첫 slice에서는 `hub-and-spoke` 사용
+- `structured`: 관계 구조를 더 강하게 드러내되 순차 primary flow는 보존. 2개 이상의 primary step이 있으면 sequence-safe `layered-flow`를 사용하고, 진짜 hub topology에서만 `hub-and-spoke`를 사용
 
 후보들은 모두 기존 hard quality gate를 먼저 통과해야 하며, CI는 이름만 다르고 실제 composition은 같은 near-duplicate 후보 portfolio도 거부합니다. **candidate diversity는 품질 점수가 아니라 탐색할 가치가 있는 서로 다른 해가 존재하는지 확인하는 gate**입니다.
 
@@ -90,9 +90,11 @@ MCP 서버는 typed semantic tools만 노출하고 filesystem 접근을 현재 w
 
 ## Human-in-the-loop와 LayoutState
 
-사람이 Excalidraw에서 직접 배치를 고친 것은 자동화 실패로 취급하지 않습니다. semantic source와 presentation intent를 분리하기 위해 stable semantic ID 기반 `LayoutState`를 도입하고 있습니다.
+사람이 Excalidraw에서 직접 배치를 고친 것은 자동화 실패로 취급하지 않습니다. semantic source와 presentation intent를 분리하기 위해 stable semantic ID 기반 `LayoutState`를 사용합니다.
 
-현재 vertical slice는 semantic node 위치와 bound label을 capture/reapply할 수 있습니다. 다만 arbitrary human move 뒤 edge routing까지 자동으로 완전히 reconciled된다고 아직 주장하지 않습니다. reapply 후에는 fresh review가 필요하며, 실제 interaction dogfood로 routing reconciliation을 별도로 증명할 예정입니다.
+현재 vertical slice는 semantic node 위치와 bound label을 capture/reapply하고, 이동된 node에 연결된 edge endpoint geometry를 새 node boundary에 다시 reconcile합니다. explicit LayoutState provenance가 있는 수동 배치는 presentation intent로 보존하되 primary-flow ordering, binding, editability, overlap, route-integrity 같은 hard constraint는 계속 강제합니다. reapply 후 fresh review는 여전히 필수입니다.
+
+사람 선호 데이터도 같은 원칙으로 다룹니다. 실제 사람이 actual candidate image를 본 뒤에만 `npm run preference:record`로 opaque candidate ranking을 기록할 수 있으며 `--human-confirmed`가 없으면 기록을 거부합니다. 자세한 사용법은 `docs/PREFERENCE_CAPTURE.md`를 참고하세요.
 
 ## PNG preview와 `render`의 차이
 
@@ -161,6 +163,7 @@ node ./bin/excalidraw-skill.mjs review examples/service-flow/payment-flow.visual
 node ./bin/excalidraw-skill.mjs inspect examples/service-flow/payment-flow.visual-plan.excalidraw
 node ./bin/excalidraw-skill.mjs quality-report examples/service-flow/payment-flow.visual-plan.excalidraw examples/service-flow/payment-flow.visual-plan.diagram.json
 npm run candidates -- examples/service-flow/payment-flow.visual-plan.diagram.json
+npm run preference:record -- --manifest path/to/candidates.json --scenario my-task --ranking c01,c02,c03 --human-confirmed
 ```
 
 터미널의 `excalidraw-skill` convenience command를 위한 `npm install -g .`는 선택 사항입니다.
@@ -206,6 +209,7 @@ CI는 native editability, structural/perceptual quality, candidate composition d
 - 실제 사용법: `docs/USAGE.md`
 - LLM 설치 런북: `docs/AGENT_SETUP.md`
 - patch 사용법: `docs/PATCH_USAGE.md`
+- 사람 선호 기록: `docs/PREFERENCE_CAPTURE.md`
 - 다이어그램 타입: `docs/DIAGRAM_TYPES.md`
 - 품질 기준: `docs/QUALITY_CRITERIA.md`
 - smoke test: `docs/SMOKE_TEST.md`
