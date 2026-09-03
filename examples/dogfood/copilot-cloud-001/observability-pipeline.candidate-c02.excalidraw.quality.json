@@ -1,0 +1,118 @@
+{
+  "version": "0.4.2",
+  "pass": true,
+  "structuralPass": true,
+  "familyPass": true,
+  "diagramType": "data-flow",
+  "layoutProfile": "layered-flow",
+  "metrics": {
+    "nodeOverlaps": 0,
+    "edgeNodeCrossings": 0,
+    "edgeCrossings": 0,
+    "endpointOverlaps": 0,
+    "endpointApproachViolations": 0,
+    "endpointNodePenetrations": 0,
+    "labelOverlaps": 0,
+    "labelNodeOverlaps": 0,
+    "textOverflows": 0,
+    "edgeVisualMismatches": 0,
+    "unresolvedFrameCollisions": 0,
+    "aspectRatio": 4.47,
+    "nodeCount": 8,
+    "edgeCount": 7,
+    "edgeLabelCount": 7,
+    "visibleFrames": 0,
+    "singletonFrames": 0,
+    "allowedSingletonFrames": 0,
+    "policySingletonFrames": 0,
+    "suspiciousSingletonFrames": 0,
+    "excessiveSingletonFrames": 0,
+    "fullSceneFrames": 0,
+    "frameBudgetExceeded": 0,
+    "primaryFlowMissing": 0,
+    "primaryFlowOrderViolations": 0,
+    "centerAxisViolations": 0
+  },
+  "details": {
+    "nodeOverlaps": [],
+    "edgeNodeCrossings": [],
+    "edgeCrossings": [],
+    "endpointOverlaps": [],
+    "endpointApproachViolations": [],
+    "endpointNodePenetrations": [],
+    "labelOverlaps": [],
+    "labelNodeOverlaps": [],
+    "textOverflows": [],
+    "edgeVisualMismatches": [],
+    "unresolvedFrameCollisions": 0,
+    "family": {
+      "frames": {
+        "allowedSingletonFrames": [],
+        "policySingletonFrames": [],
+        "suspiciousSingletonFrames": [],
+        "excessiveSingletonFrames": [],
+        "fullSceneFrames": [],
+        "frameBudget": 0,
+        "allowSingletons": false,
+        "unresolvedFrameCollisions": 0
+      },
+      "primaryFlowMissing": [],
+      "primaryFlowOrderViolations": [],
+      "centerAxisViolations": [],
+      "primaryFlow": [
+        "application",
+        "collector",
+        "telemetry-processor",
+        "telemetry-store",
+        "query-service"
+      ]
+    }
+  },
+  "familyQuality": {
+    "version": "0.2.2",
+    "family": "flow",
+    "diagramType": "data-flow",
+    "profile": "layered-flow",
+    "supported": true,
+    "reason": null,
+    "pass": true,
+    "metrics": {
+      "visibleFrames": 0,
+      "singletonFrames": 0,
+      "allowedSingletonFrames": 0,
+      "policySingletonFrames": 0,
+      "suspiciousSingletonFrames": 0,
+      "excessiveSingletonFrames": 0,
+      "fullSceneFrames": 0,
+      "frameBudgetExceeded": 0,
+      "unresolvedFrameCollisions": 0,
+      "primaryFlowMissing": 0,
+      "primaryFlowOrderViolations": 0,
+      "centerAxisViolations": 0
+    },
+    "details": {
+      "frames": {
+        "allowedSingletonFrames": [],
+        "policySingletonFrames": [],
+        "suspiciousSingletonFrames": [],
+        "excessiveSingletonFrames": [],
+        "fullSceneFrames": [],
+        "frameBudget": 0,
+        "allowSingletons": false,
+        "unresolvedFrameCollisions": 0
+      },
+      "primaryFlowMissing": [],
+      "primaryFlowOrderViolations": [],
+      "centerAxisViolations": [],
+      "primaryFlow": [
+        "application",
+        "collector",
+        "telemetry-processor",
+        "telemetry-store",
+        "query-service"
+      ]
+    },
+    "suggestedPatches": []
+  },
+  "suggestedPatches": []
+}

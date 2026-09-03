@@ -1,0 +1,209 @@
+{
+  "version": "0.5.0",
+  "mode": "advisory",
+  "metrics": {
+    "readabilityCost": 217.35,
+    "totalBends": 13,
+    "averageBendsPerEdge": 2.6,
+    "highBendEdges": 4,
+    "edgeCrossings": 1,
+    "minCrossingAngle": 90,
+    "lowAngleCrossings": 0,
+    "crossingCost": 8,
+    "edgeLabelCount": 5,
+    "ambiguousEdgeLabels": 0,
+    "distantEdgeLabels": 0,
+    "averageEdgeLabelDistance": 14,
+    "edgeLabelAssociationCost": 0,
+    "primaryFlowBends": 9,
+    "primaryFlowAverageBends": 3,
+    "averageDetourRatio": 1.08,
+    "maxDetourRatio": 1.4,
+    "primaryFlowAverageDetourRatio": 1,
+    "severeDetours": 0,
+    "moderateDetours": 1,
+    "compositionDensity": 0.211,
+    "compositionBalanceOffset": 0.122
+  },
+  "details": {
+    "edgeLabelDistanceModel": "label-box-to-edge",
+    "edges": [
+      {
+        "edge": "submit-payment",
+        "from": "checkout",
+        "to": "payment-api",
+        "primary": true,
+        "bends": 3,
+        "routeLength": 302,
+        "idealOrthogonalLength": 302,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": true
+      },
+      {
+        "edge": "authorize-card",
+        "from": "payment-api",
+        "to": "card-network",
+        "primary": true,
+        "bends": 3,
+        "routeLength": 728,
+        "idealOrthogonalLength": 728,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": true
+      },
+      {
+        "edge": "return-decision",
+        "from": "card-network",
+        "to": "checkout-result",
+        "primary": true,
+        "bends": 3,
+        "routeLength": 670,
+        "idealOrthogonalLength": 670,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": true
+      },
+      {
+        "edge": "risk-check",
+        "from": "payment-api",
+        "to": "risk-engine",
+        "primary": false,
+        "bends": 0,
+        "routeLength": 50,
+        "idealOrthogonalLength": 50,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "record-decision",
+        "from": "payment-api",
+        "to": "audit-log",
+        "primary": false,
+        "bends": 4,
+        "routeLength": 930,
+        "idealOrthogonalLength": 662,
+        "extraLength": 268,
+        "detourRatio": 1.4,
+        "severeDetour": false,
+        "moderateDetour": true,
+        "highBendComplexity": true
+      }
+    ],
+    "crossings": [
+      {
+        "firstEdge": "risk-check",
+        "secondEdge": "record-decision",
+        "angle": 90
+      }
+    ],
+    "edgeLabels": [
+      {
+        "edge": "submit-payment",
+        "ownDistance": 14,
+        "nearestOtherEdge": "authorize-card",
+        "nearestOtherDistance": 40,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "authorize-card",
+        "ownDistance": 14,
+        "nearestOtherEdge": "submit-payment",
+        "nearestOtherDistance": 147.6,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "return-decision",
+        "ownDistance": 14,
+        "nearestOtherEdge": "record-decision",
+        "nearestOtherDistance": 76,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "risk-check",
+        "ownDistance": 14,
+        "nearestOtherEdge": "record-decision",
+        "nearestOtherDistance": 7,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "record-decision",
+        "ownDistance": 14,
+        "nearestOtherEdge": "risk-check",
+        "nearestOtherDistance": 94,
+        "ambiguous": false,
+        "distant": false
+      }
+    ],
+    "composition": {
+      "width": 900,
+      "height": 486
+    },
+    "warnings": [
+      {
+        "kind": "primary-flow-continuity",
+        "edge": "submit-payment",
+        "bends": 3,
+        "routeLength": 302
+      },
+      {
+        "kind": "primary-flow-continuity",
+        "edge": "authorize-card",
+        "bends": 3,
+        "routeLength": 728
+      },
+      {
+        "kind": "primary-flow-continuity",
+        "edge": "return-decision",
+        "bends": 3,
+        "routeLength": 670
+      },
+      {
+        "kind": "edge-bend-complexity",
+        "edge": "record-decision",
+        "bends": 4,
+        "routeLength": 930
+      },
+      {
+        "kind": "scene-bend-complexity",
+        "averageBendsPerEdge": 2.6,
+        "totalBends": 13
+      }
+    ]
+  },
+  "suggestedPatches": [
+    {
+      "operation": "straighten-primary-flow",
+      "edge": "submit-payment",
+      "maxBends": 2
+    },
+    {
+      "operation": "straighten-primary-flow",
+      "edge": "authorize-card",
+      "maxBends": 2
+    },
+    {
+      "operation": "straighten-primary-flow",
+      "edge": "return-decision",
+      "maxBends": 2
+    },
+    {
+      "operation": "reduce-edge-bends",
+      "edge": "record-decision",
+      "maxBends": 2
+    }
+  ]
+}

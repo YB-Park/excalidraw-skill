@@ -1,0 +1,2648 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "excalidraw-skill",
+  "elements": [
+    {
+      "id": "queue_band_rectangle_accepted-order",
+      "type": "rectangle",
+      "x": 120,
+      "y": 240,
+      "width": 180,
+      "height": 24,
+      "angle": 0,
+      "strokeColor": "#9333ea",
+      "backgroundColor": "#f3e8ff",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_accepted-order"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "accepted-order"
+        }
+      }
+    },
+    {
+      "id": "queue_label_rectangle_accepted-order",
+      "type": "text",
+      "x": 132,
+      "y": 244,
+      "width": 60,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#7e22ce",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_accepted-order"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "accepted-order"
+        }
+      },
+      "text": "EVENT",
+      "originalText": "EVENT",
+      "fontSize": 10,
+      "fontFamily": 2,
+      "textAlign": "left",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "queue_dot_0_rectangle_accepted-order",
+      "type": "ellipse",
+      "x": 256,
+      "y": 248,
+      "width": 8,
+      "height": 8,
+      "angle": 0,
+      "strokeColor": "#9333ea",
+      "backgroundColor": "#9333ea",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_accepted-order"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "accepted-order"
+        }
+      }
+    },
+    {
+      "id": "queue_dot_1_rectangle_accepted-order",
+      "type": "ellipse",
+      "x": 270,
+      "y": 248,
+      "width": 8,
+      "height": 8,
+      "angle": 0,
+      "strokeColor": "#9333ea",
+      "backgroundColor": "#9333ea",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_accepted-order"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "accepted-order"
+        }
+      }
+    },
+    {
+      "id": "queue_dot_2_rectangle_accepted-order",
+      "type": "ellipse",
+      "x": 284,
+      "y": 248,
+      "width": 8,
+      "height": 8,
+      "angle": 0,
+      "strokeColor": "#9333ea",
+      "backgroundColor": "#9333ea",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_accepted-order"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "accepted-order"
+        }
+      }
+    },
+    {
+      "id": "accent_rectangle_inventory-service",
+      "type": "rectangle",
+      "x": 460,
+      "y": 232,
+      "width": 8,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#7c3aed",
+      "backgroundColor": "#7c3aed",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_inventory-service"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "inventory-service"
+        }
+      }
+    },
+    {
+      "id": "tag_rectangle_inventory-service_JOB",
+      "type": "rectangle",
+      "x": 472,
+      "y": 240,
+      "width": 48,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#7c3aed",
+      "backgroundColor": "#ede9fe",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_inventory-service"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "inventory-service"
+        }
+      }
+    },
+    {
+      "id": "tag_text_rectangle_inventory-service_JOB",
+      "type": "text",
+      "x": 480,
+      "y": 242,
+      "width": 40,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#7c3aed",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_inventory-service"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "inventory-service"
+        }
+      },
+      "text": "JOB",
+      "originalText": "JOB",
+      "fontSize": 10,
+      "fontFamily": 2,
+      "textAlign": "left",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "accent_rectangle_payment-service",
+      "type": "rectangle",
+      "x": 800,
+      "y": 232,
+      "width": 8,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#7c3aed",
+      "backgroundColor": "#7c3aed",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-service"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "payment-service"
+        }
+      }
+    },
+    {
+      "id": "tag_rectangle_payment-service_JOB",
+      "type": "rectangle",
+      "x": 812,
+      "y": 240,
+      "width": 48,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#7c3aed",
+      "backgroundColor": "#ede9fe",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-service"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "payment-service"
+        }
+      }
+    },
+    {
+      "id": "tag_text_rectangle_payment-service_JOB",
+      "type": "text",
+      "x": 820,
+      "y": 242,
+      "width": 40,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#7c3aed",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-service"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "payment-service"
+        }
+      },
+      "text": "JOB",
+      "originalText": "JOB",
+      "fontSize": 10,
+      "fontFamily": 2,
+      "textAlign": "left",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "accent_rectangle_shipment-service",
+      "type": "rectangle",
+      "x": 1140,
+      "y": 232,
+      "width": 8,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#7c3aed",
+      "backgroundColor": "#7c3aed",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_shipment-service"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "shipment-service"
+        }
+      }
+    },
+    {
+      "id": "tag_rectangle_shipment-service_JOB",
+      "type": "rectangle",
+      "x": 1152,
+      "y": 240,
+      "width": 48,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#7c3aed",
+      "backgroundColor": "#ede9fe",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_shipment-service"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "shipment-service"
+        }
+      }
+    },
+    {
+      "id": "tag_text_rectangle_shipment-service_JOB",
+      "type": "text",
+      "x": 1160,
+      "y": 242,
+      "width": 40,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#7c3aed",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_shipment-service"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "shipment-service"
+        }
+      },
+      "text": "JOB",
+      "originalText": "JOB",
+      "fontSize": 10,
+      "fontFamily": 2,
+      "textAlign": "left",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "accent_rectangle_notification-service",
+      "type": "rectangle",
+      "x": 1480,
+      "y": 232,
+      "width": 8,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#4f46e5",
+      "backgroundColor": "#4f46e5",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_notification-service"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "notification-service"
+        }
+      }
+    },
+    {
+      "id": "queue_band_rectangle_capture-retry",
+      "type": "rectangle",
+      "x": 800,
+      "y": 418,
+      "width": 180,
+      "height": 24,
+      "angle": 0,
+      "strokeColor": "#9333ea",
+      "backgroundColor": "#f3e8ff",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_capture-retry"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "capture-retry"
+        }
+      }
+    },
+    {
+      "id": "queue_label_rectangle_capture-retry",
+      "type": "text",
+      "x": 812,
+      "y": 422,
+      "width": 60,
+      "height": 18,
+      "angle": 0,
+      "strokeColor": "#7e22ce",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_capture-retry"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "capture-retry"
+        }
+      },
+      "text": "EVENT",
+      "originalText": "EVENT",
+      "fontSize": 10,
+      "fontFamily": 2,
+      "textAlign": "left",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "queue_dot_0_rectangle_capture-retry",
+      "type": "ellipse",
+      "x": 936,
+      "y": 426,
+      "width": 8,
+      "height": 8,
+      "angle": 0,
+      "strokeColor": "#9333ea",
+      "backgroundColor": "#9333ea",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_capture-retry"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "capture-retry"
+        }
+      }
+    },
+    {
+      "id": "queue_dot_1_rectangle_capture-retry",
+      "type": "ellipse",
+      "x": 950,
+      "y": 426,
+      "width": 8,
+      "height": 8,
+      "angle": 0,
+      "strokeColor": "#9333ea",
+      "backgroundColor": "#9333ea",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_capture-retry"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "capture-retry"
+        }
+      }
+    },
+    {
+      "id": "queue_dot_2_rectangle_capture-retry",
+      "type": "ellipse",
+      "x": 964,
+      "y": 426,
+      "width": 8,
+      "height": 8,
+      "angle": 0,
+      "strokeColor": "#9333ea",
+      "backgroundColor": "#9333ea",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_capture-retry"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "capture-retry"
+        }
+      }
+    },
+    {
+      "id": "accent_rectangle_ops-alert",
+      "type": "rectangle",
+      "x": 1140,
+      "y": 418,
+      "width": 8,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#4f46e5",
+      "backgroundColor": "#4f46e5",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_ops-alert"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "role": "component-detail",
+          "parentNode": "ops-alert"
+        }
+      }
+    },
+    {
+      "id": "rectangle_accepted-order",
+      "type": "rectangle",
+      "x": 120,
+      "y": 240,
+      "width": 180,
+      "height": 80,
+      "angle": 0,
+      "strokeColor": "#9333ea",
+      "backgroundColor": "#faf5ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_accepted-order"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_accepted-order_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_reserve-inventory",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "accepted-order",
+          "role": "node",
+          "label": "Order Accepted",
+          "displayLabel": "Order Accepted",
+          "shapeRef": "queue.topic",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_accepted-order_label",
+      "type": "text",
+      "x": 136,
+      "y": 268.5,
+      "width": 148,
+      "height": 23,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_accepted-order"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "accepted-order_label",
+          "role": "label",
+          "node": "accepted-order",
+          "sourceLabel": "Order Accepted",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 1,
+            "overflow": false,
+            "estimatedLineWidths": [
+              138.24000000000004
+            ]
+          }
+        }
+      },
+      "text": "Order Accepted",
+      "originalText": "Order Accepted",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_accepted-order",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_inventory-service",
+      "type": "rectangle",
+      "x": 460,
+      "y": 232,
+      "width": 180,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#7c3aed",
+      "backgroundColor": "#f5f3ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_inventory-service"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_inventory-service_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_reserve-inventory",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_capture-payment",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "inventory-service",
+          "role": "node",
+          "label": "Inventory Service",
+          "displayLabel": "Inventory\nService",
+          "shapeRef": "service.worker",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_inventory-service_label",
+      "type": "text",
+      "x": 476,
+      "y": 257.5,
+      "width": 148,
+      "height": 45,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_inventory-service"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "inventory-service_label",
+          "role": "label",
+          "node": "inventory-service",
+          "sourceLabel": "Inventory Service",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false,
+            "estimatedLineWidths": [
+              90.9,
+              66.6
+            ]
+          }
+        }
+      },
+      "text": "Inventory\nService",
+      "originalText": "Inventory\nService",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_inventory-service",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_payment-service",
+      "type": "rectangle",
+      "x": 800,
+      "y": 232,
+      "width": 180,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#7c3aed",
+      "backgroundColor": "#f5f3ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-service"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_payment-service_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_capture-payment",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_create-shipment",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_retry-capture",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_redeliver-capture",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "payment-service",
+          "role": "node",
+          "label": "Payment Capture",
+          "displayLabel": "Payment\nCapture",
+          "shapeRef": "service.worker",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_payment-service_label",
+      "type": "text",
+      "x": 816,
+      "y": 257.5,
+      "width": 148,
+      "height": 45,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_payment-service"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "payment-service_label",
+          "role": "label",
+          "node": "payment-service",
+          "sourceLabel": "Payment Capture",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false,
+            "estimatedLineWidths": [
+              71.1,
+              71.1
+            ]
+          }
+        }
+      },
+      "text": "Payment\nCapture",
+      "originalText": "Payment\nCapture",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_payment-service",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_shipment-service",
+      "type": "rectangle",
+      "x": 1140,
+      "y": 232,
+      "width": 180,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#7c3aed",
+      "backgroundColor": "#f5f3ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_shipment-service"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_shipment-service_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_create-shipment",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_notify-customer",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "shipment-service",
+          "role": "node",
+          "label": "Shipment Service",
+          "displayLabel": "Shipment\nService",
+          "shapeRef": "service.worker",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_shipment-service_label",
+      "type": "text",
+      "x": 1156,
+      "y": 257.5,
+      "width": 148,
+      "height": 45,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_shipment-service"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "shipment-service_label",
+          "role": "label",
+          "node": "shipment-service",
+          "sourceLabel": "Shipment Service",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false,
+            "estimatedLineWidths": [
+              76.5,
+              66.6
+            ]
+          }
+        }
+      },
+      "text": "Shipment\nService",
+      "originalText": "Shipment\nService",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_shipment-service",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_notification-service",
+      "type": "rectangle",
+      "x": 1480,
+      "y": 232,
+      "width": 180,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#4f46e5",
+      "backgroundColor": "#eef2ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_notification-service"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_notification-service_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_notify-customer",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "notification-service",
+          "role": "node",
+          "label": "Customer Notification",
+          "displayLabel": "Customer\nNotification",
+          "shapeRef": "service.backend",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_notification-service_label",
+      "type": "text",
+      "x": 1496,
+      "y": 257.5,
+      "width": 148,
+      "height": 45,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_notification-service"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "notification-service_label",
+          "role": "label",
+          "node": "notification-service",
+          "sourceLabel": "Customer Notification",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false,
+            "estimatedLineWidths": [
+              81,
+              107.10000000000002
+            ]
+          }
+        }
+      },
+      "text": "Customer\nNotification",
+      "originalText": "Customer\nNotification",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_notification-service",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_capture-retry",
+      "type": "rectangle",
+      "x": 800,
+      "y": 418,
+      "width": 180,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#9333ea",
+      "backgroundColor": "#faf5ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_capture-retry"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_capture-retry_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_retry-capture",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_redeliver-capture",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_alert-ops",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "capture-retry",
+          "role": "node",
+          "label": "Capture Retry Topic",
+          "displayLabel": "Capture\nRetry Topic",
+          "shapeRef": "queue.topic",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_capture-retry_label",
+      "type": "text",
+      "x": 816,
+      "y": 443.5,
+      "width": 148,
+      "height": 45,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_capture-retry"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "capture-retry_label",
+          "role": "label",
+          "node": "capture-retry",
+          "sourceLabel": "Capture Retry Topic",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false,
+            "estimatedLineWidths": [
+              71.1,
+              104.04000000000002
+            ]
+          }
+        }
+      },
+      "text": "Capture\nRetry Topic",
+      "originalText": "Capture\nRetry Topic",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_capture-retry",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "rectangle_ops-alert",
+      "type": "rectangle",
+      "x": 1140,
+      "y": 418,
+      "width": 180,
+      "height": 96,
+      "angle": 0,
+      "strokeColor": "#4f46e5",
+      "backgroundColor": "#eef2ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_ops-alert"
+      ],
+      "frameId": null,
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "text_ops-alert_label",
+          "type": "text"
+        },
+        {
+          "id": "arrow_alert-ops",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "ops-alert",
+          "role": "node",
+          "label": "Operations Alert",
+          "displayLabel": "Operations\nAlert",
+          "shapeRef": "service.backend",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false
+          }
+        }
+      }
+    },
+    {
+      "id": "text_ops-alert_label",
+      "type": "text",
+      "x": 1156,
+      "y": 443.5,
+      "width": 148,
+      "height": 45,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [
+        "group_component_ops-alert"
+      ],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "ops-alert_label",
+          "role": "label",
+          "node": "ops-alert",
+          "sourceLabel": "Operations Alert",
+          "textFit": {
+            "sizeClass": "compact",
+            "lineCount": 2,
+            "overflow": false,
+            "estimatedLineWidths": [
+              96.30000000000001,
+              46.8
+            ]
+          }
+        }
+      },
+      "text": "Operations\nAlert",
+      "originalText": "Operations\nAlert",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "rectangle_ops-alert",
+      "lineHeight": 1.25
+    },
+    {
+      "id": "arrow_reserve-inventory",
+      "type": "arrow",
+      "x": 300,
+      "y": 280,
+      "width": 160,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "reserve-inventory",
+          "role": "edge",
+          "from": "accepted-order",
+          "to": "inventory-service",
+          "label": "reserve inventory",
+          "kind": "subscribes",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "right",
+            "targetSide": "left",
+            "axisLock": "horizontal",
+            "bends": 0
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          160,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_accepted-order",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_inventory-service",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "arrow_capture-payment",
+      "type": "arrow",
+      "x": 640,
+      "y": 280,
+      "width": 160,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "capture-payment",
+          "role": "edge",
+          "from": "inventory-service",
+          "to": "payment-service",
+          "label": "inventory reserved",
+          "kind": "publishes",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "right",
+            "targetSide": "left",
+            "axisLock": "horizontal",
+            "bends": 0
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          160,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_inventory-service",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_payment-service",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "arrow_create-shipment",
+      "type": "arrow",
+      "x": 980,
+      "y": 280,
+      "width": 160,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "create-shipment",
+          "role": "edge",
+          "from": "payment-service",
+          "to": "shipment-service",
+          "label": "payment captured",
+          "kind": "publishes",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "right",
+            "targetSide": "left",
+            "axisLock": "horizontal",
+            "bends": 0
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          160,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_payment-service",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_shipment-service",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "arrow_notify-customer",
+      "type": "arrow",
+      "x": 1320,
+      "y": 280,
+      "width": 160,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "notify-customer",
+          "role": "edge",
+          "from": "shipment-service",
+          "to": "notification-service",
+          "label": "shipment created",
+          "kind": "publishes",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "right",
+            "targetSide": "left",
+            "axisLock": "horizontal",
+            "bends": 0
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          160,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_shipment-service",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_notification-service",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "arrow_retry-capture",
+      "type": "arrow",
+      "x": 898,
+      "y": 328,
+      "width": 0,
+      "height": 90,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "retry-capture",
+          "role": "edge",
+          "from": "payment-service",
+          "to": "capture-retry",
+          "label": "capture failed",
+          "kind": "retries",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "down",
+            "targetSide": "up",
+            "axisLock": null,
+            "bends": 0
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          90
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_payment-service",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_capture-retry",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "arrow_redeliver-capture",
+      "type": "arrow",
+      "x": 882,
+      "y": 418,
+      "width": 0,
+      "height": -90,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "redeliver-capture",
+          "role": "edge",
+          "from": "capture-retry",
+          "to": "payment-service",
+          "label": "retry capture",
+          "kind": "publishes",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "up",
+            "targetSide": "down",
+            "axisLock": null,
+            "bends": 0
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          -90
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_capture-retry",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_payment-service",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "arrow_alert-ops",
+      "type": "arrow",
+      "x": 980,
+      "y": 466,
+      "width": 160,
+      "height": 0,
+      "angle": 0,
+      "strokeColor": "#1f2937",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "alert-ops",
+          "role": "edge",
+          "from": "capture-retry",
+          "to": "ops-alert",
+          "label": "retries exhausted",
+          "kind": "fails-to",
+          "visual": {
+            "role": "default",
+            "emphasis": "normal"
+          },
+          "route": {
+            "engine": "graph-aware-v0.3.5",
+            "sourceSide": "right",
+            "targetSide": "left",
+            "axisLock": "horizontal",
+            "bends": 0
+          },
+          "styleRole": "visual-default",
+          "styleSource": "edge.visual"
+        }
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          160,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "rectangle_capture-retry",
+        "focus": 0,
+        "gap": 0
+      },
+      "endBinding": {
+        "elementId": "rectangle_ops-alert",
+        "focus": 0,
+        "gap": 0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow"
+    },
+    {
+      "id": "text_reserve-inventory_label",
+      "type": "text",
+      "x": 317,
+      "y": 244,
+      "width": 126,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "reserve inventory",
+      "originalText": "reserve inventory",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "reserve-inventory_label",
+          "role": "edge-label",
+          "edge": "reserve-inventory",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 152,
+            "estimatedLineWidths": [
+              115.4
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "above",
+            "preferred": "above",
+            "ownDistance": 14,
+            "nearestOtherDistance": 197.5,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    },
+    {
+      "id": "text_capture-payment_label",
+      "type": "text",
+      "x": 654,
+      "y": 244,
+      "width": 133,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "inventory reserved",
+      "originalText": "inventory reserved",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "capture-payment_label",
+          "role": "edge-label",
+          "edge": "capture-payment",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 152,
+            "estimatedLineWidths": [
+              122.6
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "above",
+            "preferred": "above",
+            "ownDistance": 14,
+            "nearestOtherDistance": 113.9,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    },
+    {
+      "id": "text_create-shipment_label",
+      "type": "text",
+      "x": 999,
+      "y": 244,
+      "width": 122,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "payment captured",
+      "originalText": "payment captured",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "create-shipment_label",
+          "role": "edge-label",
+          "edge": "create-shipment",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 152,
+            "estimatedLineWidths": [
+              111.5
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "above",
+            "preferred": "above",
+            "ownDistance": 14,
+            "nearestOtherDistance": 118.5,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    },
+    {
+      "id": "text_notify-customer_label",
+      "type": "text",
+      "x": 1341,
+      "y": 244,
+      "width": 119,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "shipment created",
+      "originalText": "shipment created",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "notify-customer_label",
+          "role": "edge-label",
+          "edge": "notify-customer",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 152,
+            "estimatedLineWidths": [
+              108.3
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "above",
+            "preferred": "above",
+            "ownDistance": 14,
+            "nearestOtherDistance": 201,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    },
+    {
+      "id": "text_retry-capture_label",
+      "type": "text",
+      "x": 912,
+      "y": 355,
+      "width": 61,
+      "height": 37,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "capture\nfailed",
+      "originalText": "capture failed",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "retry-capture_label",
+          "role": "edge-label",
+          "edge": "retry-capture",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 2,
+            "preferredMaxWidth": 96,
+            "estimatedLineWidths": [
+              50,
+              36.4
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "right",
+            "preferred": "right",
+            "ownDistance": 14,
+            "nearestOtherDistance": 30,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    },
+    {
+      "id": "text_redeliver-capture_label",
+      "type": "text",
+      "x": 807,
+      "y": 355,
+      "width": 61,
+      "height": 37,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "retry\ncapture",
+      "originalText": "retry capture",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "redeliver-capture_label",
+          "role": "edge-label",
+          "edge": "redeliver-capture",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 2,
+            "preferredMaxWidth": 96,
+            "estimatedLineWidths": [
+              35.8,
+              50
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "left",
+            "preferred": "left",
+            "ownDistance": 14,
+            "nearestOtherDistance": 30,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    },
+    {
+      "id": "text_alert-ops_label",
+      "type": "text",
+      "x": 997,
+      "y": 430,
+      "width": 126,
+      "height": 22,
+      "angle": 0,
+      "strokeColor": "#374151",
+      "backgroundColor": "#ffffff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0.7,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "roundness": null,
+      "seed": 1,
+      "version": 1,
+      "versionNonce": 1,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "retries exhausted",
+      "originalText": "retries exhausted",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": null,
+      "lineHeight": 1.25,
+      "customData": {
+        "excalidrawSkill": {
+          "semanticId": "alert-ops_label",
+          "role": "edge-label",
+          "edge": "alert-ops",
+          "fit": {
+            "version": "0.2.0",
+            "lineCount": 1,
+            "preferredMaxWidth": 152,
+            "estimatedLineWidths": [
+              115.4
+            ]
+          },
+          "placement": {
+            "engine": "collision-aware-v0.9",
+            "distanceModel": "label-box-to-edge",
+            "side": "above",
+            "preferred": "above",
+            "ownDistance": 14,
+            "nearestOtherDistance": 99.7,
+            "sharedFrameId": null,
+            "frameContained": null,
+            "endpointCorridorRelaxed": true
+          }
+        }
+      }
+    }
+  ],
+  "appState": {
+    "gridSize": null,
+    "viewBackgroundColor": "#ffffff"
+  },
+  "files": {},
+  "customData": {
+    "excalidrawSkill": {
+      "diagramType": "event-flow",
+      "title": "Order Fulfillment Events",
+      "stylePreset": "professional-software",
+      "layout": {
+        "engine": "flow-v0.4.2",
+        "family": "flow",
+        "subtype": "event-flow",
+        "profile": "swimlane-flow",
+        "placedNodes": 7
+      },
+      "flowOptimization": {
+        "version": "0.3.0",
+        "groupsConsidered": 0,
+        "groupsChanged": 0
+      },
+      "positionRefinement": {
+        "version": "0.2.0",
+        "strategy": "bounded-cross-axis-local-search",
+        "scoring": "shared-post-route-quality-score",
+        "candidates": 2,
+        "nodesChanged": 0,
+        "baselineCost": 0,
+        "selectedCost": 0,
+        "improvement": 0,
+        "moves": {},
+        "decisions": []
+      },
+      "routeRepair": {
+        "engine": "route-repair-v0.1",
+        "nodeCrossingsRepaired": 0,
+        "endpointOverlapsRepaired": 0
+      },
+      "routeSimplification": {
+        "engine": "route-simplify-v0.2",
+        "simplified": 0
+      },
+      "routeOptimization": {
+        "version": "0.5.0",
+        "strategy": "routing-strategy-portfolio",
+        "selectedStrategy": "bundle-then-edge",
+        "scoring": "shared-post-route-quality-score",
+        "bundlesConsidered": 0,
+        "bundlesChanged": 0,
+        "bundleDecisions": [],
+        "edgesConsidered": 2,
+        "edgesChanged": 0,
+        "baselineCost": 0,
+        "selectedCost": 0,
+        "improvement": 0,
+        "candidates": [
+          {
+            "strategy": "bundle-then-edge",
+            "cost": 0,
+            "hardPenalty": 0,
+            "acceptedBundles": 0,
+            "acceptedEdges": 0
+          },
+          {
+            "strategy": "edge-only",
+            "cost": 0,
+            "hardPenalty": 0,
+            "acceptedBundles": 0,
+            "acceptedEdges": 0
+          }
+        ],
+        "decisions": [
+          {
+            "edge": "retry-capture",
+            "preferredDirection": "down",
+            "selectedDirection": "down",
+            "accepted": false,
+            "costBefore": 0,
+            "costAfter": 0,
+            "improvement": 0
+          },
+          {
+            "edge": "redeliver-capture",
+            "preferredDirection": "up",
+            "selectedDirection": "up",
+            "accepted": false,
+            "costBefore": 0,
+            "costAfter": 0,
+            "improvement": 0
+          }
+        ]
+      },
+      "flowBundleRepair": {
+        "version": "0.4.0",
+        "strategy": "topology-ordered-bundle-geometry-portfolio",
+        "considered": 0,
+        "accepted": 0,
+        "finalCost": 0,
+        "decisions": []
+      },
+      "endpointIntegrityRepair": {
+        "version": "0.1.0",
+        "repaired": 0,
+        "unresolved": 0,
+        "decisions": []
+      },
+      "framePolicy": {
+        "budget": 0,
+        "candidateCount": 0,
+        "renderedCount": 0,
+        "suppressedSmallGroups": 0,
+        "suppressedUnspecifiedGroups": 0,
+        "suppressedFullScene": 0,
+        "titleReserveMode": "native-100pct-estimate",
+        "titleReserveHeight": 32,
+        "adjustedFrameCollisions": 0,
+        "unresolvedFrameCollisions": 0,
+        "suppressedByBudget": 0
+      },
+      "reciprocalLabelSeparation": {
+        "version": "0.1.0",
+        "strategy": "opposite-sides-by-dominant-axis",
+        "edges": {
+          "redeliver-capture": "left",
+          "retry-capture": "right"
+        }
+      }
+    }
+  }
+}

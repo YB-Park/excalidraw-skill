@@ -1,0 +1,235 @@
+{
+  "version": "0.5.0",
+  "mode": "advisory",
+  "metrics": {
+    "readabilityCost": 184.35,
+    "totalBends": 13,
+    "averageBendsPerEdge": 1.86,
+    "highBendEdges": 1,
+    "edgeCrossings": 2,
+    "minCrossingAngle": 90,
+    "lowAngleCrossings": 0,
+    "crossingCost": 16,
+    "edgeLabelCount": 7,
+    "ambiguousEdgeLabels": 0,
+    "distantEdgeLabels": 1,
+    "averageEdgeLabelDistance": 23.1,
+    "edgeLabelAssociationCost": 8.75,
+    "primaryFlowBends": 7,
+    "primaryFlowAverageBends": 1.75,
+    "averageDetourRatio": 1,
+    "maxDetourRatio": 1,
+    "primaryFlowAverageDetourRatio": 1,
+    "severeDetours": 0,
+    "moderateDetours": 0,
+    "compositionDensity": 0.239,
+    "compositionBalanceOffset": 0.11
+  },
+  "details": {
+    "edgeLabelDistanceModel": "label-box-to-edge",
+    "edges": [
+      {
+        "edge": "emit-signals",
+        "from": "application",
+        "to": "collector",
+        "primary": true,
+        "bends": 2,
+        "routeLength": 375,
+        "idealOrthogonalLength": 375,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "collect-signals",
+        "from": "collector",
+        "to": "telemetry-processor",
+        "primary": true,
+        "bends": 0,
+        "routeLength": 34,
+        "idealOrthogonalLength": 34,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "store-telemetry",
+        "from": "telemetry-processor",
+        "to": "telemetry-store",
+        "primary": true,
+        "bends": 3,
+        "routeLength": 371,
+        "idealOrthogonalLength": 371,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": true
+      },
+      {
+        "edge": "serve-queries",
+        "from": "telemetry-store",
+        "to": "query-service",
+        "primary": true,
+        "bends": 2,
+        "routeLength": 191,
+        "idealOrthogonalLength": 191,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "archive-telemetry",
+        "from": "telemetry-store",
+        "to": "archive-store",
+        "primary": false,
+        "bends": 2,
+        "routeLength": 198,
+        "idealOrthogonalLength": 198,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "evaluate-alerts",
+        "from": "telemetry-store",
+        "to": "alert-manager",
+        "primary": false,
+        "bends": 2,
+        "routeLength": 95,
+        "idealOrthogonalLength": 95,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "view-dashboard",
+        "from": "query-service",
+        "to": "dashboard",
+        "primary": false,
+        "bends": 2,
+        "routeLength": 613,
+        "idealOrthogonalLength": 613,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      }
+    ],
+    "crossings": [
+      {
+        "firstEdge": "store-telemetry",
+        "secondEdge": "view-dashboard",
+        "angle": 90
+      },
+      {
+        "firstEdge": "serve-queries",
+        "secondEdge": "view-dashboard",
+        "angle": 90
+      }
+    ],
+    "edgeLabels": [
+      {
+        "edge": "emit-signals",
+        "ownDistance": 0,
+        "nearestOtherEdge": "store-telemetry",
+        "nearestOtherDistance": 33.6,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "collect-signals",
+        "ownDistance": 14,
+        "nearestOtherEdge": "emit-signals",
+        "nearestOtherDistance": 62.8,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "store-telemetry",
+        "ownDistance": 14,
+        "nearestOtherEdge": "view-dashboard",
+        "nearestOtherDistance": 29.5,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "serve-queries",
+        "ownDistance": 0,
+        "nearestOtherEdge": "store-telemetry",
+        "nearestOtherDistance": 0,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "archive-telemetry",
+        "ownDistance": 14,
+        "nearestOtherEdge": "store-telemetry",
+        "nearestOtherDistance": 154.2,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "evaluate-alerts",
+        "ownDistance": 106,
+        "nearestOtherEdge": "view-dashboard",
+        "nearestOtherDistance": 160.9,
+        "ambiguous": false,
+        "distant": true
+      },
+      {
+        "edge": "view-dashboard",
+        "ownDistance": 13.5,
+        "nearestOtherEdge": "emit-signals",
+        "nearestOtherDistance": 67,
+        "ambiguous": false,
+        "distant": false
+      }
+    ],
+    "composition": {
+      "width": 790,
+      "height": 687
+    },
+    "warnings": [
+      {
+        "kind": "primary-flow-continuity",
+        "edge": "store-telemetry",
+        "bends": 3,
+        "routeLength": 371
+      },
+      {
+        "kind": "scene-bend-complexity",
+        "averageBendsPerEdge": 1.86,
+        "totalBends": 13
+      },
+      {
+        "kind": "distant-edge-label",
+        "edge": "evaluate-alerts",
+        "ownDistance": 106
+      }
+    ]
+  },
+  "suggestedPatches": [
+    {
+      "operation": "straighten-primary-flow",
+      "edge": "store-telemetry",
+      "maxBends": 2
+    },
+    {
+      "operation": "reassociate-edge-label",
+      "edge": "evaluate-alerts",
+      "targetDistance": 36
+    }
+  ]
+}

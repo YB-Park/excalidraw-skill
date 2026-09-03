@@ -1,0 +1,180 @@
+{
+  "version": "0.4.2",
+  "pass": false,
+  "structuralPass": true,
+  "familyPass": false,
+  "diagramType": "service-flow",
+  "layoutProfile": "hub-and-spoke",
+  "metrics": {
+    "nodeOverlaps": 0,
+    "edgeNodeCrossings": 0,
+    "edgeCrossings": 0,
+    "endpointOverlaps": 0,
+    "endpointApproachViolations": 0,
+    "endpointNodePenetrations": 0,
+    "labelOverlaps": 0,
+    "labelNodeOverlaps": 0,
+    "textOverflows": 0,
+    "edgeVisualMismatches": 0,
+    "unresolvedFrameCollisions": 0,
+    "aspectRatio": 1.85,
+    "nodeCount": 6,
+    "edgeCount": 5,
+    "edgeLabelCount": 5,
+    "visibleFrames": 0,
+    "singletonFrames": 0,
+    "allowedSingletonFrames": 0,
+    "policySingletonFrames": 0,
+    "suspiciousSingletonFrames": 0,
+    "excessiveSingletonFrames": 0,
+    "fullSceneFrames": 0,
+    "frameBudgetExceeded": 0,
+    "primaryFlowMissing": 0,
+    "primaryFlowOrderViolations": 2,
+    "centerAxisViolations": 0
+  },
+  "details": {
+    "nodeOverlaps": [],
+    "edgeNodeCrossings": [],
+    "edgeCrossings": [],
+    "endpointOverlaps": [],
+    "endpointApproachViolations": [],
+    "endpointNodePenetrations": [],
+    "labelOverlaps": [],
+    "labelNodeOverlaps": [],
+    "textOverflows": [],
+    "edgeVisualMismatches": [],
+    "unresolvedFrameCollisions": 0,
+    "family": {
+      "frames": {
+        "allowedSingletonFrames": [],
+        "policySingletonFrames": [],
+        "suspiciousSingletonFrames": [],
+        "excessiveSingletonFrames": [],
+        "fullSceneFrames": [],
+        "frameBudget": 0,
+        "allowSingletons": false,
+        "unresolvedFrameCollisions": 0
+      },
+      "primaryFlowMissing": [],
+      "primaryFlowOrderViolations": [
+        {
+          "from": "checkout",
+          "to": "payment-api",
+          "direction": "left-to-right",
+          "fromValue": 650,
+          "toValue": 290
+        },
+        {
+          "from": "card-network",
+          "to": "checkout-result",
+          "direction": "left-to-right",
+          "fromValue": 1010,
+          "toValue": 290
+        }
+      ],
+      "centerAxisViolations": [],
+      "primaryFlow": [
+        "checkout",
+        "payment-api",
+        "card-network",
+        "checkout-result"
+      ]
+    }
+  },
+  "familyQuality": {
+    "version": "0.2.2",
+    "family": "flow",
+    "diagramType": "service-flow",
+    "profile": "hub-and-spoke",
+    "supported": true,
+    "reason": null,
+    "pass": false,
+    "metrics": {
+      "visibleFrames": 0,
+      "singletonFrames": 0,
+      "allowedSingletonFrames": 0,
+      "policySingletonFrames": 0,
+      "suspiciousSingletonFrames": 0,
+      "excessiveSingletonFrames": 0,
+      "fullSceneFrames": 0,
+      "frameBudgetExceeded": 0,
+      "unresolvedFrameCollisions": 0,
+      "primaryFlowMissing": 0,
+      "primaryFlowOrderViolations": 2,
+      "centerAxisViolations": 0
+    },
+    "details": {
+      "frames": {
+        "allowedSingletonFrames": [],
+        "policySingletonFrames": [],
+        "suspiciousSingletonFrames": [],
+        "excessiveSingletonFrames": [],
+        "fullSceneFrames": [],
+        "frameBudget": 0,
+        "allowSingletons": false,
+        "unresolvedFrameCollisions": 0
+      },
+      "primaryFlowMissing": [],
+      "primaryFlowOrderViolations": [
+        {
+          "from": "checkout",
+          "to": "payment-api",
+          "direction": "left-to-right",
+          "fromValue": 650,
+          "toValue": 290
+        },
+        {
+          "from": "card-network",
+          "to": "checkout-result",
+          "direction": "left-to-right",
+          "fromValue": 1010,
+          "toValue": 290
+        }
+      ],
+      "centerAxisViolations": [],
+      "primaryFlow": [
+        "checkout",
+        "payment-api",
+        "card-network",
+        "checkout-result"
+      ]
+    },
+    "suggestedPatches": [
+      {
+        "operation": "restore-primary-flow-order",
+        "from": "checkout",
+        "to": "payment-api",
+        "direction": "left-to-right",
+        "fromValue": 650,
+        "toValue": 290
+      },
+      {
+        "operation": "restore-primary-flow-order",
+        "from": "card-network",
+        "to": "checkout-result",
+        "direction": "left-to-right",
+        "fromValue": 1010,
+        "toValue": 290
+      }
+    ]
+  },
+  "suggestedPatches": [
+    {
+      "operation": "restore-primary-flow-order",
+      "from": "checkout",
+      "to": "payment-api",
+      "direction": "left-to-right",
+      "fromValue": 650,
+      "toValue": 290
+    },
+    {
+      "operation": "restore-primary-flow-order",
+      "from": "card-network",
+      "to": "checkout-result",
+      "direction": "left-to-right",
+      "fromValue": 1010,
+      "toValue": 290
+    }
+  ]
+}

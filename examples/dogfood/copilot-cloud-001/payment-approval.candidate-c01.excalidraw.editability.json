@@ -1,0 +1,26 @@
+{
+  "version": "0.1.0",
+  "pass": true,
+  "metrics": {
+    "nodeCount": 6,
+    "edgeCount": 5,
+    "frameCount": 0,
+    "componentDetailCount": 15,
+    "missingNodeLabels": 0,
+    "unboundLabels": 0,
+    "missingLabelBackrefs": 0,
+    "invalidEdgeBindings": 0,
+    "missingEdgeBackrefs": 0,
+    "invalidFrameMembership": 0,
+    "ungroupedComponentDetails": 0
+  },
+  "details": {
+    "missingNodeLabels": [],
+    "unboundLabels": [],
+    "missingLabelBackrefs": [],
+    "invalidEdgeBindings": [],
+    "missingEdgeBackrefs": [],
+    "invalidFrameMembership": [],
+    "ungroupedComponentDetails": []
+  }
+}

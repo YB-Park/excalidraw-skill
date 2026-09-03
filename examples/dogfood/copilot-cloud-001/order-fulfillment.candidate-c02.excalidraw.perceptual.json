@@ -1,0 +1,196 @@
+{
+  "version": "0.5.0",
+  "mode": "advisory",
+  "metrics": {
+    "readabilityCost": 0,
+    "totalBends": 0,
+    "averageBendsPerEdge": 0,
+    "highBendEdges": 0,
+    "edgeCrossings": 0,
+    "minCrossingAngle": 90,
+    "lowAngleCrossings": 0,
+    "crossingCost": 0,
+    "edgeLabelCount": 7,
+    "ambiguousEdgeLabels": 0,
+    "distantEdgeLabels": 0,
+    "averageEdgeLabelDistance": 14,
+    "edgeLabelAssociationCost": 0,
+    "primaryFlowBends": 0,
+    "primaryFlowAverageBends": 0,
+    "averageDetourRatio": 1,
+    "maxDetourRatio": 1,
+    "primaryFlowAverageDetourRatio": 1,
+    "severeDetours": 0,
+    "moderateDetours": 0,
+    "compositionDensity": 0.274,
+    "compositionBalanceOffset": 0.056
+  },
+  "details": {
+    "edgeLabelDistanceModel": "label-box-to-edge",
+    "edges": [
+      {
+        "edge": "reserve-inventory",
+        "from": "accepted-order",
+        "to": "inventory-service",
+        "primary": true,
+        "bends": 0,
+        "routeLength": 90,
+        "idealOrthogonalLength": 90,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "capture-payment",
+        "from": "inventory-service",
+        "to": "payment-service",
+        "primary": true,
+        "bends": 0,
+        "routeLength": 90,
+        "idealOrthogonalLength": 90,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "create-shipment",
+        "from": "payment-service",
+        "to": "shipment-service",
+        "primary": true,
+        "bends": 0,
+        "routeLength": 90,
+        "idealOrthogonalLength": 90,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "notify-customer",
+        "from": "shipment-service",
+        "to": "notification-service",
+        "primary": true,
+        "bends": 0,
+        "routeLength": 90,
+        "idealOrthogonalLength": 90,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "retry-capture",
+        "from": "payment-service",
+        "to": "capture-retry",
+        "primary": false,
+        "bends": 0,
+        "routeLength": 150,
+        "idealOrthogonalLength": 150,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "redeliver-capture",
+        "from": "capture-retry",
+        "to": "payment-service",
+        "primary": false,
+        "bends": 0,
+        "routeLength": 150,
+        "idealOrthogonalLength": 150,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      },
+      {
+        "edge": "alert-ops",
+        "from": "capture-retry",
+        "to": "ops-alert",
+        "primary": false,
+        "bends": 0,
+        "routeLength": 90,
+        "idealOrthogonalLength": 90,
+        "extraLength": 0,
+        "detourRatio": 1,
+        "severeDetour": false,
+        "moderateDetour": false,
+        "highBendComplexity": false
+      }
+    ],
+    "crossings": [],
+    "edgeLabels": [
+      {
+        "edge": "reserve-inventory",
+        "ownDistance": 14,
+        "nearestOtherEdge": "capture-payment",
+        "nearestOtherDistance": 189.5,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "capture-payment",
+        "ownDistance": 14,
+        "nearestOtherEdge": "redeliver-capture",
+        "nearestOtherDistance": 110.1,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "create-shipment",
+        "ownDistance": 14,
+        "nearestOtherEdge": "retry-capture",
+        "nearestOtherDistance": 111.8,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "notify-customer",
+        "ownDistance": 14,
+        "nearestOtherEdge": "create-shipment",
+        "nearestOtherDistance": 193.5,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "retry-capture",
+        "ownDistance": 14,
+        "nearestOtherEdge": "redeliver-capture",
+        "nearestOtherDistance": 30,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "redeliver-capture",
+        "ownDistance": 14,
+        "nearestOtherEdge": "retry-capture",
+        "nearestOtherDistance": 30,
+        "ambiguous": false,
+        "distant": false
+      },
+      {
+        "edge": "alert-ops",
+        "ownDistance": 14,
+        "nearestOtherEdge": "retry-capture",
+        "nearestOtherDistance": 90,
+        "ambiguous": false,
+        "distant": false
+      }
+    ],
+    "composition": {
+      "width": 1260,
+      "height": 342
+    },
+    "warnings": []
+  },
+  "suggestedPatches": []
+}
