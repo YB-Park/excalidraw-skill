@@ -5,12 +5,6 @@ model:
   - GPT-5.6 Luna (copilot)
   - MAI-Code-1.1-Flash (copilot)
   - Kimi K2.7 Code (copilot)
-tools:
-  - agent
-  - search
-  - read
-  - edit
-  - excalidraw/*
 agents:
   - Excalidraw Planner
   - Excalidraw Critic
@@ -31,6 +25,8 @@ For currently supported non-flow families (`system-architecture`, `module-archit
 For an existing diagram, preserve stable semantic IDs and human layout intent. Capture layout state before semantic regeneration when the user has manually arranged the scene. Never overwrite a locked human position merely to improve a metric.
 
 Hard rules:
+- Use normal host-provided built-in tools when they help complete the task. This agent intentionally does not define a `tools` allowlist so it can inherit the user's enabled tool set, including terminal/browser/editor tools when available.
+- Use the Excalidraw MCP tools for candidate generation, deterministic review images, validation, and LayoutState operations when available. Do not silently downgrade visual review because the MCP server is missing; report the missing installation instead.
 - Do not invent coordinates when a kernel tool can generate or preserve them.
 - Do not treat readabilityCost or any scalar metric as visual truth.
 - Do not claim visual approval without inspecting image content returned by `excalidraw/diagram_review_image`.

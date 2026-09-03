@@ -41,9 +41,10 @@ test('critic prioritizes an image-capable cheap model and requires actual blind 
   assert.match(critic, /opaque candidate IDs/i);
   assert.match(critic, /not fully blind/i);
   assert.match(critic, /image was not actually returned and inspected/i);
+  assert.match(critic, /^tools:\n\s+- excalidraw\/\*/m);
 });
 
-test('designer uses subagents, blind candidate handoff, and semantic MCP tools', () => {
+test('designer inherits normal host tools while coordinating subagents and semantic MCP tools', () => {
   const designer = read('.github/agents/excalidraw-designer.agent.md');
   assert.match(designer, /Excalidraw Planner/);
   assert.match(designer, /Excalidraw Critic/);
@@ -51,6 +52,8 @@ test('designer uses subagents, blind candidate handoff, and semantic MCP tools',
   assert.match(designer, /blindCandidates/);
   assert.match(designer, /Never reveal strategy names/i);
   assert.doesNotMatch(designer, /render\s+.*\.png/i);
+  assert.doesNotMatch(designer, /^tools:/m);
+  assert.match(designer, /inherit the user's enabled tool set/i);
 });
 
 test('portable MCP workspace config points to the local semantic server', () => {
