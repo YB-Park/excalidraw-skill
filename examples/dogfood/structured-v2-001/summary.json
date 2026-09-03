@@ -1,0 +1,42 @@
+{
+  "sourceCommit": "3eeb528e9d717195021e4d379b01c47f5f80dc70",
+  "verificationHead": "9a01583a91b4475df6292def965d33840d9ce33e",
+  "workflowRunId": 33711331560,
+  "artifactName": "structured-v2-dogfood",
+  "artifactDigest": "sha256:a687f0385906de909028350f21bcd60af21106769b9bd1a3e33aee79e887b0cc",
+  "scenarios": {
+    "payment-approval": {
+      "hardGatesPassed": true,
+      "historicalStructuredOrderingViolations": 2,
+      "currentStructuredOrderingViolations": 0,
+      "blindRanking": ["c03", "c02", "c01"],
+      "confidence": "medium-high",
+      "revealedStrategies": {"c01": "narrative", "c02": "compact", "c03": "structured"},
+      "structuredRank": 1
+    },
+    "order-fulfillment": {
+      "hardGatesPassed": true,
+      "historicalStructuredOrderingViolations": 4,
+      "currentStructuredOrderingViolations": 0,
+      "blindRanking": ["c03", "c02", "c01"],
+      "confidence": "high",
+      "revealedStrategies": {"c01": "narrative", "c02": "compact", "c03": "structured"},
+      "structuredRank": 1
+    },
+    "observability-pipeline": {
+      "hardGatesPassed": true,
+      "historicalStructuredOrderingViolations": 3,
+      "currentStructuredOrderingViolations": 0,
+      "blindRanking": ["c03", "c02", "c01"],
+      "confidence": "high",
+      "revealedStrategies": {"c01": "narrative", "c02": "compact", "c03": "structured"},
+      "structuredRank": 1
+    }
+  },
+  "allNineHardGatesPassed": true,
+  "structuredRecoveredDeterministically": true,
+  "structuredPerceptuallyCompetitive": true,
+  "actualNativePngsInspected": true,
+  "rankingFrozenBeforeStrategyReveal": true,
+  "humanPreferenceEvidenceRecorded": false
+}
