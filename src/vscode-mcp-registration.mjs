@@ -90,16 +90,56 @@ export function resolveVscodeCli({
   return standardVscodeCliCandidates({ env, platform, homeDir }).find((candidate) => exists(candidate)) ?? null;
 }
 
+function vscodeServerRemoteCandidate({ env, homeDir, vscodeCli, exists }) {
+  const cliHint = String(vscodeCli ?? env.EXCALIDRAW_SKILL_VSCODE_CLI ?? '');
+  const ipcHint = String(env.VSCODE_IPC_HOOK_CLI ?? '');
+  const agentHint = String(env.VSCODE_AGENT_FOLDER ?? '');
+  const insiders = cliHint.includes('insider') || ipcHint.includes('.vscode-server-insiders') || agentHint.includes('.vscode-server-insiders');
+  const serverDir = insiders ? '.vscode-server-insiders' : '.vscode-server';
+  const configPath = path.join(homeDir, serverDir, 'data', 'User', 'mcp.json');
+  const serverRoot = path.join(homeDir, serverDir);
+  const remoteSignal = Boolean(
+    env.SSH_CONNECTION
+    || env.SSH_CLIENT
+    || ipcHint.includes('.vscode-server')
+    || agentHint.includes('.vscode-server')
+    || env.REMOTE_CONTAINERS
+    || env.CODESPACES
+  );
+  if (remoteSignal && exists(serverRoot)) return configPath;
+  return null;
+}
+
+export function resolveVscodeMcpScope({
+  env = process.env,
+  platform = process.platform,
+  homeDir = os.homedir(),
+  vscodeCli = null,
+  profile = env.EXCALIDRAW_SKILL_VSCODE_PROFILE?.trim() || null,
+  exists = fs.existsSync
+} = {}) {
+  const explicit = env.EXCALIDRAW_SKILL_VSCODE_MCP_CONFIG?.trim();
+  if (explicit) return 'explicit';
+  if (profile) return 'profile-unresolved';
+  if (platform === 'linux' && vscodeServerRemoteCandidate({ env, homeDir, vscodeCli, exists })) return 'remote-user';
+  return 'user';
+}
+
 export function resolveVscodeUserMcpConfig({
   env = process.env,
   platform = process.platform,
   homeDir = os.homedir(),
   vscodeCli = null,
-  profile = env.EXCALIDRAW_SKILL_VSCODE_PROFILE?.trim() || null
+  profile = env.EXCALIDRAW_SKILL_VSCODE_PROFILE?.trim() || null,
+  exists = fs.existsSync
 } = {}) {
   const explicit = env.EXCALIDRAW_SKILL_VSCODE_MCP_CONFIG?.trim();
   if (explicit) return path.resolve(explicit);
   if (profile) return null;
+  if (platform === 'linux') {
+    const remoteConfig = vscodeServerRemoteCandidate({ env, homeDir, vscodeCli, exists });
+    if (remoteConfig) return remoteConfig;
+  }
   const insiders = String(vscodeCli ?? env.EXCALIDRAW_SKILL_VSCODE_CLI ?? '').includes('insider');
   const productDir = insiders ? 'Code - Insiders' : 'Code';
   if (platform === 'darwin') return path.join(homeDir, 'Library', 'Application Support', productDir, 'User', 'mcp.json');
@@ -148,7 +188,8 @@ export function registerVscodeUserMcp({
   force = false
 } = {}) {
   const cliPath = resolveVscodeCli({ env, platform, explicitCli: vscodeCli, homeDir, exists });
-  const configPath = resolveVscodeUserMcpConfig({ env, platform, homeDir, vscodeCli: cliPath, profile });
+  const configPath = resolveVscodeUserMcpConfig({ env, platform, homeDir, vscodeCli: cliPath, profile, exists });
+  const scope = resolveVscodeMcpScope({ env, platform, homeDir, vscodeCli: cliPath, profile, exists });
   const payload = { name: 'excalidraw', ...mcpServer };
 
   let result;
@@ -165,12 +206,13 @@ export function registerVscodeUserMcp({
       status: registered ? 'registered-via-cli' : 'registration-failed',
       cliPath,
       configPath,
+      scope,
       profile,
       payload,
       exitCode: child.status ?? 1,
       stdout: String(child.stdout ?? '').trim() || null,
       stderr: String(child.stderr ?? child.error?.message ?? '').trim() || null,
-      remediation: registered ? null : 'VS Code rejected `--add-mcp`; use `MCP: Open User Configuration` to inspect the user profile MCP configuration.'
+      remediation: registered ? null : 'VS Code rejected `--add-mcp`; use `MCP: Open User Configuration` or `MCP: Open Remote User Configuration` to inspect the active MCP configuration.'
     };
   } else if (configPath) {
     writeUserMcpConfig(configPath, mcpServer, { force });
@@ -181,6 +223,7 @@ export function registerVscodeUserMcp({
       status: 'registered-via-user-config',
       cliPath,
       configPath,
+      scope,
       profile,
       payload,
       remediation: null
@@ -193,9 +236,10 @@ export function registerVscodeUserMcp({
       status: 'profile-config-unresolved',
       cliPath,
       configPath: null,
+      scope,
       profile,
       payload,
-      remediation: 'The selected VS Code profile cannot be mapped safely. Set EXCALIDRAW_SKILL_VSCODE_MCP_CONFIG to the mcp.json opened by `MCP: Open User Configuration`, or use `MCP: Add Server` and choose Global.'
+      remediation: 'The selected VS Code profile cannot be mapped safely. Set EXCALIDRAW_SKILL_VSCODE_MCP_CONFIG to the mcp.json opened by `MCP: Open User Configuration` or `MCP: Open Remote User Configuration`.'
     };
   }
   writeMarker(targetDir, { ...result, registeredAt, mcpServer });
@@ -213,7 +257,8 @@ export function doctorVscodeUserMcp({
 } = {}) {
   const marker = readVscodeMcpMarker(targetDir);
   const cliPath = resolveVscodeCli({ env, platform, explicitCli: vscodeCli, homeDir, exists });
-  const configPath = marker?.configPath ?? resolveVscodeUserMcpConfig({ env, platform, homeDir, vscodeCli: cliPath, profile });
+  const configPath = marker?.configPath ?? resolveVscodeUserMcpConfig({ env, platform, homeDir, vscodeCli: cliPath, profile, exists });
+  const scope = marker?.scope ?? resolveVscodeMcpScope({ env, platform, homeDir, vscodeCli: cliPath, profile, exists });
   let liveMatch = false;
   if (configPath && marker?.mcpServer) {
     try {
@@ -227,13 +272,14 @@ export function doctorVscodeUserMcp({
     vscodeCliAvailable: Boolean(cliPath),
     vscodeCliPath: cliPath,
     vscodeProfile: profile ?? marker?.profile ?? null,
+    vscodeMcpScope: scope,
     vscodeMcpConfigPath: configPath,
     vscodeMcpRegisteredAtInstall: registeredAtInstall,
     vscodeMcpLiveConfigMatch: liveMatch,
     vscodeMcpStatus: liveMatch ? 'registered-and-verified' : (marker?.status ?? 'not-attempted'),
     vscodeMcpRemediation: liveMatch
       ? null
-      : (marker?.remediation ?? 'Run global install again, or use `MCP: Open User Configuration` and add the Excalidraw server globally.')
+      : (marker?.remediation ?? 'Run global install again, or use `MCP: Open User Configuration` / `MCP: Open Remote User Configuration` and add the Excalidraw server globally.')
   };
 }
 
@@ -259,7 +305,7 @@ export function removeVscodeMcpMarker(targetDir) {
     vscodeMcpRemovalRequired: marker?.method === 'cli' && marker?.registered === true,
     vscodeMcpConfigRemoved: removedConfig,
     vscodeMcpRemovalRemediation: marker?.method === 'cli' && marker?.registered === true
-      ? 'Remove `excalidraw` with `MCP: List Servers` or `MCP: Open User Configuration` for the profile where it was installed.'
+      ? 'Remove `excalidraw` with `MCP: List Servers`, `MCP: Open User Configuration`, or `MCP: Open Remote User Configuration` for the scope where it was installed.'
       : null
   };
 }
