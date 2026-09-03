@@ -7,7 +7,9 @@ import {
   doctorVscodeUserMcp,
   readVscodeMcpMarker,
   registerVscodeUserMcp,
-  removeVscodeMcpMarker
+  removeVscodeMcpMarker,
+  resolveVscodeCli,
+  standardVscodeCliCandidates
 } from './vscode-mcp-registration.mjs';
 
 const server = {
@@ -68,6 +70,39 @@ test('supports explicit VS Code profile without guessing profile file paths', ()
   }
 });
 
+test('discovers macOS desktop VS Code CLI even when code is not on PATH', () => {
+  const expected = '/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code';
+  const result = resolveVscodeCli({
+    env: { PATH: '' },
+    platform: 'darwin',
+    homeDir: '/Users/tester',
+    exists(candidate) { return candidate === expected; }
+  });
+  assert.equal(result, expected);
+  assert.equal(standardVscodeCliCandidates({ platform: 'darwin', homeDir: '/Users/tester' }).includes(expected), true);
+});
+
+test('discovers Windows user install VS Code CLI even when code is not on PATH', () => {
+  const env = { PATH: '', LOCALAPPDATA: 'C:\\Users\\tester\\AppData\\Local' };
+  const expected = path.join(env.LOCALAPPDATA, 'Programs', 'Microsoft VS Code', 'bin', 'code.cmd');
+  const result = resolveVscodeCli({
+    env,
+    platform: 'win32',
+    homeDir: 'C:\\Users\\tester',
+    exists(candidate) { return candidate === expected; }
+  });
+  assert.equal(result, expected);
+});
+
+test('explicit VS Code CLI override wins over PATH and fallback discovery', () => {
+  const result = resolveVscodeCli({
+    env: { PATH: '', EXCALIDRAW_SKILL_VSCODE_CLI: '/custom/code' },
+    platform: 'darwin',
+    exists() { return true; }
+  });
+  assert.equal(result, '/custom/code');
+});
+
 test('missing VS Code CLI is non-fatal and doctor gives explicit remediation', () => {
   const targetDir = tempDir();
   try {
@@ -75,12 +110,13 @@ test('missing VS Code CLI is non-fatal and doctor gives explicit remediation', (
       targetDir,
       mcpServer: server,
       env: { PATH: '' },
-      platform: 'linux'
+      platform: 'linux',
+      exists() { return false; }
     });
     assert.equal(result.attempted, false);
     assert.equal(result.registered, false);
     assert.equal(result.status, 'cli-unavailable');
-    const report = doctorVscodeUserMcp({ targetDir, env: { PATH: '' }, platform: 'linux' });
+    const report = doctorVscodeUserMcp({ targetDir, env: { PATH: '' }, platform: 'linux', exists() { return false; } });
     assert.equal(report.vscodeCliAvailable, false);
     assert.equal(report.vscodeMcpRegisteredAtInstall, false);
     assert.match(report.vscodeMcpRemediation, /MCP: Add Server/);
