@@ -22,6 +22,23 @@ export function strategyById(id) {
   return strategy;
 }
 
+function primaryFlowIds(spec) {
+  const explicit = Array.isArray(spec?.layout?.primaryFlow)
+    ? spec.layout.primaryFlow.filter((id) => typeof id === 'string')
+    : [];
+  if (explicit.length > 0) return explicit;
+
+  return (spec?.nodes ?? [])
+    .map((node, index) => ({ node, index }))
+    .filter(({ node }) => node?.layoutHints?.importance === 'primary' && typeof node?.semanticId === 'string')
+    .sort((a, b) => {
+      const aRank = Number.isFinite(a.node.layoutHints?.rank) ? a.node.layoutHints.rank : a.index;
+      const bRank = Number.isFinite(b.node.layoutHints?.rank) ? b.node.layoutHints.rank : b.index;
+      return aRank - bRank || a.index - b.index;
+    })
+    .map(({ node }) => node.semanticId);
+}
+
 export function applyLayoutStrategy(spec, strategyId) {
   const strategy = strategyById(strategyId);
   const next = structuredClone(spec);
@@ -37,7 +54,8 @@ export function applyLayoutStrategy(spec, strategyId) {
   }
 
   if (strategyId === 'structured' && isFlowSpec(next)) {
-    next.layout.profile = 'hub-and-spoke';
+    const primary = primaryFlowIds(next);
+    next.layout.profile = primary.length >= 2 ? 'layered-flow' : 'hub-and-spoke';
     next.layout.aspectRatio = 'balanced';
   }
 
