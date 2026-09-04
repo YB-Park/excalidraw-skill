@@ -63,10 +63,14 @@ jobs:
           done
       - name: Install Chromium for actual-render review
         run: npx playwright install --with-deps chromium
-      - name: Render font fidelity diagnostic
+      - name: A/B headless font fidelity
         run: |
           mkdir -p artifacts/font-fidelity
-          npm run visual:actual -- examples/evaluation/font-fidelity.excalidraw -o artifacts/font-fidelity/font-fidelity.png
+          cp visual-harness/main.jsx /tmp/font-fidelity-after.jsx
+          git show origin/main:visual-harness/main.jsx > visual-harness/main.jsx
+          npm run visual:actual -- examples/evaluation/font-fidelity.excalidraw -o artifacts/font-fidelity/before.png
+          cp /tmp/font-fidelity-after.jsx visual-harness/main.jsx
+          npm run visual:actual -- examples/evaluation/font-fidelity.excalidraw -o artifacts/font-fidelity/after.png
       - name: Generate patch round-trip review scenes
         run: node ./src/generate-patch-review-scenes.mjs
       - name: Export patch round-trip actual previews
