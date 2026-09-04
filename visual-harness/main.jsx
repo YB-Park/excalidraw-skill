@@ -43,6 +43,13 @@ function blobToDataUrl(blob) {
   });
 }
 
+function resolveExportScale(scene) {
+  if (Number.isFinite(scene.appState?.exportScale) && scene.appState.exportScale > 0) {
+    return scene.appState.exportScale;
+  }
+  return [1, 2, 3].includes(window.devicePixelRatio) ? window.devicePixelRatio : 1;
+}
+
 async function renderScene() {
   const scene = window.__EXCALIDRAW_SCENE__;
   if (!scene || !Array.isArray(scene.elements)) {
@@ -51,18 +58,25 @@ async function renderScene() {
 
   const elements = scene.elements.filter((element) => !element.isDeleted);
   const fontsBeforeExport = snapshotFonts();
+  const exportScale = resolveExportScale(scene);
 
-  // Keep this path intentionally close to Excalidraw's native export utility:
-  // - let exportToBlob restore/default appState itself
-  // - use the native 1:1 dimensions (no custom getDimensions down-scaling)
-  // - use Excalidraw's default export padding (10px)
-  // The blob returned here is the artifact we persist. Do not screenshot an
-  // <img> containing it, because that introduces a second browser raster pass.
+  // Mirror the Excalidraw app's PNG path while staying on the public API:
+  // - exportToBlob restores/defaults appState and loads scene fonts
+  // - getDimensions reproduces scene/exportToCanvas's appState.exportScale canvas
+  // - omitted exportPadding keeps Excalidraw's native 10px default
+  // - persist the returned PNG blob itself, never a screenshot of a decoded <img>
   const blob = await exportToBlob({
     elements,
     appState: scene.appState ?? {},
     files: scene.files ?? {},
-    mimeType: 'image/png'
+    mimeType: 'image/png',
+    getDimensions(width, height) {
+      return {
+        width: width * exportScale,
+        height: height * exportScale,
+        scale: exportScale
+      };
+    }
   });
 
   if (document.fonts?.ready) await document.fonts.ready;
@@ -82,7 +96,8 @@ async function renderScene() {
     height: image.naturalHeight,
     elements: elements.length,
     captureMode: 'export-blob',
-    dimensionMode: 'native-1x',
+    dimensionMode: 'native-export-scale',
+    exportScale,
     exportPadding: 10,
     fontDiagnostics: {
       beforeExport: fontsBeforeExport,
