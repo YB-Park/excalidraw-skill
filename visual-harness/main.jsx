@@ -1,40 +1,37 @@
 import { exportToBlob } from '@excalidraw/excalidraw';
 import '@excalidraw/excalidraw/index.css';
 
-async function preloadRegisteredFonts() {
-  if (!document.fonts) {
-    return { supported: false, faces: [], failedFaces: [] };
+function snapshotFonts() {
+  if (!document.fonts) return { supported: false, faces: [], checks: {} };
+  const samples = {
+    latin: 'ABC 123 Diagram',
+    korean: '한글 폰트 확인'
+  };
+  const families = ['Helvetica', 'Cascadia', 'Excalifont', 'Xiaolai', 'Liberation Sans', 'Nunito', 'Comic Shanns'];
+  const checks = {};
+  for (const family of families) {
+    checks[family] = {
+      latin: document.fonts.check(`28px "${family}"`, samples.latin),
+      korean: document.fonts.check(`28px "${family}"`, samples.korean)
+    };
   }
-
-  const faces = Array.from(document.fonts);
-  const results = await Promise.all(faces.map(async (face) => {
-    try {
-      await face.load();
-      return {
-        family: face.family,
-        status: face.status,
-        style: face.style,
-        weight: face.weight,
-        loaded: true
-      };
-    } catch (error) {
-      return {
-        family: face.family,
-        status: face.status,
-        style: face.style,
-        weight: face.weight,
-        loaded: false,
-        error: error instanceof Error ? error.message : String(error)
-      };
-    }
-  }));
-
-  await document.fonts.ready;
   return {
     supported: true,
-    faces: results,
-    failedFaces: results.filter((entry) => !entry.loaded)
+    faces: Array.from(document.fonts).map((face) => ({
+      family: face.family,
+      status: face.status,
+      style: face.style,
+      weight: face.weight,
+      unicodeRange: face.unicodeRange
+    })),
+    checks
   };
+}
+
+function fontResources() {
+  return performance.getEntriesByType('resource')
+    .map((entry) => entry.name)
+    .filter((name) => /\.(?:woff2?|ttf|otf)(?:$|\?)/i.test(name));
 }
 
 async function renderScene() {
@@ -43,7 +40,7 @@ async function renderScene() {
     throw new Error('window.__EXCALIDRAW_SCENE__ was not provided');
   }
 
-  const fontDiagnostics = await preloadRegisteredFonts();
+  const fontsBeforeExport = snapshotFonts();
   const blob = await exportToBlob({
     elements: scene.elements.filter((element) => !element.isDeleted),
     appState: {
@@ -65,6 +62,8 @@ async function renderScene() {
       };
     }
   });
+  if (document.fonts?.ready) await document.fonts.ready;
+  const fontsAfterExport = snapshotFonts();
 
   const image = new Image();
   image.id = 'rendered';
@@ -76,7 +75,11 @@ async function renderScene() {
     width: image.naturalWidth,
     height: image.naturalHeight,
     elements: scene.elements.filter((element) => !element.isDeleted).length,
-    fontDiagnostics
+    fontDiagnostics: {
+      beforeExport: fontsBeforeExport,
+      afterExport: fontsAfterExport,
+      resources: fontResources()
+    }
   };
 }
 
