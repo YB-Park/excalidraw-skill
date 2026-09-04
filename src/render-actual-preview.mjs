@@ -37,6 +37,13 @@ function copyFonts() {
   fs.cpSync(source, destination, { recursive: true });
 }
 
+function decodePngDataUrl(dataUrl) {
+  if (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image/png;base64,')) {
+    throw new Error('Visual harness did not expose a PNG data URL');
+  }
+  return Buffer.from(dataUrl.slice('data:image/png;base64,'.length), 'base64');
+}
+
 async function render(scene, outputPath) {
   copyFonts();
   const server = await createServer({
@@ -59,14 +66,20 @@ async function render(scene, outputPath) {
     await page.waitForFunction(() => window.__EXCALIDRAW_RENDER_READY__ || window.__EXCALIDRAW_RENDER_ERROR__, null, { timeout: 30000 });
     const renderError = await page.evaluate(() => window.__EXCALIDRAW_RENDER_ERROR__ ?? null);
     if (renderError) throw new Error(renderError);
-    const metadata = await page.evaluate(() => window.__EXCALIDRAW_RENDER_READY__);
+
+    const payload = await page.evaluate(() => ({
+      metadata: window.__EXCALIDRAW_RENDER_READY__,
+      pngDataUrl: window.__EXCALIDRAW_RENDER_PNG_DATA_URL__ ?? null
+    }));
+    const png = decodePngDataUrl(payload.pngDataUrl);
+
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-    await page.locator('#rendered').screenshot({ path: outputPath, animations: 'disabled' });
+    fs.writeFileSync(outputPath, png);
     fs.writeFileSync(`${outputPath}.json`, `${JSON.stringify({
       renderer: '@excalidraw/excalidraw',
-      ...metadata
+      ...payload.metadata
     }, null, 2)}\n`);
-    return metadata;
+    return payload.metadata;
   } finally {
     await browser.close();
     await server.close();
