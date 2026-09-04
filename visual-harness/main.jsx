@@ -34,47 +34,56 @@ function fontResources() {
     .filter((name) => /\.(?:woff2?|ttf|otf)(?:$|\?)/i.test(name));
 }
 
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error ?? new Error('Failed to read exported PNG blob'));
+    reader.onload = () => resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
+}
+
 async function renderScene() {
   const scene = window.__EXCALIDRAW_SCENE__;
   if (!scene || !Array.isArray(scene.elements)) {
     throw new Error('window.__EXCALIDRAW_SCENE__ was not provided');
   }
 
+  const elements = scene.elements.filter((element) => !element.isDeleted);
   const fontsBeforeExport = snapshotFonts();
+
+  // Keep this path intentionally close to Excalidraw's native export utility:
+  // - let exportToBlob restore/default appState itself
+  // - use the native 1:1 dimensions (no custom getDimensions down-scaling)
+  // - use Excalidraw's default export padding (10px)
+  // The blob returned here is the artifact we persist. Do not screenshot an
+  // <img> containing it, because that introduces a second browser raster pass.
   const blob = await exportToBlob({
-    elements: scene.elements.filter((element) => !element.isDeleted),
-    appState: {
-      ...(scene.appState ?? {}),
-      exportBackground: true,
-      exportWithDarkMode: false,
-      viewBackgroundColor: '#ffffff'
-    },
+    elements,
+    appState: scene.appState ?? {},
     files: scene.files ?? {},
-    mimeType: 'image/png',
-    exportPadding: 32,
-    getDimensions(width, height) {
-      const maxDimension = 1800;
-      const scale = Math.min(1, maxDimension / Math.max(width, height));
-      return {
-        width: Math.max(1, Math.round(width * scale)),
-        height: Math.max(1, Math.round(height * scale)),
-        scale
-      };
-    }
+    mimeType: 'image/png'
   });
+
   if (document.fonts?.ready) await document.fonts.ready;
   const fontsAfterExport = snapshotFonts();
+  const dataUrl = await blobToDataUrl(blob);
 
   const image = new Image();
   image.id = 'rendered';
   image.alt = 'Rendered Excalidraw scene';
-  image.src = URL.createObjectURL(blob);
+  image.src = dataUrl;
   await image.decode();
   document.getElementById('root').appendChild(image);
+
+  window.__EXCALIDRAW_RENDER_PNG_DATA_URL__ = dataUrl;
   window.__EXCALIDRAW_RENDER_READY__ = {
     width: image.naturalWidth,
     height: image.naturalHeight,
-    elements: scene.elements.filter((element) => !element.isDeleted).length,
+    elements: elements.length,
+    captureMode: 'export-blob',
+    dimensionMode: 'native-1x',
+    exportPadding: 10,
     fontDiagnostics: {
       beforeExport: fontsBeforeExport,
       afterExport: fontsAfterExport,
