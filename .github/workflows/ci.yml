@@ -67,7 +67,8 @@ jobs:
         run: |
           mkdir -p artifacts/font-fidelity
           cp visual-harness/main.jsx /tmp/font-fidelity-after.jsx
-          git show origin/main:visual-harness/main.jsx > visual-harness/main.jsx
+          git fetch --no-tags --depth=1 origin main
+          git show FETCH_HEAD:visual-harness/main.jsx > visual-harness/main.jsx
           npm run visual:actual -- examples/evaluation/font-fidelity.excalidraw -o artifacts/font-fidelity/before.png
           cp /tmp/font-fidelity-after.jsx visual-harness/main.jsx
           npm run visual:actual -- examples/evaluation/font-fidelity.excalidraw -o artifacts/font-fidelity/after.png
